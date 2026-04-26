@@ -70,7 +70,7 @@ export default function SignInPage() {
           minHeight: "100vh",
           background: "#000000",
           backgroundImage:
-            "radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1px)",
+            "radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)",
           backgroundSize: "28px 28px",
           position: "relative",
           display: "flex",
@@ -79,28 +79,6 @@ export default function SignInPage() {
           WebkitFontSmoothing: "antialiased",
         }}
       >
-        {/* Top-left logo */}
-        <header
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            padding: "22px 28px",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            zIndex: 10,
-          }}
-        >
-          <Image
-            src="/logos/four-stitch.svg"
-            alt="On Agency"
-            width={24}
-            height={24}
-            priority
-          />
-        </header>
-
         {/* Centered form area */}
         <main
           style={{
