@@ -201,11 +201,15 @@ export default async function OverviewPage() {
   const user = await currentUser();
   if (!user) redirect("/sign-in");
 
-  const metadata = (user.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
-  const clientId = metadata.client_id;
-  const services = (metadata.services ?? []) as ServiceType[];
+  // Query Supabase to find the client for this user
+  const supabase = createServerSupabaseClient();
+  const { data: clientRecord, error } = await supabase
+    .from("clients")
+    .select("client_id, services")
+    .eq("clerk_user_id", user.id)
+    .single();
 
-  if (!clientId) {
+  if (error || !clientRecord) {
     return (
       <div className="p-7">
         <div className="flex items-center gap-2 text-[13px] text-[var(--text-secondary)]">
@@ -215,6 +219,9 @@ export default async function OverviewPage() {
       </div>
     );
   }
+
+  const clientId = clientRecord.client_id;
+  const services = (clientRecord.services ?? []) as ServiceType[];
 
   return (
     <div className="p-7">

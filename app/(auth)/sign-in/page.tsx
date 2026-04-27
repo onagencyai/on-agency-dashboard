@@ -74,6 +74,15 @@ export default function SignInPage() {
         .oa-footer-link:hover {
           color: rgba(17, 24, 39, 0.75);
         }
+        .oa-auth-container {
+          width: 100%;
+          max-width: 376px;
+        }
+        @media (max-width: 640px) {
+          .oa-auth-container {
+            max-width: 340px;
+          }
+        }
       `}</style>
 
       <div
@@ -100,7 +109,7 @@ export default function SignInPage() {
             padding: "100px 16px 64px",
           }}
         >
-          <div style={{ width: "100%", maxWidth: 376 }}>
+          <div className="oa-auth-container">
             {/* Icon */}
             <div
               style={{
