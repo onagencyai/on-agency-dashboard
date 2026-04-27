@@ -46,14 +46,14 @@ export default function SignInPage() {
     <>
       <style>{`
         .oa-input::placeholder {
-          color: rgba(255, 255, 255, 0.35);
+          color: rgba(17, 24, 39, 0.4);
         }
         .oa-input:-webkit-autofill,
         .oa-input:-webkit-autofill:hover,
         .oa-input:-webkit-autofill:focus {
-          -webkit-box-shadow: 0 0 0 1000px #050505 inset;
-          -webkit-text-fill-color: #ffffff;
-          caret-color: #ffffff;
+          -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+          -webkit-text-fill-color: #111827;
+          caret-color: #111827;
           transition: background-color 5000s ease-in-out 0s;
         }
         .oa-btn:hover:not(:disabled) {
@@ -63,15 +63,23 @@ export default function SignInPage() {
           opacity: 0.78 !important;
           transform: scale(0.99);
         }
+        .oa-footer-link {
+          color: rgba(17, 24, 39, 0.45);
+          font-size: 13px;
+          line-height: 1;
+          letter-spacing: -0.01em;
+          text-decoration: none;
+          transition: color 0.15s ease;
+        }
+        .oa-footer-link:hover {
+          color: rgba(17, 24, 39, 0.75);
+        }
       `}</style>
 
       <div
         style={{
           minHeight: "100vh",
-          background: "#000000",
-          backgroundImage:
-            "radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
+          background: "#FAFAFA",
           position: "relative",
           display: "flex",
           flexDirection: "column",
@@ -110,7 +118,7 @@ export default function SignInPage() {
             {/* Heading */}
             <h1
               style={{
-                color: "#ffffff",
+                color: "#111827",
                 fontSize: "32px",
                 fontWeight: 700,
                 letterSpacing: "-0.04em",
@@ -126,7 +134,7 @@ export default function SignInPage() {
             {/* Subheading */}
             <p
               style={{
-                color: "rgba(255,255,255,0.72)",
+                color: "rgba(17,24,39,0.62)",
                 fontSize: "14px",
                 textAlign: "center",
                 lineHeight: 1.55,
@@ -148,7 +156,7 @@ export default function SignInPage() {
                   htmlFor="email"
                   style={{
                     display: "block",
-                    color: "rgba(255,255,255,0.65)",
+                    color: "rgba(17,24,39,0.7)",
                     fontSize: "12.5px",
                     fontWeight: 500,
                     letterSpacing: "-0.01em",
@@ -171,10 +179,10 @@ export default function SignInPage() {
                     display: "block",
                     width: "100%",
                     padding: "10px 13px",
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    background: "#ffffff",
+                    border: "1px solid rgba(17,24,39,0.1)",
                     borderRadius: 8,
-                    color: "#ffffff",
+                    color: "#111827",
                     fontSize: "14px",
                     letterSpacing: "-0.01em",
                     outline: "none",
@@ -187,7 +195,7 @@ export default function SignInPage() {
                       "0 0 0 3px rgba(59,130,246,0.13)";
                   }}
                   onBlur={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                    e.currentTarget.style.borderColor = "rgba(17,24,39,0.1)";
                     e.currentTarget.style.boxShadow = "none";
                   }}
                 />
@@ -199,7 +207,7 @@ export default function SignInPage() {
                   htmlFor="password"
                   style={{
                     display: "block",
-                    color: "rgba(255,255,255,0.65)",
+                    color: "rgba(17,24,39,0.7)",
                     fontSize: "12.5px",
                     fontWeight: 500,
                     letterSpacing: "-0.01em",
@@ -229,10 +237,10 @@ export default function SignInPage() {
                       width: "100%",
                       padding: "10px 13px 10px 13px",
                       paddingRight: "40px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      background: "#ffffff",
+                      border: "1px solid rgba(17,24,39,0.1)",
                       borderRadius: 8,
-                      color: "#ffffff",
+                      color: "#111827",
                       fontSize: "14px",
                       outline: "none",
                       transition: "border-color 0.15s ease, box-shadow 0.15s ease",
@@ -245,7 +253,7 @@ export default function SignInPage() {
                         "0 0 0 3px rgba(59,130,246,0.13)";
                     }}
                     onBlur={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                      e.currentTarget.style.borderColor = "rgba(17,24,39,0.1)";
                       e.currentTarget.style.boxShadow = "none";
                     }}
                   />
@@ -262,16 +270,16 @@ export default function SignInPage() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "rgba(255,255,255,0.5)",
+                      color: "rgba(17,24,39,0.45)",
                       transition: "color 0.2s ease",
                       zIndex: 10,
                       pointerEvents: "auto",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.color = "rgba(255,255,255,0.75)";
+                      e.currentTarget.style.color = "rgba(17,24,39,0.72)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "rgba(255,255,255,0.5)";
+                      e.currentTarget.style.color = "rgba(17,24,39,0.45)";
                     }}
                   >
                     {showPassword ? (
@@ -331,8 +339,8 @@ export default function SignInPage() {
                   marginTop: 2,
                   width: "100%",
                   padding: "11px 20px",
-                  background: "#ffffff",
-                  color: "#000000",
+                  background: "#111111",
+                  color: "#ffffff",
                   border: "none",
                   borderRadius: 8,
                   fontSize: "14px",
@@ -349,6 +357,32 @@ export default function SignInPage() {
             </form>
           </div>
         </main>
+
+        <footer
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 20,
+            padding: "0 16px 32px",
+          }}
+        >
+          <a
+            className="oa-footer-link"
+            href="https://onagency.ai/terms-of-service"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Terms
+          </a>
+          <a
+            className="oa-footer-link"
+            href="https://onagency.ai/privacy-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Privacy Policy
+          </a>
+        </footer>
       </div>
     </>
   );
