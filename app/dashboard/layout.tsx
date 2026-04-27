@@ -5,6 +5,7 @@ import { useUser, useClerk } from "@clerk/nextjs";
 import { Menu, LogOut } from "lucide-react";
 import NavSidebar from "@/components/NavSidebar";
 import ThemeToggle from "@/components/ThemeToggle";
+import LogoMark from "@/components/LogoMark";
 import type { UserPublicMetadata, ServiceType } from "@/lib/types";
 
 export default function DashboardLayout({
@@ -35,7 +36,16 @@ export default function DashboardLayout({
         {/* Header */}
         <header className="h-[52px] sticky top-0 z-20 bg-[var(--bg-base)] border-b border-[var(--border)] flex items-center justify-between px-5 shrink-0">
           <div className="flex items-center gap-3">
-            {/* Mobile hamburger */}
+            <div className="md:hidden">
+              <LogoMark size={24} className="text-[var(--text-primary)]" />
+            </div>
+            <span className="hidden md:inline text-[13px] font-medium text-[var(--text-primary)]">
+              {businessName}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
             <button
               className="md:hidden w-8 h-8 flex items-center justify-center rounded-[7px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors"
               onClick={() => setMobileMenuOpen(true)}
@@ -43,15 +53,8 @@ export default function DashboardLayout({
             >
               <Menu size={16} />
             </button>
-            <span className="text-[13px] font-medium text-[var(--text-primary)]">
-              {businessName}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <ThemeToggle />
-            <div className="w-px h-4 bg-[var(--border-strong)] mx-1" />
-            <div className="relative group">
+            <div className="w-px h-4 bg-[var(--border-strong)] mx-1 hidden md:block" />
+            <div className="relative group hidden md:block">
               <button
                 onClick={() => signOut({ redirectUrl: "/sign-in" })}
                 className="w-8 h-8 flex items-center justify-center rounded-[7px] text-[var(--text-secondary)] hover:text-[var(--red)] hover:bg-[var(--red-bg)] transition-colors"

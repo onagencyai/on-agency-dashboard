@@ -7,7 +7,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const event = body.event as string | undefined;
 
     if (event === "call_ended") {
-      await handleCallEnded(body);
+      await handleCallEnded(req, body);
     } else if (event === "call_analyzed") {
       await handleCallAnalyzed(body);
     }
@@ -18,13 +18,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   return NextResponse.json({ received: true }, { status: 200 });
 }
 
-async function handleCallEnded(body: Record<string, unknown>): Promise<void> {
+async function handleCallEnded(req: NextRequest, body: Record<string, unknown>): Promise<void> {
   try {
     const call = body.call as Record<string, unknown> | undefined;
     if (!call) return;
 
-    const metadata = call.metadata as Record<string, unknown> | undefined;
-    const clientId = metadata?.client_id as string | undefined;
+    // Get client_id from URL query params
+    const { searchParams } = new URL(req.url);
+    const clientId = searchParams.get("client_id");
+
+    if (!clientId) {
+      console.error("[retell webhook] missing client_id in query params");
+      return;
+    }
 
     const startTs = call.start_timestamp as number | undefined;
     const endTs = call.end_timestamp as number | undefined;
@@ -33,7 +39,7 @@ async function handleCallEnded(body: Record<string, unknown>): Promise<void> {
     const { error } = await supabase.from("calls").upsert(
       {
         call_id: call.call_id as string,
-        client_id: clientId ?? null,
+        client_id: clientId,
         agent_id: call.agent_id as string | null ?? null,
         agent_name: call.agent_name as string | null ?? null,
         call_type: call.call_type as string | null ?? null,
