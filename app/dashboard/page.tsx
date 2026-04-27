@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { AlertCircle, PhoneOff } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
-import type { UserPublicMetadata, ServiceType, ClientCallStats, CallRow, CallReasonData } from "@/lib/types";
+import type { ServiceType, ClientCallStats, CallRow, CallReasonData } from "@/lib/types";
 // ClientCallStats and CallReasonData used in async functions below
 import StatCard from "@/components/StatCard";
 import EmptyState from "@/components/EmptyState";
