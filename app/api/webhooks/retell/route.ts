@@ -23,9 +23,8 @@ async function handleCallEnded(req: NextRequest, body: Record<string, unknown>):
     const call = body.call as Record<string, unknown> | undefined;
     if (!call) return;
 
-    // Get client_id from URL query params
-    const { searchParams } = new URL(req.url);
-    const clientId = searchParams.get("client_id");
+    const url = new URL(req.url);
+    const clientId = url.searchParams.get("client_id");
 
     if (!clientId) {
       console.error("[retell webhook] missing client_id in query params");
@@ -60,6 +59,8 @@ async function handleCallEnded(req: NextRequest, body: Record<string, unknown>):
 
     if (error) {
       console.error("[retell webhook] upsert error (call_ended):", error.message);
+    } else {
+      console.log("[retell webhook] call_ended success for call_id:", call.call_id);
     }
   } catch (err) {
     console.error("[retell webhook] handleCallEnded error:", err);
@@ -91,6 +92,8 @@ async function handleCallAnalyzed(body: Record<string, unknown>): Promise<void> 
 
     if (error) {
       console.error("[retell webhook] update error (call_analyzed):", error.message);
+    } else {
+      console.log("[retell webhook] call_analyzed success for call_id:", callId);
     }
   } catch (err) {
     console.error("[retell webhook] handleCallAnalyzed error:", err);

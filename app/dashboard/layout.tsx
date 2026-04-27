@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useUser, useClerk } from "@clerk/nextjs";
-import { Menu, LogOut } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
+import { Menu } from "lucide-react";
+import { useEffect } from "react";
 import NavSidebar from "@/components/NavSidebar";
 import ThemeToggle from "@/components/ThemeToggle";
 import LogoMark from "@/components/LogoMark";
-import type { UserPublicMetadata, ServiceType } from "@/lib/types";
+import type { ServiceType } from "@/lib/types";
 
 export default function DashboardLayout({
   children,
@@ -14,13 +15,33 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user } = useUser();
-  const { signOut } = useClerk();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [services, setServices] = useState<ServiceType[]>(["receptionist"]);
+  const [businessName, setBusinessName] = useState("");
 
-  const metadata = (user?.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
-  const services = (metadata.services ?? []) as ServiceType[];
-  const businessName = metadata.business_name ?? "";
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
+
+  // Fetch client info from Supabase and update Clerk
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchClientData = async () => {
+      try {
+        const res = await fetch(`/api/client-info?userId=${user.id}`);
+        const data = await res.json();
+        if (data.services) {
+          setServices(data.services);
+        }
+        if (data.business_name) {
+          setBusinessName(data.business_name);
+        }
+      } catch (err) {
+        console.error("Failed to fetch client data:", err);
+      }
+    };
+
+    fetchClientData();
+  }, [user?.id]);
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">
@@ -31,7 +52,7 @@ export default function DashboardLayout({
         onMobileClose={() => setMobileMenuOpen(false)}
       />
 
-      {/* Main area */}
+      {/* Rest of layout stays the same */}
       <div className="md:ml-[216px] flex flex-col min-h-screen">
         {/* Header */}
         <header className="h-[52px] sticky top-0 z-20 bg-[var(--bg-base)] border-b border-[var(--border)] flex items-center justify-between px-5 shrink-0">
@@ -53,19 +74,6 @@ export default function DashboardLayout({
             >
               <Menu size={16} />
             </button>
-            <div className="w-px h-4 bg-[var(--border-strong)] mx-1 hidden md:block" />
-            <div className="relative group hidden md:block">
-              <button
-                onClick={() => signOut({ redirectUrl: "/sign-in" })}
-                className="w-8 h-8 flex items-center justify-center rounded-[7px] text-[var(--text-secondary)] hover:text-[var(--red)] hover:bg-[var(--red-bg)] transition-colors"
-                aria-label="Sign out"
-              >
-                <LogOut size={15} />
-              </button>
-              <div className="absolute right-0 top-full mt-1.5 px-2 py-1 bg-[var(--bg-card)] border border-[var(--border)] rounded-[6px] text-[11px] text-[var(--text-secondary)] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
-                Sign out
-              </div>
-            </div>
           </div>
         </header>
 
@@ -75,5 +83,5 @@ export default function DashboardLayout({
         </main>
       </div>
     </div>
-  );
-}
+    );
+  }

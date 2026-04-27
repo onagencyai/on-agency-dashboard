@@ -81,7 +81,7 @@ export default function NavSidebar({
       {/* Logo area */}
       <div className="h-[52px] flex items-center px-5 border-b border-[var(--border)] shrink-0">
         <div className="flex items-center justify-between w-full">
-          <LogoMark size={26} className="text-[var(--text-primary)]" />
+          <LogoMark size={23} className="text-[var(--text-primary)]" />
           {onMobileClose && (
             <button
               onClick={onMobileClose}
