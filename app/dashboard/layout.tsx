@@ -1,13 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Menu } from "lucide-react";
-import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import NavSidebar from "@/components/NavSidebar";
-import ThemeToggle from "@/components/ThemeToggle";
-import LogoMark from "@/components/LogoMark";
-import type { ServiceType } from "@/lib/types";
+import type { ServiceType, UserPublicMetadata } from "@/lib/types";
+
+const PAGE_TITLES: Record<string, string> = {
+  "/dashboard": "Overview",
+  "/dashboard/calls": "Call History",
+  "/dashboard/outbound": "Outbound Overview",
+  "/dashboard/outbound/calls": "Outbound Call History",
+  "/dashboard/outbound/campaigns": "Campaigns",
+  "/dashboard/updates": "Updates",
+  "/dashboard/billing": "Billing",
+  "/dashboard/settings": "Settings",
+};
 
 export default function DashboardLayout({
   children,
@@ -15,73 +22,82 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user } = useUser();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [services, setServices] = useState<ServiceType[]>(["receptionist"]);
-  const [businessName, setBusinessName] = useState("");
+  const pathname = usePathname();
+  const metadata = (user?.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
+  const services = (metadata.services ?? ["receptionist"]) as ServiceType[];
+  const businessName = metadata.business_name ?? "";
 
-  const email = user?.primaryEmailAddress?.emailAddress ?? "";
+  const initials = user?.firstName && user?.lastName
+    ? `${user.firstName[0]}${user.lastName[0]}`
+    : user?.firstName
+    ? user.firstName[0]
+    : user?.primaryEmailAddress?.emailAddress?.[0]?.toUpperCase() ?? "?";
 
-  // Fetch client info from Supabase and update Clerk
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const fetchClientData = async () => {
-      try {
-        const res = await fetch(`/api/client-info?userId=${user.id}`);
-        const data = await res.json();
-        if (data.services) {
-          setServices(data.services);
-        }
-        if (data.business_name) {
-          setBusinessName(data.business_name);
-        }
-      } catch (err) {
-        console.error("Failed to fetch client data:", err);
-      }
-    };
-
-    fetchClientData();
-  }, [user?.id]);
+  const pageTitle = PAGE_TITLES[pathname] ?? "Dashboard";
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)]">
-      <NavSidebar
-        services={services}
-        email={email}
-        mobileOpen={mobileMenuOpen}
-        onMobileClose={() => setMobileMenuOpen(false)}
-      />
+    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
+      <NavSidebar services={services} businessName={businessName} />
 
-      {/* Rest of layout stays the same */}
-      <div className="md:ml-[216px] flex flex-col min-h-screen">
-        {/* Header */}
-        <header className="h-[52px] sticky top-0 z-20 bg-[var(--bg-base)] border-b border-[var(--border)] flex items-center justify-between px-5 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="md:hidden">
-              <LogoMark size={24} className="text-[var(--text-primary)]" />
-            </div>
-            <span className="hidden md:inline text-[13px] font-medium text-[var(--text-primary)]">
-              {businessName}
+      <div style={{ marginLeft: 220, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        {/* Topbar */}
+        <header
+          style={{
+            height: 56,
+            position: "sticky",
+            top: 0,
+            zIndex: 20,
+            background: "var(--bg-1)",
+            borderBottom: "1px solid var(--border)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 28px",
+            flexShrink: 0,
+          }}
+        >
+          <div>
+            <span
+              style={{
+                fontSize: 14,
+                fontWeight: 500,
+                letterSpacing: "-0.01em",
+                color: "var(--text-primary)",
+              }}
+            >
+              {pageTitle}
             </span>
           </div>
 
-          <div className="flex items-center gap-1">
-            <ThemeToggle />
-            <button
-              className="md:hidden w-8 h-8 flex items-center justify-center rounded-[7px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors"
-              onClick={() => setMobileMenuOpen(true)}
-              aria-label="Open menu"
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #333 0%, #222 100%)",
+                border: "1px solid var(--border)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 11,
+                fontWeight: 500,
+                color: "#fff",
+                userSelect: "none",
+                letterSpacing: "0.02em",
+                flexShrink: 0,
+              }}
             >
-              <Menu size={16} />
-            </button>
+              {initials.toUpperCase()}
+            </div>
           </div>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto">
+        <main style={{ flex: 1, overflow: "auto" }}>
           {children}
         </main>
       </div>
     </div>
-    );
-  }
+  );
+}

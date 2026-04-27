@@ -1,47 +1,60 @@
 "use client";
-
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Search, AlertCircle, ChevronLeft, ChevronRight, PhoneOff } from "lucide-react";
-import type { CallRow, UserPublicMetadata, ServiceType } from "@/lib/types";
-import { getSupabaseClient } from "@/lib/supabase-client";
-import Badge from "@/components/Badge";
-import CallDetailDrawer from "@/components/CallDetailDrawer";
-import EmptyState from "@/components/EmptyState";
-import { TableSkeleton } from "@/components/Skeleton";
-import {
-  formatFullDate,
-  formatDuration,
-  getResultBadgeProps,
-  getSentimentBadgeProps,
-  formatPhoneNumber,
-} from "@/lib/formatters";
+import { Search, Download, PhoneOff, ChevronLeft, ChevronRight } from "lucide-react";
+import type { TimeRange, UserPublicMetadata, CallRow } from "@/lib/types";
+import { getDateRange, formatDateRange } from "@/lib/dateRange";
+import { formatDuration } from "@/lib/formatters";
+import TimeRangeDropdown from "@/components/TimeRangeDropdown";
+import CallDetailModal from "@/components/CallDetailModal";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 25;
 
-type DirectionFilter = "all" | "inbound" | "outbound";
-type SentimentFilter = "all" | "Positive" | "Neutral" | "Negative";
+type OutcomeTab = "all" | "resolved" | "transferred" | "voicemail" | "dropped";
+
+const TABS: { value: OutcomeTab; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "resolved", label: "Resolved" },
+  { value: "transferred", label: "Transferred" },
+  { value: "voicemail", label: "Voicemail" },
+  { value: "dropped", label: "Dropped" },
+];
+
+function getCallOutcome(call: CallRow): { label: string; color: string; bg: string } {
+  if (call.in_voicemail) return { label: "Voicemail", color: "var(--text-secondary)", bg: "var(--bg-3)" };
+  if (call.disconnection_reason === "call_transfer") return { label: "Transferred", color: "var(--blue)", bg: "var(--blue-dim)" };
+  if (call.call_successful === true) return { label: "Resolved", color: "var(--green)", bg: "var(--green-dim)" };
+  if (call.call_successful === false) return { label: "Dropped", color: "var(--red)", bg: "var(--red-dim)" };
+  return { label: "Ended", color: "var(--text-secondary)", bg: "var(--bg-3)" };
+}
+
+function getCallIntent(call: CallRow): string {
+  if (!call.custom_analysis_data) return "—";
+  const a = call.custom_analysis_data as Record<string, unknown>;
+  const raw = a.call_reason ?? a.reason ?? a.intent;
+  return typeof raw === "string" && raw.trim() ? raw.trim() : "—";
+}
 
 export default function CallHistoryPage() {
   const { user } = useUser();
   const metadata = (user?.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
   const clientId = metadata.client_id ?? "";
-  const services = (metadata.services ?? []) as ServiceType[];
-  const hasBothServices = services.includes("receptionist") && services.includes("outbound");
 
-  const [calls, setCalls] = useState<CallRow[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [timeRange, setTimeRange] = useState<TimeRange>("30d");
+  const [activeTab, setActiveTab] = useState<OutcomeTab>("all");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [directionFilter, setDirectionFilter] = useState<DirectionFilter>("all");
-  const [sentimentFilter, setSentimentFilter] = useState<SentimentFilter>("all");
+  const [page, setPage] = useState(1);
+  const [calls, setCalls] = useState<CallRow[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [selectedCall, setSelectedCall] = useState<CallRow | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { from, to } = getDateRange(timeRange);
+  const dateLabel = formatDateRange(from, to);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -49,272 +62,278 @@ export default function CallHistoryPage() {
       setDebouncedSearch(search);
       setPage(1);
     }, 300);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [search]);
 
   const fetchCalls = useCallback(async () => {
     if (!clientId) return;
     setLoading(true);
-    setError(false);
+    const f = from.toISOString();
+    const t = to.toISOString();
+    const params = new URLSearchParams({
+      from: f, to: t, direction: "inbound",
+      page: String(page), limit: String(PAGE_SIZE),
+    });
+    if (activeTab !== "all") params.set("outcome", activeTab);
+    if (debouncedSearch) params.set("search", debouncedSearch);
 
     try {
-      let query = getSupabaseClient()
-        .from("calls")
-        .select("*", { count: "exact" })
-        .eq("client_id", clientId)
-        .order("started_at", { ascending: false })
-        .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
-
-      if (directionFilter !== "all") {
-        query = query.eq("direction", directionFilter);
-      }
-      if (sentimentFilter !== "all") {
-        query = query.eq("user_sentiment", sentimentFilter);
-      }
-      if (debouncedSearch) {
-        query = query.or(
-          `from_number.ilike.%${debouncedSearch}%,call_summary.ilike.%${debouncedSearch}%`
-        );
-      }
-
-      const { data, error: fetchError, count } = await query;
-
-      if (fetchError) {
-        setError(true);
-      } else {
-        setCalls((data ?? []) as CallRow[]);
-        setTotal(count ?? 0);
-      }
+      const res = await fetch(`/api/calls?${params}`);
+      const data = await res.json() as { calls: CallRow[]; total: number };
+      setCalls(data.calls ?? []);
+      setTotal(data.total ?? 0);
     } catch {
-      setError(true);
+      setCalls([]);
     } finally {
       setLoading(false);
     }
-  }, [clientId, page, directionFilter, sentimentFilter, debouncedSearch]);
+  }, [clientId, page, activeTab, debouncedSearch, timeRange]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    void fetchCalls();
-  }, [fetchCalls]);
+  useEffect(() => { void fetchCalls(); }, [fetchCalls]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
-  const start = (page - 1) * PAGE_SIZE + 1;
-  const end = Math.min(page * PAGE_SIZE, total);
 
-  const visiblePages = (): number[] => {
-    const pages: number[] = [];
-    const delta = 2;
-    for (let i = Math.max(1, page - delta); i <= Math.min(totalPages, page + delta); i++) {
-      pages.push(i);
-    }
-    return pages;
-  };
+  function handleExport() {
+    const f = from.toISOString();
+    const t = to.toISOString();
+    window.location.href = `/api/export-calls?from=${f}&to=${t}&direction=inbound`;
+  }
 
   return (
-    <div className="p-7">
-      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[10px] overflow-hidden">
-        {/* Filters */}
-        <div className="px-5 py-4 border-b border-[var(--border)] flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-[200px] max-w-xs">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+    <div style={{ padding: 28 }}>
+      {/* Section header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+        <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+          Call History
+        </span>
+        <span
+          style={{
+            fontSize: 10, background: "var(--bg-3)", border: "1px solid var(--border)",
+            color: "var(--text-tertiary)", padding: "2px 8px", borderRadius: 20,
+            fontFamily: "var(--font-geist-mono, monospace)",
+          }}
+        >
+          {dateLabel}
+        </span>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+          <TimeRangeDropdown value={timeRange} onChange={(v) => { setTimeRange(v); setPage(1); }} />
+          <button
+            onClick={handleExport}
+            style={{
+              background: "var(--accent)", color: "var(--bg)", border: "none",
+              padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+              cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6,
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          >
+            <Download size={12} />
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+        {/* Tabs */}
+        <div style={{ display: "flex", borderBottom: "1px solid var(--border)", padding: "0 20px" }}>
+          {TABS.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => { setActiveTab(tab.value); setPage(1); }}
+              style={{
+                padding: "12px 16px", background: "none", border: "none",
+                borderBottom: activeTab === tab.value ? "2px solid var(--accent)" : "2px solid transparent",
+                color: activeTab === tab.value ? "var(--text-primary)" : "var(--text-tertiary)",
+                fontSize: 13, fontWeight: activeTab === tab.value ? 500 : 400,
+                cursor: "pointer", transition: "all 0.15s", marginBottom: -1,
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Filter bar */}
+        <div
+          style={{
+            display: "flex", alignItems: "center", gap: 10,
+            padding: "12px 20px", borderBottom: "1px solid var(--border)",
+          }}
+        >
+          <div style={{ position: "relative", flex: 1, maxWidth: 320 }}>
+            <Search size={13} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--text-tertiary)" }} />
             <input
               type="text"
-              placeholder="Search calls..."
+              placeholder="Search by number..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 bg-[var(--bg-subtle)] border border-[var(--border)] rounded-[7px] text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--blue)] transition-colors"
+              style={{
+                width: "100%", paddingLeft: 32, paddingRight: 12, paddingTop: 7, paddingBottom: 7,
+                background: "var(--bg-3)", border: "1px solid var(--border)", borderRadius: 8,
+                fontSize: 13, color: "var(--text-primary)", outline: "none", transition: "border-color 0.15s",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "var(--border-hover)")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
             />
           </div>
-
-          {hasBothServices && (
-            <FilterSelect
-              value={directionFilter}
-              onChange={(v) => { setDirectionFilter(v as DirectionFilter); setPage(1); }}
-              options={[
-                { value: "all", label: "All Directions" },
-                { value: "inbound", label: "Inbound" },
-                { value: "outbound", label: "Outbound" },
-              ]}
-            />
-          )}
-
-          <FilterSelect
-            value={sentimentFilter}
-            onChange={(v) => { setSentimentFilter(v as SentimentFilter); setPage(1); }}
-            options={[
-              { value: "all", label: "All Sentiments" },
-              { value: "Positive", label: "Positive" },
-              { value: "Neutral", label: "Neutral" },
-              { value: "Negative", label: "Negative" },
-            ]}
-          />
+          <span style={{ fontSize: 12, color: "var(--text-tertiary)", marginLeft: "auto" }}>
+            {total > 0 && `${total} calls`}
+          </span>
         </div>
 
         {/* Table */}
-        {error ? (
-          <div className="flex items-center gap-2 px-5 py-4 text-[13px] text-[var(--text-secondary)]">
-            <AlertCircle size={16} className="text-[var(--red)] shrink-0" />
-            Could not load data. Try refreshing the page.
+        {loading ? (
+          <div style={{ padding: "12px 0" }}>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="skeleton" style={{ height: 44, margin: "2px 16px", borderRadius: 4 }} />
+            ))}
           </div>
-        ) : loading ? (
-          <TableSkeleton rows={10} />
         ) : calls.length === 0 ? (
-          <EmptyState
-            icon={PhoneOff}
-            primary="No calls recorded yet"
-            secondary="Call data will appear here automatically."
-          />
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 20px" }}>
+            <PhoneOff size={24} style={{ color: "var(--text-tertiary)", marginBottom: 10 }} />
+            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 4 }}>No calls recorded yet</div>
+            <div style={{ fontSize: 12, color: "var(--text-tertiary)" }}>Call data will appear here automatically.</div>
+          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr className="border-b border-[var(--border)]">
-                  {["Date & Time", "From", "To", "Duration", "Result", "Sentiment", "Summary"].map((h) => (
-                    <th key={h} className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--text-tertiary)] whitespace-nowrap">
+                <tr style={{ background: "var(--bg-2)" }}>
+                  {["Call ID","Date & Time","From","Duration","Outcome","Sentiment","Intent",""].map((h) => (
+                    <th
+                      key={h}
+                      style={{
+                        padding: "10px 16px", textAlign: "left",
+                        fontSize: 10, fontWeight: 500, letterSpacing: "0.06em",
+                        textTransform: "uppercase", color: "var(--text-tertiary)",
+                        borderBottom: "1px solid var(--border)", whiteSpace: "nowrap",
+                      }}
+                    >
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {calls.map((call) => (
-                  <tr
-                    key={call.id}
-                    onClick={() => setSelectedCall(call)}
-                    className="border-b border-[var(--border)] last:border-0 cursor-pointer hover:bg-[var(--bg-subtle)] transition-colors"
-                  >
-                    <td className="px-5 py-[13px] text-[13px] text-[var(--text-secondary)] whitespace-nowrap">
-                      {formatFullDate(call.started_at)}
-                    </td>
-                    <td className="px-5 py-[13px] text-[13px] text-[var(--text-primary)] whitespace-nowrap">
-                      {formatPhoneNumber(call.from_number)}
-                    </td>
-                    <td className="px-5 py-[13px] text-[13px] text-[var(--text-secondary)] whitespace-nowrap">
-                      {formatPhoneNumber(call.to_number)}
-                    </td>
-                    <td className="px-5 py-[13px] text-[13px] text-[var(--text-secondary)] whitespace-nowrap">
-                      {formatDuration(call.duration_ms)}
-                    </td>
-                    <td className="px-5 py-[13px]">
-                      <Badge {...getResultBadgeProps(call)} />
-                    </td>
-                    <td className="px-5 py-[13px]">
-                      <Badge {...getSentimentBadgeProps(call.user_sentiment)} />
-                    </td>
-                    <td className="px-5 py-[13px] text-[13px] text-[var(--text-secondary)] max-w-[240px]">
-                      <span className="block truncate">
-                        {call.call_summary
-                          ? call.call_summary.length > 90
-                            ? call.call_summary.slice(0, 90) + "…"
-                            : call.call_summary
-                          : "—"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {calls.map((call) => {
+                  const outcome = getCallOutcome(call);
+                  const intent = getCallIntent(call);
+                  const sentiment = call.user_sentiment;
+                  const sentColor = sentiment === "Positive" ? "var(--green)" : sentiment === "Negative" ? "var(--red)" : sentiment === "Neutral" ? "var(--amber)" : "var(--text-tertiary)";
+                  return (
+                    <tr
+                      key={call.id}
+                      style={{ borderBottom: "1px solid var(--border)", transition: "background 0.1s", cursor: "pointer" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent-dim)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <td style={{ padding: "11px 16px", fontSize: 11, fontFamily: "var(--font-geist-mono, monospace)", color: "var(--text-primary)", fontWeight: 500 }}>
+                        {(call.call_id ?? call.id ?? "").slice(0, 8)}
+                      </td>
+                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                        {call.started_at ? new Date(call.started_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"}
+                      </td>
+                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                        {call.from_number ?? "—"}
+                      </td>
+                      <td style={{ padding: "11px 16px", fontSize: 12, fontFamily: "var(--font-geist-mono, monospace)", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                        {formatDuration(call.duration_ms)}
+                      </td>
+                      <td style={{ padding: "11px 16px" }}>
+                        <span style={{
+                          display: "inline-flex", alignItems: "center", gap: 4,
+                          padding: "2px 8px", borderRadius: 20, fontSize: 10, fontWeight: 500,
+                          fontFamily: "var(--font-geist-mono, monospace)",
+                          color: outcome.color, background: outcome.bg,
+                        }}>
+                          <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
+                          {outcome.label}
+                        </span>
+                      </td>
+                      <td style={{ padding: "11px 16px", fontSize: 12, color: sentColor }}>
+                        {sentiment ?? "—"}
+                      </td>
+                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)", maxWidth: 160 }}>
+                        <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {intent}
+                        </span>
+                      </td>
+                      <td style={{ padding: "11px 16px" }}>
+                        <button
+                          onClick={() => setSelectedCall(call)}
+                          style={{ fontSize: 11, color: "var(--blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                        >
+                          View →
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
 
         {/* Pagination */}
-        {!loading && !error && total > 0 && (
-          <div className="px-5 py-4 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
-            <span className="text-[13px] text-[var(--text-secondary)]">
-              Showing {start}–{end} of {total} calls
+        {!loading && total > 0 && (
+          <div
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "12px 20px", borderTop: "1px solid var(--border)",
+            }}
+          >
+            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+              Showing {Math.min((page - 1) * PAGE_SIZE + 1, total)}–{Math.min(page * PAGE_SIZE, total)} of {total} calls
             </span>
-            <div className="flex items-center gap-1">
-              <PaginationButton
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                aria-label="Previous page"
-              >
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <PageBtn onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
                 <ChevronLeft size={13} />
-              </PaginationButton>
-
-              {visiblePages().map((p) => (
-                <PaginationButton
-                  key={p}
-                  onClick={() => setPage(p)}
-                  active={p === page}
-                  aria-label={`Page ${p}`}
-                >
-                  {p}
-                </PaginationButton>
-              ))}
-
-              <PaginationButton
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                aria-label="Next page"
-              >
+              </PageBtn>
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                let p = i + 1;
+                if (totalPages > 5) {
+                  if (page <= 3) p = i + 1;
+                  else if (page >= totalPages - 2) p = totalPages - 4 + i;
+                  else p = page - 2 + i;
+                }
+                return (
+                  <PageBtn key={p} onClick={() => setPage(p)} active={p === page}>
+                    {p}
+                  </PageBtn>
+                );
+              })}
+              <PageBtn onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
                 <ChevronRight size={13} />
-              </PaginationButton>
+              </PageBtn>
             </div>
           </div>
         )}
       </div>
 
-      <CallDetailDrawer call={selectedCall} onClose={() => setSelectedCall(null)} />
+      <CallDetailModal call={selectedCall} onClose={() => setSelectedCall(null)} />
     </div>
   );
 }
 
-function FilterSelect({
-  value,
-  onChange,
-  options,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  options: { value: string; label: string }[];
-}) {
-  return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="px-3 py-1.5 bg-[var(--bg-subtle)] border border-[var(--border)] rounded-[7px] text-[13px] text-[var(--text-primary)] focus:outline-none focus:border-[var(--blue)] transition-colors cursor-pointer appearance-none pr-7"
-      style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "right 8px center",
-      }}
-    >
-      {options.map((o) => (
-        <option key={o.value} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
-  );
-}
-
-function PaginationButton({
-  children,
-  onClick,
-  disabled,
-  active,
-  "aria-label": ariaLabel,
-}: {
+function PageBtn({ children, onClick, disabled, active }: {
   children: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
   active?: boolean;
-  "aria-label"?: string;
 }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      aria-label={ariaLabel}
-      className={`min-w-[28px] h-7 px-2 flex items-center justify-center rounded-[6px] text-[12px] transition-colors
-        ${active
-          ? "bg-[var(--bg-subtle)] text-[var(--text-primary)] font-medium border border-[var(--border-strong)]"
-          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
-        }
-        ${disabled ? "opacity-40 cursor-not-allowed pointer-events-none" : "cursor-pointer"}
-      `}
+      style={{
+        minWidth: 28, height: 28, padding: "0 8px",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        borderRadius: 6, fontSize: 12, cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.4 : 1, transition: "all 0.15s",
+        background: active ? "var(--bg-3)" : "transparent",
+        border: active ? "1px solid var(--border-hover)" : "1px solid transparent",
+        color: active ? "var(--text-primary)" : "var(--text-secondary)",
+      }}
     >
       {children}
     </button>

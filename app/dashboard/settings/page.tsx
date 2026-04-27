@@ -1,58 +1,127 @@
+"use client";
 export const dynamic = "force-dynamic";
 
-import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import type { UserPublicMetadata, ServiceType } from "@/lib/types";
+import { useState } from "react";
+import { useUser, useClerk } from "@clerk/nextjs";
+import { LogOut } from "lucide-react";
+import type { UserPublicMetadata } from "@/lib/types";
 
-function derivePlan(services: ServiceType[]): string {
-  const hasReceptionist = services.includes("receptionist");
-  const hasOutbound = services.includes("outbound");
-  if (hasReceptionist && hasOutbound) return "AI Receptionist + Outbound Caller";
-  if (hasReceptionist) return "AI Receptionist";
-  if (hasOutbound) return "AI Outbound Caller";
-  return "—";
-}
+export default function SettingsPage() {
+  const { user } = useUser();
+  const { signOut } = useClerk();
+  const metadata = (user?.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
 
-interface SettingsRowProps {
-  label: string;
-  value: string;
-  last?: boolean;
-}
+  const [businessName, setBusinessName] = useState(metadata.business_name ?? "");
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
-function SettingsRow({ label, value, last }: SettingsRowProps) {
+  const email = user?.primaryEmailAddress?.emailAddress ?? "—";
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await fetch("/api/update-business-name", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ businessName }),
+      });
+      setSaved(true);
+      setIsDirty(false);
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      // ignore
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
-    <>
-      <div className="flex items-center justify-between py-4 px-5">
-        <span className="text-[13px] text-[var(--text-secondary)]">{label}</span>
-        <span className="text-[14px] text-[var(--text-primary)]">{value}</span>
+    <div style={{ padding: 28 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+        <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+          Settings
+        </span>
       </div>
-      {!last && <div className="h-px bg-[var(--border)] mx-5" />}
-    </>
-  );
-}
 
-export default async function SettingsPage() {
-  const user = await currentUser();
-  if (!user) redirect("/sign-in");
-
-  const metadata = (user.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
-  const businessName = metadata.business_name ?? "—";
-  const services = (metadata.services ?? []) as ServiceType[];
-  const email = user.primaryEmailAddress?.emailAddress ?? "—";
-  const plan = derivePlan(services);
-
-  return (
-    <div className="p-7">
-      <div className="max-w-[480px]">
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[10px] overflow-hidden">
-          <SettingsRow label="Business Name" value={businessName} />
-          <SettingsRow label="Email" value={email} />
-          <SettingsRow label="Plan" value={plan} last />
+      <div
+        style={{
+          background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden",
+          maxWidth: 520,
+        }}
+      >
+        {/* Panel header */}
+        <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)" }}>
+          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>Account</span>
         </div>
 
-        <p className="mt-4 text-[12px] text-[var(--text-tertiary)]">
-          To update your plan or account details, contact your On Agency representative.
-        </p>
+        {/* Fields */}
+        <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
+          {/* Business Name */}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-tertiary)", marginBottom: 6 }}>
+              Business Name
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <input
+                type="text"
+                value={businessName}
+                onChange={(e) => {
+                  setBusinessName(e.target.value);
+                  setIsDirty(e.target.value !== (metadata.business_name ?? ""));
+                }}
+                style={{
+                  width: "100%", maxWidth: 400,
+                  background: "var(--bg-3)", border: "1px solid var(--border)", borderRadius: 8,
+                  padding: "8px 12px", fontSize: 13, color: "var(--text-primary)",
+                  outline: "none", transition: "border-color 0.15s",
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--border-hover)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+              />
+              {isDirty && (
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  style={{
+                    background: "var(--accent)", color: "var(--bg)", border: "none",
+                    padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+                    cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1,
+                    transition: "opacity 0.15s", whiteSpace: "nowrap",
+                  }}
+                >
+                  {saved ? "Saved" : saving ? "Saving…" : "Save"}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Email */}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-tertiary)", marginBottom: 6 }}>
+              Email
+            </div>
+            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>{email}</div>
+          </div>
+        </div>
+
+        {/* Logout */}
+        <div style={{ borderTop: "1px solid var(--border)", padding: "20px 24px" }}>
+          <button
+            onClick={() => signOut({ redirectUrl: "/sign-in" })}
+            style={{
+              display: "flex", alignItems: "center", gap: 8,
+              color: "var(--red)", fontSize: 13, fontWeight: 400,
+              cursor: "pointer", background: "none", border: "none", padding: 0,
+              transition: "opacity 0.15s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          >
+            <LogOut size={16} />
+            Log out of your account
+          </button>
+        </div>
       </div>
     </div>
   );

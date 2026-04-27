@@ -1,166 +1,328 @@
 "use client";
-
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
-import { AlertCircle, PhoneOutgoing } from "lucide-react";
-import type { CallRow, UserPublicMetadata, ClientCallStats } from "@/lib/types";
-import { getSupabaseClient } from "@/lib/supabase-client";
-import Badge from "@/components/Badge";
-import CallDetailDrawer from "@/components/CallDetailDrawer";
-import EmptyState from "@/components/EmptyState";
-import { TableSkeleton } from "@/components/Skeleton";
-import {
-  formatFullDate,
-  formatDuration,
-  getResultBadgeProps,
-  getSentimentBadgeProps,
-  formatPhoneNumber,
-  safePct,
-} from "@/lib/formatters";
+import { Download, PhoneOff } from "lucide-react";
+import Link from "next/link";
+import type { TimeRange, UserPublicMetadata, OutboundStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
+import { getDateRange, formatDateRange } from "@/lib/dateRange";
+import { formatDuration, formatDurationSeconds } from "@/lib/formatters";
+import TimeRangeDropdown from "@/components/TimeRangeDropdown";
+import MetricCard from "@/components/MetricCard";
+import CallVolumeChart from "@/components/CallVolumeChart";
+import IntentChart from "@/components/IntentChart";
+import CallDetailModal from "@/components/CallDetailModal";
 
-export default function OutboundPage() {
+function pctDelta(current: number, previous: number): { value: string; direction: "up" | "down" | "neutral" } {
+  if (!previous || previous === 0) return { value: "—", direction: "neutral" };
+  const pct = ((current - previous) / previous) * 100;
+  return {
+    value: `${Math.abs(pct).toFixed(1)}% vs last period`,
+    direction: pct >= 0 ? "up" : "down",
+  };
+}
+
+function safePct(n: number, d: number): string {
+  if (!d) return "0%";
+  return `${Math.round((n / d) * 100)}%`;
+}
+
+const OUTCOME_INTENTS: IntentData[] = [
+  { label: "Converted", count: 0, percentage: 0 },
+  { label: "Not Interested", count: 0, percentage: 0 },
+  { label: "Voicemail", count: 0, percentage: 0 },
+  { label: "No Answer", count: 0, percentage: 0 },
+  { label: "Transferred", count: 0, percentage: 0 },
+  { label: "Other", count: 0, percentage: 0 },
+];
+
+function buildOutcomeData(calls: CallRow[]): IntentData[] {
+  if (!calls.length) return OUTCOME_INTENTS;
+  const counts = { Converted: 0, "Not Interested": 0, Voicemail: 0, "No Answer": 0, Transferred: 0, Other: 0 };
+  for (const c of calls) {
+    if (c.call_successful === true) counts.Converted++;
+    else if (c.in_voicemail) counts.Voicemail++;
+    else if (c.disconnection_reason === "dial_no_answer") counts["No Answer"]++;
+    else if (c.disconnection_reason === "call_transfer") counts.Transferred++;
+    else if (c.call_successful === false) counts["Not Interested"]++;
+    else counts.Other++;
+  }
+  const total = calls.length;
+  return Object.entries(counts).map(([label, count]) => ({
+    label,
+    count,
+    percentage: Math.round((count / total) * 100),
+  }));
+}
+
+function getCallOutcome(call: CallRow): { label: string; color: string; bg: string } {
+  if (call.in_voicemail) return { label: "Voicemail", color: "var(--text-secondary)", bg: "var(--bg-3)" };
+  if (call.disconnection_reason === "call_transfer") return { label: "Transferred", color: "var(--blue)", bg: "var(--blue-dim)" };
+  if (call.call_successful === true) return { label: "Converted", color: "var(--green)", bg: "var(--green-dim)" };
+  if (call.disconnection_reason === "dial_no_answer") return { label: "No Answer", color: "var(--amber)", bg: "var(--amber-dim)" };
+  if (call.call_successful === false) return { label: "Not Interested", color: "var(--red)", bg: "var(--red-dim)" };
+  return { label: "Ended", color: "var(--text-secondary)", bg: "var(--bg-3)" };
+}
+
+export default function OutboundOverviewPage() {
   const { user } = useUser();
   const metadata = (user?.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
   const clientId = metadata.client_id ?? "";
 
-  const [calls, setCalls] = useState<CallRow[]>([]);
-  const [stats, setStats] = useState<ClientCallStats | null>(null);
+  const [timeRange, setTimeRange] = useState<TimeRange>("30d");
+  const [stats, setStats] = useState<OutboundStats | null>(null);
+  const [volume, setVolume] = useState<CallVolumeData | null>(null);
+  const [recentCalls, setRecentCalls] = useState<CallRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [selectedCall, setSelectedCall] = useState<CallRow | null>(null);
+
+  const { from, to } = getDateRange(timeRange);
+  const dateLabel = formatDateRange(from, to);
 
   const fetchData = useCallback(async () => {
     if (!clientId) return;
     setLoading(true);
-    setError(false);
+    const f = from.toISOString();
+    const t = to.toISOString();
 
-    try {
-      const [callsResult, statsResult] = await Promise.all([
-        getSupabaseClient()
-          .from("calls")
-          .select("*")
-          .eq("client_id", clientId)
-          .eq("direction", "outbound")
-          .order("started_at", { ascending: false })
-          .limit(100),
-        getSupabaseClient()
-          .from("client_call_stats")
-          .select("*")
-          .eq("client_id", clientId)
-          .eq("direction", "outbound")
-          .single(),
-      ]);
+    const [statsRes, volRes, callsRes] = await Promise.allSettled([
+      fetch(`/api/outbound-stats?from=${f}&to=${t}`).then((r) => r.json()),
+      fetch(`/api/call-volume?from=${f}&to=${t}`).then((r) => r.json()),
+      fetch(`/api/calls?from=${f}&to=${t}&direction=outbound&page=1&limit=10`).then((r) => r.json()),
+    ]);
 
-      if (callsResult.error) {
-        setError(true);
-      } else {
-        setCalls((callsResult.data ?? []) as CallRow[]);
-        if (!statsResult.error && statsResult.data) {
-          setStats(statsResult.data as ClientCallStats);
-        }
-      }
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [clientId]);
+    if (statsRes.status === "fulfilled") setStats(statsRes.value as OutboundStats);
+    if (volRes.status === "fulfilled") setVolume(volRes.value as CallVolumeData);
+    if (callsRes.status === "fulfilled") setRecentCalls((callsRes.value as { calls: CallRow[] }).calls ?? []);
 
-  useEffect(() => {
-    void fetchData();
-  }, [fetchData]);
+    setLoading(false);
+  }, [clientId, timeRange]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const answerRate = stats
-    ? safePct((stats.total_calls ?? 0) - (stats.no_answer_count ?? 0), stats.total_calls ?? 0)
-    : "—";
-  const successRate = stats
-    ? safePct(stats.successful_calls ?? 0, stats.total_calls ?? 0)
-    : "—";
+  useEffect(() => { void fetchData(); }, [fetchData]);
+
+  function handleExport() {
+    const f = from.toISOString();
+    const t = to.toISOString();
+    window.location.href = `/api/export-calls?from=${f}&to=${t}&direction=outbound`;
+  }
+
+  const cur = stats?.current;
+  const prev = stats?.previous;
+
+  const outboundVolume: CallVolumeData = volume
+    ? { dates: volume.dates, inbound: volume.dates.map(() => 0), outbound: volume.outbound }
+    : { dates: [], inbound: [], outbound: [] };
+
+  const outcomeData = buildOutcomeData(recentCalls);
 
   return (
-    <div className="p-7">
-      {/* Inline stats summary */}
-      {stats && (
-        <p className="text-[13px] text-[var(--text-secondary)] mb-5">
-          {stats.calls_this_month} calls this month
-          <span className="mx-2 text-[var(--text-tertiary)]">·</span>
-          {answerRate} answer rate
-          <span className="mx-2 text-[var(--text-tertiary)]">·</span>
-          {successRate} success rate
-        </p>
+    <div style={{ padding: 28 }}>
+      {/* Section header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+        <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+          Outbound Overview
+        </span>
+        <span style={{
+          fontSize: 10, background: "var(--bg-3)", border: "1px solid var(--border)",
+          color: "var(--text-tertiary)", padding: "2px 8px", borderRadius: 20,
+          fontFamily: "var(--font-geist-mono, monospace)",
+        }}>
+          {dateLabel}
+        </span>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+          <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
+          <button
+            onClick={handleExport}
+            style={{
+              background: "var(--accent)", color: "var(--bg)", border: "none",
+              padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+              cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6,
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          >
+            <Download size={12} />
+            Export
+          </button>
+        </div>
+      </div>
+
+      {/* Metric cards */}
+      {loading ? (
+        <div style={{
+          display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1,
+          background: "var(--border)", borderRadius: 12, overflow: "hidden",
+          border: "1px solid var(--border)", marginBottom: 24,
+        }}>
+          {[0,1,2,3].map((i) => (
+            <div key={i} style={{ background: "var(--bg-1)", padding: "20px 24px" }}>
+              <div className="skeleton" style={{ height: 10, width: 80, marginBottom: 12 }} />
+              <div className="skeleton" style={{ height: 28, width: 60 }} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{
+          display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1,
+          background: "var(--border)", borderRadius: 12, overflow: "hidden",
+          border: "1px solid var(--border)", marginBottom: 24,
+        }}>
+          <MetricCard
+            label="Total Calls Made"
+            value={cur?.total_calls ?? 0}
+            delta={cur && prev ? pctDelta(cur.total_calls, prev.total_calls) : undefined}
+          />
+          <MetricCard
+            label="Contact Rate"
+            value={safePct(cur?.contacted_count ?? 0, cur?.total_calls ?? 0)}
+            delta={cur && prev ? pctDelta(
+              cur.total_calls > 0 ? cur.contacted_count / cur.total_calls : 0,
+              prev.total_calls > 0 ? prev.contacted_count / prev.total_calls : 0,
+            ) : undefined}
+          />
+          <MetricCard
+            label="Conversion Rate"
+            value={safePct(cur?.converted_count ?? 0, cur?.contacted_count ?? 0)}
+            delta={cur && prev ? pctDelta(
+              cur.contacted_count > 0 ? cur.converted_count / cur.contacted_count : 0,
+              prev.contacted_count > 0 ? prev.converted_count / prev.contacted_count : 0,
+            ) : undefined}
+          />
+          <MetricCard
+            label="Avg Duration"
+            value={formatDurationSeconds(cur?.avg_duration_seconds)}
+            delta={cur && prev ? {
+              value: `${formatDurationSeconds(Math.abs(cur.avg_duration_seconds - prev.avg_duration_seconds))} vs last period`,
+              direction: cur.avg_duration_seconds >= prev.avg_duration_seconds ? "up" : "down",
+            } : undefined}
+          />
+        </div>
       )}
 
-      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[10px] overflow-hidden">
-        {error ? (
-          <div className="flex items-center gap-2 px-5 py-4 text-[13px] text-[var(--text-secondary)]">
-            <AlertCircle size={16} className="text-[var(--red)] shrink-0" />
-            Could not load data. Try refreshing the page.
+      {/* Charts */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16, marginBottom: 16 }}>
+        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
+            <div>
+              <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>
+                Outbound Call Volume
+              </span>
+              <span style={{ fontSize: 11, color: "var(--text-tertiary)", marginLeft: 8 }}>Daily</span>
+            </div>
           </div>
-        ) : loading ? (
-          <TableSkeleton rows={10} />
-        ) : calls.length === 0 ? (
-          <EmptyState
-            icon={PhoneOutgoing}
-            primary="No outbound calls yet"
-            secondary="Outbound call data will appear here."
-          />
+          <div style={{ padding: 20 }}>
+            {loading ? (
+              <div className="skeleton" style={{ height: 220 }} />
+            ) : (
+              <CallVolumeChart data={outboundVolume} />
+            )}
+          </div>
+        </div>
+
+        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+          <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
+            <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>
+              Call Outcomes
+            </span>
+            <span style={{ fontSize: 11, color: "var(--text-tertiary)", marginLeft: 8 }}>By volume</span>
+          </div>
+          <div style={{ padding: 20 }}>
+            <IntentChart intents={outcomeData} />
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Calls */}
+      <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+        <div style={{ display: "flex", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid var(--border)", gap: 10 }}>
+          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>Recent Outbound Calls</span>
+          <Link href="/dashboard/outbound/calls" style={{ marginLeft: "auto", fontSize: 12, color: "var(--blue)", textDecoration: "none" }}>
+            View all →
+          </Link>
+        </div>
+
+        {loading ? (
+          <div style={{ padding: "12px 0" }}>
+            {[0,1,2,3,4].map((i) => (
+              <div key={i} className="skeleton" style={{ height: 44, margin: "2px 16px", borderRadius: 4 }} />
+            ))}
+          </div>
+        ) : recentCalls.length === 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 20px" }}>
+            <PhoneOff size={24} style={{ color: "var(--text-tertiary)", marginBottom: 10 }} />
+            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 4 }}>No outbound calls yet</div>
+            <div style={{ fontSize: 12, color: "var(--text-tertiary)" }}>Call data will appear here automatically.</div>
+          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr className="border-b border-[var(--border)]">
-                  {["Date & Time", "To", "From", "Duration", "Result", "Sentiment", "Summary"].map((h) => (
-                    <th key={h} className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--text-tertiary)] whitespace-nowrap">
+                <tr style={{ background: "var(--bg-2)" }}>
+                  {["Call ID","Date & Time","Contact #","Duration","Outcome","Sentiment",""].map((h) => (
+                    <th key={h} style={{
+                      padding: "10px 16px", textAlign: "left", fontSize: 10, fontWeight: 500,
+                      letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text-tertiary)",
+                      borderBottom: "1px solid var(--border)", whiteSpace: "nowrap",
+                    }}>
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {calls.map((call) => (
-                  <tr
-                    key={call.id}
-                    onClick={() => setSelectedCall(call)}
-                    className="border-b border-[var(--border)] last:border-0 cursor-pointer hover:bg-[var(--bg-subtle)] transition-colors"
-                  >
-                    <td className="px-5 py-[13px] text-[13px] text-[var(--text-secondary)] whitespace-nowrap">
-                      {formatFullDate(call.started_at)}
-                    </td>
-                    <td className="px-5 py-[13px] text-[13px] text-[var(--text-primary)] whitespace-nowrap">
-                      {formatPhoneNumber(call.to_number)}
-                    </td>
-                    <td className="px-5 py-[13px] text-[13px] text-[var(--text-secondary)] whitespace-nowrap">
-                      {formatPhoneNumber(call.from_number)}
-                    </td>
-                    <td className="px-5 py-[13px] text-[13px] text-[var(--text-secondary)] whitespace-nowrap">
-                      {formatDuration(call.duration_ms)}
-                    </td>
-                    <td className="px-5 py-[13px]">
-                      <Badge {...getResultBadgeProps(call)} />
-                    </td>
-                    <td className="px-5 py-[13px]">
-                      <Badge {...getSentimentBadgeProps(call.user_sentiment)} />
-                    </td>
-                    <td className="px-5 py-[13px] text-[13px] text-[var(--text-secondary)] max-w-[240px]">
-                      <span className="block truncate">
-                        {call.call_summary
-                          ? call.call_summary.length > 90
-                            ? call.call_summary.slice(0, 90) + "…"
-                            : call.call_summary
-                          : "—"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {recentCalls.map((call) => {
+                  const outcome = getCallOutcome(call);
+                  const sentiment = call.user_sentiment;
+                  const sentColor = sentiment === "Positive" ? "var(--green)" : sentiment === "Negative" ? "var(--red)" : sentiment === "Neutral" ? "var(--amber)" : "var(--text-tertiary)";
+                  return (
+                    <tr key={call.id}
+                      style={{ borderBottom: "1px solid var(--border)", transition: "background 0.1s", cursor: "pointer" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent-dim)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <td style={{ padding: "11px 16px", fontSize: 11, fontFamily: "var(--font-geist-mono, monospace)", color: "var(--text-primary)", fontWeight: 500 }}>
+                        {(call.call_id ?? call.id ?? "").slice(0, 8)}
+                      </td>
+                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                        {call.started_at ? new Date(call.started_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"}
+                      </td>
+                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)" }}>
+                        {call.to_number ?? "—"}
+                      </td>
+                      <td style={{ padding: "11px 16px", fontSize: 12, fontFamily: "var(--font-geist-mono, monospace)", color: "var(--text-secondary)" }}>
+                        {formatDuration(call.duration_ms)}
+                      </td>
+                      <td style={{ padding: "11px 16px" }}>
+                        <span style={{
+                          display: "inline-flex", alignItems: "center", gap: 4,
+                          padding: "2px 8px", borderRadius: 20, fontSize: 10, fontWeight: 500,
+                          fontFamily: "var(--font-geist-mono, monospace)",
+                          color: outcome.color, background: outcome.bg,
+                        }}>
+                          <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
+                          {outcome.label}
+                        </span>
+                      </td>
+                      <td style={{ padding: "11px 16px", fontSize: 12, color: sentColor }}>{sentiment ?? "—"}</td>
+                      <td style={{ padding: "11px 16px" }}>
+                        <button
+                          onClick={() => setSelectedCall(call)}
+                          style={{ fontSize: 11, color: "var(--blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                        >
+                          View →
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
 
-      <CallDetailDrawer call={selectedCall} onClose={() => setSelectedCall(null)} />
+      <CallDetailModal call={selectedCall} onClose={() => setSelectedCall(null)} />
     </div>
   );
 }

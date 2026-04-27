@@ -78,9 +78,28 @@ export default function SignInPage() {
           width: 100%;
           max-width: 376px;
         }
+        .oa-main {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 100px 16px 64px;
+        }
+        .oa-footer {
+          display: flex;
+          justify-content: center;
+          gap: 20px;
+          padding: 0 16px 32px;
+        }
         @media (max-width: 640px) {
           .oa-auth-container {
             max-width: 340px;
+          }
+          .oa-main {
+            padding: 64px 16px 88px;
+          }
+          .oa-footer {
+            padding: 0 16px 42px;
           }
         }
       `}</style>
@@ -100,15 +119,7 @@ export default function SignInPage() {
         }}
       >
         {/* Centered form area */}
-        <main
-          style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "100px 16px 64px",
-          }}
-        >
+        <main className="oa-main">
           <div className="oa-auth-container">
             {/* Icon */}
             <div
@@ -370,14 +381,7 @@ export default function SignInPage() {
           </div>
         </main>
 
-        <footer
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: 20,
-            padding: "0 16px 32px",
-          }}
-        >
+        <footer className="oa-footer">
           <a
             className="oa-footer-link"
             href="https://onagency.ai/terms-of-service"

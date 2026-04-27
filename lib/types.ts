@@ -37,6 +37,7 @@ export interface ClientCallStats {
   negative_calls: number;
   neutral_calls: number;
   no_answer_count: number;
+  avg_sentiment_score: number | null;
 }
 
 export interface UserPublicMetadata {
@@ -47,6 +48,8 @@ export interface UserPublicMetadata {
 
 export type ServiceType = "receptionist" | "outbound";
 
+export type TimeRange = "today" | "7d" | "30d" | "60d" | "90d";
+
 export interface BadgeProps {
   variant: "success" | "failed" | "missed" | "voicemail" | "info" | "neutral";
   label: string;
@@ -56,4 +59,50 @@ export interface CallReasonData {
   reason: string;
   count: number;
   percentage: number;
+}
+
+export interface IntentData {
+  label: string;
+  count: number;
+  percentage: number;
+}
+
+export interface ReceptionistStats {
+  current: {
+    total_calls: number;
+    avg_duration_seconds: number;
+    total_duration_ms: number;
+    positive_count: number;
+    neutral_count: number;
+    negative_count: number;
+  };
+  previous: {
+    total_calls: number;
+    avg_duration_seconds: number;
+    total_duration_ms: number;
+    positive_count: number;
+    neutral_count: number;
+    negative_count: number;
+  };
+}
+
+export interface OutboundStats {
+  current: {
+    total_calls: number;
+    avg_duration_seconds: number;
+    contacted_count: number;
+    converted_count: number;
+  };
+  previous: {
+    total_calls: number;
+    avg_duration_seconds: number;
+    contacted_count: number;
+    converted_count: number;
+  };
+}
+
+export interface CallVolumeData {
+  dates: string[];
+  inbound: number[];
+  outbound: number[];
 }

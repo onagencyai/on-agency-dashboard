@@ -33,7 +33,7 @@ export default function RootLayout({
               __html: `
                 try {
                   const stored = localStorage.getItem('on-agency-theme');
-                  if (stored === 'dark' || (!stored && true)) {
+                  if (stored !== 'light') {
                     document.documentElement.classList.add('dark');
                   }
                 } catch {}
@@ -42,7 +42,8 @@ export default function RootLayout({
           />
         </head>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-[var(--bg-base)] text-[var(--text-primary)]`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          style={{ background: "var(--bg)", color: "var(--text-primary)", fontFamily: "var(--font-geist-sans, system-ui, sans-serif)" }}
         >
           {children}
         </body>

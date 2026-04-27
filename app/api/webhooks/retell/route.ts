@@ -39,17 +39,17 @@ async function handleCallEnded(req: NextRequest, body: Record<string, unknown>):
       {
         call_id: call.call_id as string,
         client_id: clientId,
-        agent_id: call.agent_id as string | null ?? null,
-        agent_name: call.agent_name as string | null ?? null,
-        call_type: call.call_type as string | null ?? null,
-        call_status: call.call_status as string | null ?? null,
-        direction: call.direction as string | null ?? null,
-        from_number: call.from_number as string | null ?? null,
-        to_number: call.to_number as string | null ?? null,
-        duration_ms: call.duration_ms as number | null ?? null,
-        transcript: call.transcript as string | null ?? null,
-        recording_url: call.recording_url as string | null ?? null,
-        disconnection_reason: call.disconnection_reason as string | null ?? null,
+        agent_id: (call.agent_id as string) ?? null,
+        agent_name: (call.agent_name as string) ?? null,
+        call_type: (call.call_type as string) ?? null,
+        call_status: (call.call_status as string) ?? null,
+        direction: (call.direction as string) ?? null,
+        from_number: (call.from_number as string) ?? null,
+        to_number: (call.to_number as string) ?? null,
+        duration_ms: (call.duration_ms as number) ?? null,
+        transcript: (call.transcript as string) ?? null,
+        recording_url: (call.recording_url as string) ?? null,
+        disconnection_reason: (call.disconnection_reason as string) ?? null,
         started_at: startTs ? new Date(startTs).toISOString() : null,
         ended_at: endTs ? new Date(endTs).toISOString() : null,
         raw_payload: body,
@@ -82,11 +82,11 @@ async function handleCallAnalyzed(body: Record<string, unknown>): Promise<void> 
     const { error } = await supabase
       .from("calls")
       .update({
-        call_summary: analysis.call_summary as string | null ?? null,
-        user_sentiment: analysis.user_sentiment as string | null ?? null,
-        call_successful: analysis.call_successful as boolean | null ?? null,
-        in_voicemail: analysis.in_voicemail as boolean | null ?? null,
-        custom_analysis_data: analysis.custom_analysis_data as Record<string, unknown> | null ?? null,
+        call_summary: (analysis.call_summary as string) ?? null,
+        user_sentiment: (analysis.user_sentiment as string) ?? null,
+        call_successful: (analysis.call_successful as boolean) ?? null,
+        in_voicemail: (analysis.in_voicemail as boolean) ?? null,
+        custom_analysis_data: (analysis.custom_analysis_data as Record<string, unknown>) ?? null,
       })
       .eq("call_id", callId);
 
