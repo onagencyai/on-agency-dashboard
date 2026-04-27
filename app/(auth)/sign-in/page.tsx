@@ -80,6 +80,9 @@ export default function SignInPage() {
         style={{
           minHeight: "100vh",
           background: "#FAFAFA",
+          backgroundImage:
+            "radial-gradient(circle, rgba(107,114,128,0.32) 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
           position: "relative",
           display: "flex",
           flexDirection: "column",
