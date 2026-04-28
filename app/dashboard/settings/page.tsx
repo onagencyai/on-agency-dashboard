@@ -39,20 +39,7 @@ export default function SettingsPage() {
             <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-tertiary)", marginBottom: 6 }}>
               Business Name
             </div>
-            <div
-              style={{
-                width: "100%",
-                maxWidth: 400,
-                background: "var(--bg-3)",
-                border: "1px solid var(--border)",
-                borderRadius: 8,
-                padding: "8px 12px",
-                fontSize: 13,
-                color: "var(--text-primary)",
-              }}
-            >
-              {businessName}
-            </div>
+            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>{businessName}</div>
           </div>
 
           {/* Email */}

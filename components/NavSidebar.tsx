@@ -140,7 +140,7 @@ export default function NavSidebar({ services, businessName }: NavSidebarProps) 
         <div
           style={{
             height: 1,
-            margin: "0 10px 12px",
+            margin: "0 10px 14px",
             background: "var(--sidebar-divider)",
             borderRadius: 1,
           }}
