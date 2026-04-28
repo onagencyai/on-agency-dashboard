@@ -87,20 +87,7 @@ export default function NavSidebar({ services, businessName }: NavSidebarProps) 
   const displayBusiness = businessName.trim() || "Your business";
 
   return (
-    <aside
-      style={{
-        width: 220,
-        minHeight: "calc(100vh - 32px)",
-        background: "var(--dashboard-panel)",
-        border: "1px solid var(--dashboard-border)",
-        borderRadius: 16,
-        boxShadow: "var(--dashboard-sidebar-shadow)",
-        display: "flex",
-        flexDirection: "column",
-        flexShrink: 0,
-        overflow: "hidden",
-      }}
-    >
+    <aside className="dashboard-sidebar">
       <div
         style={{
           height: 56,

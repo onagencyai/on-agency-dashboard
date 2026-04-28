@@ -84,23 +84,45 @@ export default function SignInPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 100px 16px 64px;
+          padding: 112px 16px 64px;
+          position: relative;
+          z-index: 2;
         }
         .oa-footer {
           display: flex;
           justify-content: center;
           gap: 20px;
           padding: 0 16px 32px;
+          position: relative;
+          z-index: 2;
+        }
+        .oa-top-grid {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: min(42vh, 360px);
+          pointer-events: none;
+          background-image:
+            linear-gradient(to right, rgba(17, 24, 39, 0.055) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(17, 24, 39, 0.055) 1px, transparent 1px);
+          background-size: 56px 56px;
+          -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95) 30%, rgba(0, 0, 0, 0));
+          mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95) 30%, rgba(0, 0, 0, 0));
         }
         @media (max-width: 640px) {
           .oa-auth-container {
             max-width: 340px;
           }
           .oa-main {
-            padding: 64px 16px 88px;
+            padding: 78px 16px 88px;
           }
           .oa-footer {
             padding: 0 16px 42px;
+          }
+          .oa-top-grid {
+            height: min(36vh, 300px);
+            background-size: 46px 46px;
           }
         }
       `}</style>
@@ -109,16 +131,16 @@ export default function SignInPage() {
         style={{
           minHeight: "100vh",
           background: "#FAFAFA",
-          backgroundImage:
-            "radial-gradient(circle, rgba(107,114,128,0.14) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
           position: "relative",
           display: "flex",
           flexDirection: "column",
+          overflow: "hidden",
           fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
           WebkitFontSmoothing: "antialiased",
         }}
       >
+        <div className="oa-top-grid" />
+
         {/* Centered form area */}
         <main className="oa-main">
           <div className="oa-auth-container">
@@ -142,14 +164,17 @@ export default function SignInPage() {
             {/* Heading */}
             <h1
               style={{
-                color: "#111827",
+                color: "rgb(23, 23, 23)",
                 fontSize: "32px",
-                fontWeight: 700,
-                letterSpacing: "-0.04em",
-                lineHeight: 1.1,
+                fontWeight: 600,
+                letterSpacing: "-0.03em",
+                lineHeight: "40px",
                 textAlign: "center",
-                marginBottom: 10,
+                marginBottom: 12,
+                marginTop: 0,
                 fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
+                textRendering: "optimizeLegibility",
+                WebkitFontSmoothing: "antialiased",
               }}
             >
               Log in to On Agency

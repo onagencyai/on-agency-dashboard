@@ -72,6 +72,7 @@ export default function ReceptionistOverviewPage() {
   const [calls, setCalls] = useState<CallRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCall, setSelectedCall] = useState<CallRow | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const { from, to } = getDateRange(timeRange);
   const dateLabel = formatDateRange(from, to);
@@ -101,6 +102,14 @@ export default function ReceptionistOverviewPage() {
     void fetchData();
   }, [fetchData]);
 
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 900px)");
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
   function handleExport() {
     const f = from.toISOString();
     const t = to.toISOString();
@@ -124,10 +133,10 @@ export default function ReceptionistOverviewPage() {
     : undefined;
 
   return (
-    <div style={{ padding: "28px 32px 32px" }}>
+    <div style={{ padding: isMobile ? "18px 12px 20px" : "28px 24px 24px" }}>
       {/* Section header — title row like dashboard reference */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+        <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
           Overview
         </span>
         <span
@@ -139,7 +148,7 @@ export default function ReceptionistOverviewPage() {
         >
           {dateLabel}
         </span>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10, width: isMobile ? "100%" : "auto", justifyContent: isMobile ? "flex-end" : "initial" }}>
           <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
           <button
             onClick={handleExport}
@@ -154,16 +163,6 @@ export default function ReceptionistOverviewPage() {
             <Download size={12} />
             Export
           </button>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span
-              className="live-dot"
-              style={{
-                width: 7, height: 7, borderRadius: "50%",
-                background: "var(--green)", boxShadow: "0 0 8px var(--green)", display: "inline-block",
-              }}
-            />
-            <span style={{ fontSize: 11, color: "var(--text-tertiary)" }}>Live data</span>
-          </div>
         </div>
       </div>
 
@@ -171,7 +170,7 @@ export default function ReceptionistOverviewPage() {
       {loading ? (
         <div
           style={{
-            display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1,
+            display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 1,
             background: "var(--border)", borderRadius: 12, overflow: "hidden",
             border: "1px solid var(--border)", marginBottom: 24,
           }}
@@ -187,7 +186,7 @@ export default function ReceptionistOverviewPage() {
       ) : (
         <div
           style={{
-            display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1,
+            display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 1,
             background: "var(--border)", borderRadius: 12, overflow: "hidden",
             border: "1px solid var(--border)", marginBottom: 24,
           }}
@@ -232,7 +231,7 @@ export default function ReceptionistOverviewPage() {
       )}
 
       {/* Charts */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16, marginBottom: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 340px", gap: 16, marginBottom: 16 }}>
         {/* Call Volume chart */}
         <div
           style={{
