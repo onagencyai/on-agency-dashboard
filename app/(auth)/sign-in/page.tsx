@@ -107,6 +107,7 @@ export default function SignInPage() {
             linear-gradient(to right, rgba(17, 24, 39, 0.055) 1px, transparent 1px),
             linear-gradient(to bottom, rgba(17, 24, 39, 0.055) 1px, transparent 1px);
           background-size: 56px 56px;
+          background-position: 0 0, 0 56px;
           -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95) 30%, rgba(0, 0, 0, 0));
           mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95) 30%, rgba(0, 0, 0, 0));
         }
@@ -123,7 +124,7 @@ export default function SignInPage() {
           .oa-top-grid {
             height: min(36vh, 300px);
             background-size: 46px 46px;
-            background-position: 0 0, 0 1px;
+            background-position: 0 0, 0 46px;
           }
         }
       `}</style>

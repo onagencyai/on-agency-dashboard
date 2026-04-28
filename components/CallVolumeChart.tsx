@@ -34,7 +34,7 @@ function CustomTooltip({ active, payload, label }: {
       }}
     >
       <div style={{ color: "#ededed", fontWeight: 500, marginBottom: 6 }}>{label}</div>
-      {payload.map((p) => (
+      {payload.filter((p) => p.name !== "Capacity").map((p) => (
         <div key={p.name} style={{ color: "#888", display: "flex", gap: 8 }}>
           <span>{p.name}:</span>
           <span style={{ color: "#ededed" }}>{p.value}</span>
@@ -65,23 +65,36 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
     );
   };
 
-  const chartData = data.dates.map((date, i) => ({
-    date,
-    inbound: data.inbound[i] ?? 0,
-    outbound: data.outbound[i] ?? 0,
-  }));
+  const valueKey = showOutbound ? "outbound" : "inbound";
+  const rawValues = data.dates.map((_, i) => (showOutbound ? (data.outbound[i] ?? 0) : (data.inbound[i] ?? 0)));
+  const maxValue = Math.max(1, ...rawValues);
+  const chartData = data.dates.map((date, i) => {
+    const value = rawValues[i] ?? 0;
+    return {
+      date,
+      value,
+      valueMax: maxValue,
+      inbound: data.inbound[i] ?? 0,
+      outbound: data.outbound[i] ?? 0,
+    };
+  });
 
   return (
     <ResponsiveContainer width="100%" height={220}>
-      <BarChart data={chartData} barSize={Math.max(5, Math.min(12, 420 / (data.dates.length || 1)))}>
+      <BarChart
+        data={chartData}
+        barSize={Math.max(5, Math.min(11, 380 / (data.dates.length || 1)))}
+        margin={{ top: 6, right: 8, left: 0, bottom: 16 }}
+      >
         <XAxis
           dataKey="date"
           tickLine={false}
           axisLine={false}
           tick={<CustomTick />}
-          height={44}
-          minTickGap={10}
-          interval="preserveStartEnd"
+          height={54}
+          minTickGap={8}
+          interval={0}
+          padding={{ left: 10, right: 10 }}
         />
         <YAxis
           tickLine={false}
@@ -91,25 +104,19 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
         />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
         <Bar
-          dataKey="inbound"
-          name="Inbound"
-          stackId="a"
+          dataKey="valueMax"
+          name="Capacity"
+          fill="rgba(79,127,247,0.14)"
+          radius={[8, 8, 8, 8]}
+          isAnimationActive={false}
+        />
+        <Bar
+          dataKey="value"
+          name={valueKey === "outbound" ? "Outbound" : "Inbound"}
           fill="#4f7ff7"
           radius={[8, 8, 8, 8]}
-          background={{ fill: "rgba(79,127,247,0.14)", radius: 8 }}
           activeBar={{ fill: "#6b95ff", stroke: "rgba(79,127,247,0.2)", strokeWidth: 1 }}
         />
-        {showOutbound && (
-          <Bar
-            dataKey="outbound"
-            name="Outbound"
-            stackId="a"
-            fill="#3f6dea"
-            radius={[8, 8, 8, 8]}
-            background={{ fill: "rgba(79,127,247,0.14)", radius: 8 }}
-            activeBar={{ fill: "#5a85f2", stroke: "rgba(79,127,247,0.2)", strokeWidth: 1 }}
-          />
-        )}
       </BarChart>
     </ResponsiveContainer>
   );
