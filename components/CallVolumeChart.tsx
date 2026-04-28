@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { CallVolumeData } from "@/lib/types";
+import type { SVGProps } from "react";
 
 interface TooltipPayloadEntry {
   name: string;
@@ -49,10 +50,19 @@ interface CallVolumeChartProps {
 }
 
 export default function CallVolumeChart({ data, showOutbound = true }: CallVolumeChartProps) {
-  const formatTick = (value: string) => {
-    const parts = value.split(" ");
-    const day = parts[parts.length - 1];
-    return day || value;
+  const CustomTick = ({ x, y, payload }: SVGProps<SVGTextElement> & { payload?: { value?: string } }) => {
+    const value = payload?.value ?? "";
+    const [month = "", day = ""] = value.split(" ");
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text x={0} y={0} textAnchor="middle" fill="#8b8b8b" fontSize="11" fontWeight={600}>
+          {month}
+        </text>
+        <text x={0} y={18} textAnchor="middle" fill="#b2b2b2" fontSize="11" fontWeight={500}>
+          {day}
+        </text>
+      </g>
+    );
   };
 
   const chartData = data.dates.map((date, i) => ({
@@ -63,14 +73,14 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
 
   return (
     <ResponsiveContainer width="100%" height={220}>
-      <BarChart data={chartData} barSize={Math.max(4, Math.min(24, 600 / (data.dates.length || 1)))}>
+      <BarChart data={chartData} barSize={Math.max(5, Math.min(12, 420 / (data.dates.length || 1)))}>
         <XAxis
           dataKey="date"
           tickLine={false}
           axisLine={false}
-          tick={{ fill: "#707070", fontSize: 11 }}
-          tickFormatter={formatTick}
-          minTickGap={18}
+          tick={<CustomTick />}
+          height={44}
+          minTickGap={10}
           interval="preserveStartEnd"
         />
         <YAxis
@@ -85,8 +95,9 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
           name="Inbound"
           stackId="a"
           fill="#4f7ff7"
-          radius={[5, 5, 5, 5]}
-          background={{ fill: "rgba(79,127,247,0.12)", radius: 5 }}
+          radius={[8, 8, 8, 8]}
+          background={{ fill: "rgba(79,127,247,0.14)", radius: 8 }}
+          activeBar={{ fill: "#6b95ff", stroke: "rgba(79,127,247,0.2)", strokeWidth: 1 }}
         />
         {showOutbound && (
           <Bar
@@ -94,8 +105,9 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
             name="Outbound"
             stackId="a"
             fill="#3f6dea"
-            radius={[5, 5, 5, 5]}
-            background={{ fill: "rgba(79,127,247,0.12)", radius: 5 }}
+            radius={[8, 8, 8, 8]}
+            background={{ fill: "rgba(79,127,247,0.14)", radius: 8 }}
+            activeBar={{ fill: "#5a85f2", stroke: "rgba(79,127,247,0.2)", strokeWidth: 1 }}
           />
         )}
       </BarChart>

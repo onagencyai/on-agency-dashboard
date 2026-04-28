@@ -15,7 +15,7 @@ interface MetricCardProps {
 }
 
 export default function MetricCard({ label, value, valueSuffix, icon, delta, children }: MetricCardProps) {
-  const safeDelta: DeltaProps = delta ?? { value: "— vs last period", direction: "neutral" };
+  const safeDelta: DeltaProps = delta ?? { value: "— vs last period", direction: "up" };
 
   const deltaColor =
     safeDelta.direction === "up"
