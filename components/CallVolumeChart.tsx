@@ -49,6 +49,12 @@ interface CallVolumeChartProps {
 }
 
 export default function CallVolumeChart({ data, showOutbound = true }: CallVolumeChartProps) {
+  const formatTick = (value: string) => {
+    const parts = value.split(" ");
+    const day = parts[parts.length - 1];
+    return day || value;
+  };
+
   const chartData = data.dates.map((date, i) => ({
     date,
     inbound: data.inbound[i] ?? 0,
@@ -62,18 +68,36 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
           dataKey="date"
           tickLine={false}
           axisLine={false}
-          tick={{ fill: "#444", fontSize: 10 }}
+          tick={{ fill: "#707070", fontSize: 11 }}
+          tickFormatter={formatTick}
+          minTickGap={18}
           interval="preserveStartEnd"
         />
         <YAxis
           tickLine={false}
           axisLine={false}
-          tick={{ fill: "#444", fontSize: 10 }}
+          tick={{ fill: "#707070", fontSize: 11 }}
           width={28}
         />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
-        <Bar dataKey="inbound" name="Inbound" stackId="a" fill="rgba(237,237,237,0.18)" radius={[2, 2, 0, 0]} />
-        {showOutbound && <Bar dataKey="outbound" name="Outbound" stackId="a" fill="rgba(59,130,246,0.45)" radius={[2, 2, 0, 0]} />}
+        <Bar
+          dataKey="inbound"
+          name="Inbound"
+          stackId="a"
+          fill="#4f7ff7"
+          radius={[5, 5, 5, 5]}
+          background={{ fill: "rgba(79,127,247,0.12)", radius: 5 }}
+        />
+        {showOutbound && (
+          <Bar
+            dataKey="outbound"
+            name="Outbound"
+            stackId="a"
+            fill="#3f6dea"
+            radius={[5, 5, 5, 5]}
+            background={{ fill: "rgba(79,127,247,0.12)", radius: 5 }}
+          />
+        )}
       </BarChart>
     </ResponsiveContainer>
   );

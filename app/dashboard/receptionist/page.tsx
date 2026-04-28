@@ -388,6 +388,7 @@ export default function ReceptionistOverviewPage() {
                     <tr
                       key={call.id}
                       style={{ borderBottom: "1px solid var(--border)", transition: "background 0.1s", cursor: "pointer" }}
+                      onClick={() => setSelectedCall(call)}
                       onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent-dim)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
@@ -416,7 +417,7 @@ export default function ReceptionistOverviewPage() {
                         <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{intent}</span>
                       </td>
                       <td style={{ padding: "11px 16px" }}>
-                        <button onClick={() => setSelectedCall(call)} style={{ fontSize: 11, color: "var(--blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                        <button onClick={(e) => { e.stopPropagation(); setSelectedCall(call); }} style={{ fontSize: 11, color: "var(--blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
                           View →
                         </button>
                       </td>

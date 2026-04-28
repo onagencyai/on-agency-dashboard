@@ -15,14 +15,16 @@ interface MetricCardProps {
 }
 
 export default function MetricCard({ label, value, valueSuffix, icon, delta, children }: MetricCardProps) {
+  const safeDelta: DeltaProps = delta ?? { value: "— vs last period", direction: "neutral" };
+
   const deltaColor =
-    delta?.direction === "up"
+    safeDelta.direction === "up"
       ? "var(--green)"
-      : delta?.direction === "down"
+      : safeDelta.direction === "down"
       ? "var(--red)"
       : "var(--text-tertiary)";
 
-  const arrow = delta?.direction === "up" ? "↑" : delta?.direction === "down" ? "↓" : "·";
+  const arrow = safeDelta.direction === "up" ? "↑" : safeDelta.direction === "down" ? "↓" : "·";
 
   return (
     <div
@@ -87,18 +89,16 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
 
       {children}
 
-      {delta && (
-        <div
-          style={{
-            fontSize: 11,
-            fontFamily: "var(--font-geist-mono, monospace)",
-            color: deltaColor,
-            marginTop: children ? 8 : 0,
-          }}
-        >
-          {arrow} {delta.value}
-        </div>
-      )}
+      <div
+        style={{
+          fontSize: 11,
+          fontFamily: "var(--font-geist-mono, monospace)",
+          color: deltaColor,
+          marginTop: children ? 8 : 0,
+        }}
+      >
+        {arrow} {safeDelta.value}
+      </div>
     </div>
   );
 }
