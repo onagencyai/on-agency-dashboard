@@ -18,6 +18,8 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
   const safeDelta: DeltaProps = delta ?? { value: "— vs last period", direction: "up" };
   const isPlaceholderDelta =
     safeDelta.direction === "neutral" && safeDelta.value.trim().startsWith("—");
+  const deltaValueText =
+    safeDelta.value.trim() === "—" ? "— vs last period" : safeDelta.value;
 
   const deltaColor =
     isPlaceholderDelta || safeDelta.direction === "up"
@@ -105,7 +107,7 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
           marginTop: children ? 8 : 0,
         }}
       >
-        {arrow} {safeDelta.value}
+        {arrow} {deltaValueText}
       </div>
     </div>
   );

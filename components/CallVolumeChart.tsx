@@ -55,10 +55,10 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
     const [month = "", day = ""] = value.split(" ");
     return (
       <g transform={`translate(${x},${y})`}>
-        <text x={0} y={0} textAnchor="middle" fill="#8b8b8b" fontSize="11" fontWeight={600}>
+        <text x={0} y={4} textAnchor="middle" fill="#8b8b8b" fontSize="11" fontWeight={600}>
           {month}
         </text>
-        <text x={0} y={18} textAnchor="middle" fill="#b2b2b2" fontSize="11" fontWeight={500}>
+        <text x={0} y={28} textAnchor="middle" fill="#b2b2b2" fontSize="11" fontWeight={500}>
           {day}
         </text>
       </g>
@@ -84,14 +84,16 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
       <BarChart
         data={chartData}
         barSize={Math.max(5, Math.min(11, 380 / (data.dates.length || 1)))}
-        margin={{ top: 6, right: 8, left: 0, bottom: 16 }}
+        margin={{ top: 6, right: 8, left: 0, bottom: 8 }}
+        barGap="-100%"
+        barCategoryGap="22%"
       >
         <XAxis
           dataKey="date"
           tickLine={false}
           axisLine={false}
           tick={<CustomTick />}
-          height={54}
+          height={66}
           minTickGap={8}
           interval={0}
           padding={{ left: 10, right: 10 }}
@@ -109,6 +111,7 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
           fill="rgba(79,127,247,0.14)"
           radius={[8, 8, 8, 8]}
           isAnimationActive={false}
+          tooltipType="none"
         />
         <Bar
           dataKey="value"
