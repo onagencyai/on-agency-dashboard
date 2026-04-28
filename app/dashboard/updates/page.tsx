@@ -16,7 +16,7 @@ export default function UpdatesPage() {
   return (
     <div style={{ padding: 28 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+        <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
           Updates
         </span>
       </div>
@@ -102,15 +102,7 @@ function ContactCard({ icon, label, value, buttonLabel, href }: {
           display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12,
           background: "var(--bg-3)", border: "1px solid var(--border)",
           color: "var(--text-secondary)", padding: "6px 12px", borderRadius: 8,
-          fontSize: 12, cursor: "pointer", textDecoration: "none", transition: "all 0.15s",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "var(--border-hover)";
-          e.currentTarget.style.color = "var(--text-primary)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "var(--border)";
-          e.currentTarget.style.color = "var(--text-secondary)";
+          fontSize: 12, cursor: "pointer", textDecoration: "none",
         }}
       >
         {buttonLabel}
