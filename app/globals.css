@@ -34,6 +34,7 @@
   --amber-dim: rgba(245,158,11,0.12);
   --blue: #3b82f6;
   --blue-dim: rgba(59,130,246,0.12);
+  --chart-grid: rgba(17, 24, 39, 0.10);
 
   --dashboard-shell: #f3f4f6;
   --dashboard-panel: #ffffff;
@@ -66,6 +67,7 @@
   --amber-dim: rgba(245,158,11,0.12);
   --blue: #3b82f6;
   --blue-dim: rgba(59,130,246,0.12);
+  --chart-grid: rgba(255, 255, 255, 0.08);
 
   --dashboard-shell: #0a0a0a;
   --dashboard-panel: #111111;
