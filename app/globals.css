@@ -184,6 +184,12 @@ body {
   display: none;
 }
 
+.updates-contact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
 @media (max-width: 900px) {
   .dashboard-shell {
     padding: env(safe-area-inset-top) 0 0;
@@ -242,6 +248,13 @@ body {
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
+  }
+}
+
+@media (min-width: 901px) {
+  .updates-contact-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
   }
 }
 

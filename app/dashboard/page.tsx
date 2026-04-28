@@ -175,18 +175,19 @@ export default function ReceptionistOverviewPage() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 14 }}>
             <span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)" }}>Period</span>
-            <span
-              style={{
-                fontSize: 11,
-                background: "var(--bg-3)",
-                border: "1px solid var(--border)",
-                color: "var(--green)",
-                padding: "2px 8px",
-                borderRadius: 20,
-                fontFamily: "var(--font-geist-mono, monospace)",
-              }}
-            >
-              {dateLabel}
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "var(--green)",
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: 11, color: "var(--text-primary)", fontFamily: "var(--font-geist-mono, monospace)" }}>
+                {dateLabel}
+              </span>
             </span>
           </div>
         </div>
@@ -195,18 +196,19 @@ export default function ReceptionistOverviewPage() {
           <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
             Overview
           </span>
-          <span
-            style={{
-              fontSize: 10,
-              background: "var(--bg-3)",
-              border: "1px solid var(--border)",
-              color: "var(--green)",
-              padding: "2px 8px",
-              borderRadius: 20,
-              fontFamily: "var(--font-geist-mono, monospace)",
-            }}
-          >
-            {dateLabel}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: "var(--green)",
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 10, color: "var(--text-primary)", fontFamily: "var(--font-geist-mono, monospace)" }}>
+              {dateLabel}
+            </span>
           </span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />

@@ -57,7 +57,7 @@ export default function UpdatesPage() {
               How to reach us
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
+            <div className="updates-contact-grid" style={{ marginBottom: 16 }}>
               <ContactCard
                 icon={<Mail size={20} style={{ color: "var(--text-secondary)" }} />}
                 label="Email"
