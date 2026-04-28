@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Search, Download, PhoneOff, ChevronLeft, ChevronRight } from "lucide-react";
-import type { TimeRange, UserPublicMetadata, CallRow } from "@/lib/types";
+import type { TimeRange, CallRow } from "@/lib/types";
 import { getDateRange, formatDateRange } from "@/lib/dateRange";
 import { formatDuration } from "@/lib/formatters";
 import TimeRangeDropdown from "@/components/TimeRangeDropdown";
@@ -32,9 +32,7 @@ function getCallOutcome(call: CallRow): { label: string; color: string; bg: stri
 }
 
 export default function OutboundCallHistoryPage() {
-  const { user } = useUser();
-  const metadata = (user?.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
-  const clientId = metadata.client_id ?? "";
+  const { isLoaded } = useUser();
 
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
   const [activeTab, setActiveTab] = useState<OutcomeTab>("all");
@@ -60,7 +58,7 @@ export default function OutboundCallHistoryPage() {
   }, [search]);
 
   const fetchCalls = useCallback(async () => {
-    if (!clientId) return;
+    if (!isLoaded) return;
     setLoading(true);
     const f = from.toISOString();
     const t = to.toISOString();
@@ -80,7 +78,7 @@ export default function OutboundCallHistoryPage() {
     } finally {
       setLoading(false);
     }
-  }, [clientId, page, activeTab, debouncedSearch, timeRange]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isLoaded, page, activeTab, debouncedSearch, timeRange]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { void fetchCalls(); }, [fetchCalls]);
 

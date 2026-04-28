@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Download, PhoneOff } from "lucide-react";
 import Link from "next/link";
-import type { TimeRange, UserPublicMetadata, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
+import type { TimeRange, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange, formatDateRange } from "@/lib/dateRange";
 import { formatDuration, formatDurationSeconds } from "@/lib/formatters";
 import TimeRangeDropdown from "@/components/TimeRangeDropdown";
@@ -61,9 +61,7 @@ function getCallIntent(call: CallRow): string {
 }
  
 export default function ReceptionistOverviewPage() {
-  const { user, isLoaded } = useUser();
-  const metadata = (user?.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
-  const clientId = metadata.client_id ?? "";
+  const { isLoaded } = useUser();
  
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
   const [stats, setStats] = useState<ReceptionistStats | null>(null);
@@ -78,7 +76,7 @@ export default function ReceptionistOverviewPage() {
   const dateLabel = formatDateRange(from, to);
  
   const fetchData = useCallback(async () => {
-    if (!isLoaded || !clientId) return;
+    if (!isLoaded) return;
     setLoading(true);
     const f = from.toISOString();
     const t = to.toISOString();
@@ -96,7 +94,7 @@ export default function ReceptionistOverviewPage() {
     if (callsRes.status === "fulfilled") setCalls((callsRes.value as { calls: CallRow[] }).calls ?? []);
  
     setLoading(false);
-  }, [clientId, timeRange, isLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [timeRange, isLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
  
   useEffect(() => {
     void fetchData();

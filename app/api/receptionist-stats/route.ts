@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { resolveClientId } from "@/lib/resolve-client-id";
 
 const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;
 
@@ -31,7 +32,7 @@ export async function GET(req: NextRequest) {
   const user = await currentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const clientId = (user.publicMetadata as { client_id?: string }).client_id;
+  const clientId = await resolveClientId(user);
   if (!clientId) return NextResponse.json({ error: "No client ID" }, { status: 403 });
 
   const { searchParams } = new URL(req.url);

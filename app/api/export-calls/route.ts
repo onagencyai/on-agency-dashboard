@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { CallRow } from "@/lib/types";
+import { resolveClientId } from "@/lib/resolve-client-id";
 
 function getOutcome(call: CallRow): string {
   if (call.in_voicemail) return "Voicemail";
@@ -32,7 +33,7 @@ export async function GET(req: NextRequest) {
   const user = await currentUser();
   if (!user) return new NextResponse("Unauthorized", { status: 401 });
 
-  const clientId = (user.publicMetadata as { client_id?: string }).client_id;
+  const clientId = await resolveClientId(user);
   if (!clientId) return new NextResponse("Forbidden", { status: 403 });
 
   const { searchParams } = new URL(req.url);

@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Download, PhoneOff } from "lucide-react";
 import Link from "next/link";
-import type { TimeRange, UserPublicMetadata, OutboundStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
+import type { TimeRange, OutboundStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange, formatDateRange } from "@/lib/dateRange";
 import { formatDuration, formatDurationSeconds } from "@/lib/formatters";
 import TimeRangeDropdown from "@/components/TimeRangeDropdown";
@@ -66,9 +66,7 @@ function getCallOutcome(call: CallRow): { label: string; color: string; bg: stri
 }
 
 export default function OutboundOverviewPage() {
-  const { user } = useUser();
-  const metadata = (user?.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
-  const clientId = metadata.client_id ?? "";
+  const { isLoaded } = useUser();
 
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
   const [stats, setStats] = useState<OutboundStats | null>(null);
@@ -81,7 +79,7 @@ export default function OutboundOverviewPage() {
   const dateLabel = formatDateRange(from, to);
 
   const fetchData = useCallback(async () => {
-    if (!clientId) return;
+    if (!isLoaded) return;
     setLoading(true);
     const f = from.toISOString();
     const t = to.toISOString();
@@ -97,7 +95,7 @@ export default function OutboundOverviewPage() {
     if (callsRes.status === "fulfilled") setRecentCalls((callsRes.value as { calls: CallRow[] }).calls ?? []);
 
     setLoading(false);
-  }, [clientId, timeRange]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isLoaded, timeRange]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { void fetchData(); }, [fetchData]);
 

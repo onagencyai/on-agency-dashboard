@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { resolveClientId } from "@/lib/resolve-client-id";
 
 export async function GET() {
   const user = await currentUser();
@@ -8,9 +9,9 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const clientId = (user.publicMetadata as { client_id?: string }).client_id;
+  const clientId = await resolveClientId(user);
   if (!clientId) {
-    return NextResponse.json({ error: "No client ID in metadata" }, { status: 403 });
+    return NextResponse.json({ error: "No client ID" }, { status: 403 });
   }
 
   const supabase = createServerSupabaseClient();
