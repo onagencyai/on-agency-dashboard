@@ -17,13 +17,37 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const { user } = useUser();
   const metadata = (user?.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
-  const services = (metadata.services ?? ["receptionist"]) as ServiceType[];
-  const businessName = metadata.business_name ?? "";
+  const [services, setServices] = useState<ServiceType[]>((metadata.services ?? ["receptionist"]) as ServiceType[]);
+  const [businessName, setBusinessName] = useState(metadata.business_name ?? "");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function hydrateClientInfo() {
+      try {
+        const res = await fetch("/api/client-info", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json() as { services?: unknown; business_name?: unknown };
+        if (cancelled) return;
+
+        if (Array.isArray(data.services)) {
+          const parsed = data.services.filter((s): s is ServiceType => s === "receptionist" || s === "outbound");
+          if (parsed.length) setServices(parsed);
+        }
+        if (typeof data.business_name === "string") {
+          setBusinessName(data.business_name);
+        }
+      } catch {
+        // Keep metadata defaults when client-info fetch fails.
+      }
+    }
+    void hydrateClientInfo();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <div className="dashboard-shell">

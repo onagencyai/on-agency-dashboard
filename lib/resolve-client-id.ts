@@ -14,9 +14,6 @@ function metadataClientId(publicMetadata: unknown): string | null {
 }
 
 export async function resolveClientId(user: UserLike): Promise<string | null> {
-  const fromMetadata = metadataClientId(user.publicMetadata);
-  if (fromMetadata) return fromMetadata;
-
   const supabase = createServerSupabaseClient();
   const { data, error } = await supabase
     .from("clients")
@@ -25,6 +22,9 @@ export async function resolveClientId(user: UserLike): Promise<string | null> {
     .limit(1)
     .maybeSingle();
 
-  if (error || !data?.client_id) return null;
-  return data.client_id;
+  if (!error && data?.client_id) return data.client_id;
+
+  const fromMetadata = metadataClientId(user.publicMetadata);
+  if (fromMetadata) return fromMetadata;
+  return null;
 }
