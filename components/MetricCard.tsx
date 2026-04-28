@@ -34,8 +34,8 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
     <div
       style={{
         background: "var(--bg-1)",
-        padding: "16px 20px",
-        minHeight: 144,
+        padding: "14px 18px",
+        minHeight: 128,
         transition: "background 0.15s",
         cursor: "default",
       }}
@@ -76,7 +76,7 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
       >
         <span
           style={{
-            fontSize: 28,
+            fontSize: 26,
             fontWeight: 600,
             letterSpacing: "-0.04em",
             color: "var(--text-primary)",

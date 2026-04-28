@@ -7,6 +7,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 import type { CallVolumeData } from "@/lib/types";
 import type { SVGProps } from "react";
@@ -96,6 +97,7 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
           tickMargin={6}
           width={40}
         />
+        <CartesianGrid vertical={false} stroke="rgba(0,0,0,0.08)" strokeDasharray="0" />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
         <Bar
           dataKey={showOutbound ? "outbound" : "inbound"}
