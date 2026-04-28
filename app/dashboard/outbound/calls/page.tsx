@@ -96,13 +96,15 @@ export default function OutboundCallHistoryPage() {
           style={{
             display: "inline-flex",
             alignItems: "center",
+            gap: 6,
             padding: "2px 10px",
             borderRadius: 20,
-            background: "var(--bg-2)",
-            border: "1px solid var(--border)",
+            background: "var(--green-dim)",
+            border: "1px solid rgba(34,197,94,0.28)",
           }}
         >
-          <span style={{ fontSize: 10, color: "#0060f2", fontFamily: "var(--font-geist-mono, monospace)" }}>{dateLabel}</span>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", flexShrink: 0 }} />
+          <span style={{ fontSize: 10, color: "var(--green)", fontFamily: "var(--font-geist-mono, monospace)" }}>{dateLabel}</span>
         </span>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
           <TimeRangeDropdown value={timeRange} onChange={(v) => { setTimeRange(v); setPage(1); }} />
