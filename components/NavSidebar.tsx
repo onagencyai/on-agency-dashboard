@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
 import {
-  LayoutDashboard,
   Phone,
   BarChart2,
   Radio,
@@ -16,12 +15,13 @@ import {
 } from "lucide-react";
 import LogoMark from "./LogoMark";
 import ThemeToggle from "./ThemeToggle";
+import OverviewNavIcon from "./icons/OverviewNavIcon";
 import type { ServiceType } from "@/lib/types";
 
 interface NavItem {
   label: string;
   href: string;
-  icon: React.ElementType;
+  icon: React.ElementType | "overview";
 }
 
 interface NavSection {
@@ -36,7 +36,7 @@ function buildNavSections(services: ServiceType[]): NavSection[] {
     sections.push({
       heading: "AI RECEPTIONIST",
       items: [
-        { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+        { label: "Overview", href: "/dashboard", icon: "overview" },
         { label: "Call History", href: "/dashboard/calls", icon: Phone },
       ],
     });
@@ -63,9 +63,7 @@ function buildNavSections(services: ServiceType[]): NavSection[] {
 
   sections.push({
     heading: "CONFIGURATION",
-    items: [
-      { label: "Settings", href: "/dashboard/settings", icon: Settings },
-    ],
+    items: [{ label: "Settings", href: "/dashboard/settings", icon: Settings }],
   });
 
   return sections;
@@ -86,62 +84,49 @@ export default function NavSidebar({ services, businessName }: NavSidebarProps) 
     return pathname.startsWith(href);
   };
 
+  const displayBusiness = businessName.trim() || "Your business";
+
   return (
     <aside
       style={{
         width: 220,
-        height: "100vh",
-        position: "fixed",
-        left: 0,
-        top: 0,
-        background: "var(--bg-1)",
-        borderRight: "1px solid var(--border)",
+        minHeight: "calc(100vh - 32px)",
+        background: "var(--dashboard-panel)",
+        border: "1px solid var(--dashboard-border)",
+        borderRadius: 16,
+        boxShadow: "var(--dashboard-sidebar-shadow)",
         display: "flex",
         flexDirection: "column",
-        zIndex: 30,
+        flexShrink: 0,
+        overflow: "hidden",
       }}
     >
-      {/* Logo bar */}
       <div
         style={{
           height: 56,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "0 12px",
-          borderBottom: "1px solid var(--border)",
+          padding: "0 12px 0 20px",
           flexShrink: 0,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 24, height: 24, flexShrink: 0 }}>
-            <LogoMark size={18} className="text-[var(--text-primary)]" />
-          </div>
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              letterSpacing: "-0.02em",
-              color: "var(--text-primary)",
-              lineHeight: 1,
-            }}
-          >
-            ON Agency
-          </span>
+        <div style={{ width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "flex-start" }}>
+          <LogoMark size={20} className="text-[var(--text-primary)]" />
         </div>
         <ThemeToggle />
       </div>
 
-      {/* Nav sections */}
       <nav
         style={{
           flex: 1,
           overflowY: "auto",
           padding: "4px 12px 8px",
+          minHeight: 0,
         }}
       >
         {sections.map((section) => (
-          <div key={section.heading} style={{ paddingTop: 20, paddingBottom: 8 }}>
+          <div key={section.heading} style={{ paddingTop: 12, paddingBottom: 8 }}>
             <div
               style={{
                 fontSize: 10,
@@ -158,40 +143,34 @@ export default function NavSidebar({ services, businessName }: NavSidebarProps) 
             </div>
             {section.items.map((item) => {
               const active = isActive(item.href);
-              return (
-                <NavLink key={item.href} item={item} active={active} />
-              );
+              return <NavLink key={item.href} item={item} active={active} />;
             })}
           </div>
         ))}
       </nav>
 
-      {/* Bottom */}
-      <div
-        style={{
-          flexShrink: 0,
-          borderTop: "1px solid var(--border)",
-          padding: 12,
-        }}
-      >
-        {businessName && (
-          <div
-            style={{
-              fontSize: 10,
-              fontWeight: 300,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "var(--text-tertiary)",
-              padding: "2px 8px",
-              marginBottom: 4,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {businessName}
-          </div>
-        )}
+      <div style={{ flexShrink: 0, padding: "12px 12px 14px" }}>
+        <div
+          style={{
+            height: 1,
+            margin: "0 10px 12px",
+            background: "var(--sidebar-divider)",
+            borderRadius: 1,
+          }}
+        />
+        <div
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
+            color: "var(--text-primary)",
+            padding: "0 8px 10px",
+            lineHeight: 1.3,
+            wordBreak: "break-word",
+          }}
+        >
+          {displayBusiness}
+        </div>
         <LogoutButton onSignOut={() => signOut({ redirectUrl: "/sign-in" })} />
       </div>
     </aside>
@@ -199,7 +178,7 @@ export default function NavSidebar({ services, businessName }: NavSidebarProps) 
 }
 
 function NavLink({ item, active }: { item: NavItem; active: boolean }) {
-  const Icon = item.icon;
+  const LucideIcon = item.icon === "overview" ? null : item.icon;
   return (
     <Link
       href={item.href}
@@ -207,20 +186,19 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
         display: "flex",
         alignItems: "center",
         gap: 10,
-        padding: "7px 8px",
-        borderRadius: 8,
+        padding: "8px 10px",
+        borderRadius: 10,
         fontSize: 13,
         fontWeight: active ? 500 : 400,
-        color: active ? "var(--text-primary)" : "var(--text-secondary)",
-        background: active ? "var(--accent-dim)" : "transparent",
+        color: active ? "var(--nav-active-text)" : "var(--text-secondary)",
+        background: active ? "var(--nav-active-bg)" : "transparent",
         textDecoration: "none",
-        marginBottom: 1,
-        transition: "all 0.15s",
-        position: "relative",
+        marginBottom: 2,
+        transition: "background 0.15s, color 0.15s",
       }}
       onMouseEnter={(e) => {
         if (!active) {
-          e.currentTarget.style.background = "var(--accent-dim)";
+          e.currentTarget.style.background = "var(--bg-2)";
           e.currentTarget.style.color = "var(--text-primary)";
         }
       }}
@@ -231,23 +209,18 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
         }
       }}
     >
-      {active && (
-        <span
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 6,
-            bottom: 6,
-            width: 2,
-            background: "var(--accent)",
-            borderRadius: 2,
-          }}
-        />
+      {item.icon === "overview" ? (
+        <span style={{ flexShrink: 0, display: "flex", opacity: active ? 1 : 0.85 }}>
+          <OverviewNavIcon />
+        </span>
+      ) : (
+        LucideIcon && (
+          <LucideIcon
+            size={16}
+            style={{ opacity: active ? 1 : 0.65, flexShrink: 0, transition: "opacity 0.15s" }}
+          />
+        )
       )}
-      <Icon
-        size={16}
-        style={{ opacity: active ? 1 : 0.6, flexShrink: 0, transition: "opacity 0.15s" }}
-      />
       {item.label}
     </Link>
   );

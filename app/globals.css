@@ -34,6 +34,14 @@
   --amber-dim: rgba(245,158,11,0.12);
   --blue: #3b82f6;
   --blue-dim: rgba(59,130,246,0.12);
+
+  --dashboard-shell: #eef0f4;
+  --dashboard-panel: #ffffff;
+  --dashboard-border: rgba(15, 23, 42, 0.08);
+  --dashboard-sidebar-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --nav-active-bg: #eef2ff;
+  --nav-active-text: #3730a3;
+  --sidebar-divider: rgba(15, 23, 42, 0.12);
 }
 
 /* ── Dark mode ── */
@@ -58,6 +66,14 @@
   --amber-dim: rgba(245,158,11,0.12);
   --blue: #3b82f6;
   --blue-dim: rgba(59,130,246,0.12);
+
+  --dashboard-shell: #0a0a0a;
+  --dashboard-panel: #111111;
+  --dashboard-border: rgba(255, 255, 255, 0.08);
+  --dashboard-sidebar-shadow: none;
+  --nav-active-bg: rgba(99, 102, 241, 0.22);
+  --nav-active-text: #c7d2fe;
+  --sidebar-divider: rgba(255, 255, 255, 0.14);
 }
 
 * {

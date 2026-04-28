@@ -33,7 +33,7 @@ export default function RootLayout({
               __html: `
                 try {
                   const stored = localStorage.getItem('on-agency-theme');
-                  if (stored !== 'light') {
+                  if (stored === 'dark') {
                     document.documentElement.classList.add('dark');
                   }
                 } catch {}

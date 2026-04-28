@@ -67,7 +67,8 @@ export default function SignInPage() {
           color: rgba(17, 24, 39, 0.45);
           font-size: 13px;
           line-height: 1;
-          letter-spacing: -0.01em;
+          letter-spacing: -0.02em;
+          font-family: var(--font-geist-sans, system-ui, sans-serif);
           text-decoration: none;
           transition: color 0.15s ease;
         }
@@ -109,7 +110,7 @@ export default function SignInPage() {
           minHeight: "100vh",
           background: "#FAFAFA",
           backgroundImage:
-            "radial-gradient(circle, rgba(107,114,128,0.32) 1px, transparent 1px)",
+            "radial-gradient(circle, rgba(107,114,128,0.14) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
           position: "relative",
           display: "flex",

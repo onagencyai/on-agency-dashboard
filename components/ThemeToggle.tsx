@@ -1,20 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 
 export default function ThemeToggle() {
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("on-agency-theme");
-    const dark = stored !== "light";
-    setIsDark(dark);
-    if (dark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+  useLayoutEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
 
   function toggle() {
@@ -25,7 +18,7 @@ export default function ThemeToggle() {
       localStorage.setItem("on-agency-theme", "dark");
     } else {
       document.documentElement.classList.remove("dark");
-      localStorage.setItem("on-agency-theme", "light");
+      localStorage.removeItem("on-agency-theme");
     }
   }
 

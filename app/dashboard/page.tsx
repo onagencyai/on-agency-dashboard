@@ -124,10 +124,10 @@ export default function ReceptionistOverviewPage() {
     : undefined;
 
   return (
-    <div style={{ padding: 28 }}>
-      {/* Section header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+    <div style={{ padding: "28px 32px 32px" }}>
+      {/* Section header — title row like dashboard reference */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
           Overview
         </span>
         <span
