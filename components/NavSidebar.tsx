@@ -6,7 +6,6 @@ import { useClerk } from "@clerk/nextjs";
 import {
   Phone,
   BarChart2,
-  Radio,
   PhoneOutgoing,
   PenLine,
   CreditCard,
@@ -36,8 +35,8 @@ function buildNavSections(services: ServiceType[]): NavSection[] {
     sections.push({
       heading: "AI RECEPTIONIST",
       items: [
-        { label: "Overview", href: "/dashboard", icon: "overview" },
-        { label: "Call History", href: "/dashboard/calls", icon: Phone },
+        { label: "Overview", href: "/dashboard/receptionist", icon: "overview" },
+        { label: "Call History", href: "/dashboard/receptionist-call-history", icon: Phone },
       ],
     });
   }
@@ -47,8 +46,7 @@ function buildNavSections(services: ServiceType[]): NavSection[] {
       heading: "AI OUTBOUND CALLER",
       items: [
         { label: "Overview", href: "/dashboard/outbound", icon: BarChart2 },
-        { label: "Campaigns", href: "/dashboard/outbound/campaigns", icon: Radio },
-        { label: "Call History", href: "/dashboard/outbound/calls", icon: PhoneOutgoing },
+        { label: "Call History", href: "/dashboard/outbound-call-history", icon: PhoneOutgoing },
       ],
     });
   }
@@ -82,7 +80,7 @@ export default function NavSidebar({ services, businessName, mobileOpen = false,
   const sections = buildNavSections(services);
 
   const isActive = (href: string) => {
-    if (href === "/dashboard") return pathname === "/dashboard";
+    if (href === "/dashboard/receptionist") return pathname === "/dashboard/receptionist" || pathname === "/dashboard";
     return pathname.startsWith(href);
   };
 

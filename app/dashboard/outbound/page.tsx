@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Download, PhoneOff } from "lucide-react";
+import { Download, PhoneOff, PhoneCall, UserCheck, Target, Clock3 } from "lucide-react";
 import Link from "next/link";
 import type { TimeRange, OutboundStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange, formatDateRange } from "@/lib/dateRange";
@@ -74,6 +74,7 @@ export default function OutboundOverviewPage() {
   const [recentCalls, setRecentCalls] = useState<CallRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCall, setSelectedCall] = useState<CallRow | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const { from, to } = getDateRange(timeRange);
   const dateLabel = formatDateRange(from, to);
@@ -99,6 +100,14 @@ export default function OutboundOverviewPage() {
 
   useEffect(() => { void fetchData(); }, [fetchData]);
 
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 900px)");
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
   function handleExport() {
     const f = from.toISOString();
     const t = to.toISOString();
@@ -107,6 +116,12 @@ export default function OutboundOverviewPage() {
 
   const cur = stats?.current;
   const prev = stats?.previous;
+  const metricCardShell = {
+    border: "1px solid var(--border)",
+    borderRadius: 12,
+    overflow: "hidden",
+    background: "var(--bg-1)",
+  } as const;
 
   const outboundVolume: CallVolumeData = volume
     ? { dates: volume.dates, inbound: volume.dates.map(() => 0), outbound: volume.outbound }
@@ -156,57 +171,73 @@ export default function OutboundOverviewPage() {
       {/* Metric cards */}
       {loading ? (
         <div style={{
-          display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1,
-          background: "var(--border)", borderRadius: 12, overflow: "hidden",
-          border: "1px solid var(--border)", marginBottom: 24,
+          display: "grid",
+          gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+          gap: 12,
+          marginBottom: 24,
         }}>
           {[0,1,2,3].map((i) => (
-            <div key={i} style={{ background: "var(--bg-1)", padding: "20px 24px" }}>
+            <div key={i} style={metricCardShell}>
+              <div style={{ padding: "20px 24px" }}>
               <div className="skeleton" style={{ height: 10, width: 80, marginBottom: 12 }} />
               <div className="skeleton" style={{ height: 28, width: 60 }} />
+              </div>
             </div>
           ))}
         </div>
       ) : (
         <div style={{
-          display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1,
-          background: "var(--border)", borderRadius: 12, overflow: "hidden",
-          border: "1px solid var(--border)", marginBottom: 24,
+          display: "grid",
+          gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+          gap: 12,
+          marginBottom: 24,
         }}>
-          <MetricCard
-            label="Total Calls Made"
-            value={cur?.total_calls ?? 0}
-            delta={cur && prev ? pctDelta(cur.total_calls, prev.total_calls) : undefined}
-          />
-          <MetricCard
-            label="Contact Rate"
-            value={safePct(cur?.contacted_count ?? 0, cur?.total_calls ?? 0)}
-            delta={cur && prev ? pctDelta(
-              cur.total_calls > 0 ? cur.contacted_count / cur.total_calls : 0,
-              prev.total_calls > 0 ? prev.contacted_count / prev.total_calls : 0,
-            ) : undefined}
-          />
-          <MetricCard
-            label="Conversion Rate"
-            value={safePct(cur?.converted_count ?? 0, cur?.contacted_count ?? 0)}
-            delta={cur && prev ? pctDelta(
-              cur.contacted_count > 0 ? cur.converted_count / cur.contacted_count : 0,
-              prev.contacted_count > 0 ? prev.converted_count / prev.contacted_count : 0,
-            ) : undefined}
-          />
-          <MetricCard
-            label="Avg Duration"
-            value={formatDurationSeconds(cur?.avg_duration_seconds)}
-            delta={cur && prev ? {
-              value: `${formatDurationSeconds(Math.abs(cur.avg_duration_seconds - prev.avg_duration_seconds))} vs last period`,
-              direction: cur.avg_duration_seconds >= prev.avg_duration_seconds ? "up" : "down",
-            } : undefined}
-          />
+          <div style={metricCardShell}>
+            <MetricCard
+              label="Total Calls Made"
+              value={cur?.total_calls ?? 0}
+              icon={<PhoneCall size={12} />}
+              delta={cur && prev ? pctDelta(cur.total_calls, prev.total_calls) : undefined}
+            />
+          </div>
+          <div style={metricCardShell}>
+            <MetricCard
+              label="Contact Rate"
+              value={safePct(cur?.contacted_count ?? 0, cur?.total_calls ?? 0)}
+              icon={<UserCheck size={12} />}
+              delta={cur && prev ? pctDelta(
+                cur.total_calls > 0 ? cur.contacted_count / cur.total_calls : 0,
+                prev.total_calls > 0 ? prev.contacted_count / prev.total_calls : 0,
+              ) : undefined}
+            />
+          </div>
+          <div style={metricCardShell}>
+            <MetricCard
+              label="Conversion Rate"
+              value={safePct(cur?.converted_count ?? 0, cur?.contacted_count ?? 0)}
+              icon={<Target size={12} />}
+              delta={cur && prev ? pctDelta(
+                cur.contacted_count > 0 ? cur.converted_count / cur.contacted_count : 0,
+                prev.contacted_count > 0 ? prev.converted_count / prev.contacted_count : 0,
+              ) : undefined}
+            />
+          </div>
+          <div style={metricCardShell}>
+            <MetricCard
+              label="Avg Duration"
+              value={formatDurationSeconds(cur?.avg_duration_seconds)}
+              icon={<Clock3 size={12} />}
+              delta={cur && prev ? {
+                value: `${formatDurationSeconds(Math.abs(cur.avg_duration_seconds - prev.avg_duration_seconds))} vs last period`,
+                direction: cur.avg_duration_seconds >= prev.avg_duration_seconds ? "up" : "down",
+              } : undefined}
+            />
+          </div>
         </div>
       )}
 
       {/* Charts */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16, marginBottom: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1.2fr) minmax(360px, 0.85fr)", gap: 16, marginBottom: 16 }}>
         <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
             <div>
@@ -242,7 +273,7 @@ export default function OutboundOverviewPage() {
       <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid var(--border)", gap: 10 }}>
           <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>Recent Outbound Calls</span>
-          <Link href="/dashboard/outbound/calls" style={{ marginLeft: "auto", fontSize: 12, color: "var(--blue)", textDecoration: "none" }}>
+          <Link href="/dashboard/outbound-call-history" style={{ marginLeft: "auto", fontSize: 12, color: "var(--blue)", textDecoration: "none" }}>
             View all →
           </Link>
         </div>
