@@ -35,6 +35,12 @@ function sentimentScore(pos: number, neu: number, neg: number): string {
   const score = (pos * 5 + neu * 3 + neg * 1) / total;
   return score.toFixed(1);
 }
+
+function sentimentScoreValue(pos: number, neu: number, neg: number): number | null {
+  const total = pos + neu + neg;
+  if (!total) return null;
+  return (pos * 5 + neu * 3 + neg * 1) / total;
+}
  
 function formatTalkTime(ms: number): string {
   if (!ms) return "0m";
@@ -116,139 +122,200 @@ export default function ReceptionistOverviewPage() {
  
   const cur = stats?.current;
   const prev = stats?.previous;
+  const metricCardShell = {
+    border: "1px solid var(--border)",
+    borderRadius: 12,
+    overflow: "hidden",
+    background: "var(--bg-1)",
+  } as const;
  
   const totalCallsDelta = cur && prev ? pctDelta(cur.total_calls, prev.total_calls) : undefined;
   const avgDurationDelta = cur && prev ? pctDelta(cur.avg_duration_seconds * 1000, prev.avg_duration_seconds * 1000, true) : undefined;
   const talkTimeDelta = cur && prev ? pctDelta(cur.total_duration_ms, prev.total_duration_ms) : undefined;
  
-  const curScore = cur ? parseFloat(sentimentScore(cur.positive_count, cur.neutral_count, cur.negative_count)) : 0;
-  const prevScore = prev ? parseFloat(sentimentScore(prev.positive_count, prev.neutral_count, prev.negative_count)) : 0;
+  const curScore = cur ? sentimentScoreValue(cur.positive_count, cur.neutral_count, cur.negative_count) : null;
+  const prevScore = prev ? sentimentScoreValue(prev.positive_count, prev.neutral_count, prev.negative_count) : null;
   const sentDelta: { value: string; direction: "up" | "down" | "neutral" } | undefined = cur && prev
-    ? {
-        value: `${Math.abs(curScore - prevScore).toFixed(1)} vs last period`,
-        direction: curScore >= prevScore ? "up" : "down",
-      }
+    ? curScore === null || prevScore === null
+      ? { value: "—", direction: "neutral" }
+      : {
+          value: `${Math.abs(curScore - prevScore).toFixed(1)} vs last period`,
+          direction: curScore >= prevScore ? "up" : "down",
+        }
     : undefined;
+
+  const inboundOnlyVolume: CallVolumeData = volume
+    ? { dates: volume.dates, inbound: volume.inbound, outbound: volume.dates.map(() => 0) }
+    : { dates: [], inbound: [], outbound: [] };
  
   return (
     <div style={{ padding: isMobile ? "18px 12px 20px" : "28px 24px 24px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
-          Overview
-        </span>
-        <span
-          style={{
-            fontSize: 10, background: "var(--bg-3)", border: "1px solid var(--border)",
-            color: "var(--text-tertiary)", padding: "2px 8px", borderRadius: 20,
-            fontFamily: "var(--font-geist-mono, monospace)",
-          }}
-        >
-          {dateLabel}
-        </span>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10, width: isMobile ? "100%" : "auto", justifyContent: isMobile ? "flex-end" : "initial" }}>
-          <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
-          <button
-            onClick={handleExport}
-            style={{
-              background: "var(--accent)", color: "var(--bg)", border: "none",
-              padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
-              cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6,
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-          >
-            <Download size={12} />
-            Export
-          </button>
+      {isMobile ? (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+            <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+              Overview
+            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
+              <button
+                onClick={handleExport}
+                style={{
+                  background: "var(--accent)", color: "var(--bg)", border: "none",
+                  padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+                  cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+              >
+                <Download size={12} />
+                Export
+              </button>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
+            <span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)" }}>Period</span>
+            <span
+              style={{
+                fontSize: 11,
+                background: "var(--green-dim)",
+                border: "1px solid rgba(34,197,94,0.3)",
+                color: "var(--green)",
+                padding: "2px 8px",
+                borderRadius: 20,
+                fontFamily: "var(--font-geist-mono, monospace)",
+              }}
+            >
+              {dateLabel}
+            </span>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+          <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+            Overview
+          </span>
+          <span
+            style={{
+              fontSize: 10,
+              background: "var(--green-dim)",
+              border: "1px solid rgba(34,197,94,0.3)",
+              color: "var(--green)",
+              padding: "2px 8px",
+              borderRadius: 20,
+              fontFamily: "var(--font-geist-mono, monospace)",
+            }}
+          >
+            {dateLabel}
+          </span>
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+            <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
+            <button
+              onClick={handleExport}
+              style={{
+                background: "var(--accent)", color: "var(--bg)", border: "none",
+                padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+                cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6,
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+            >
+              <Download size={12} />
+              Export
+            </button>
+          </div>
+        </div>
+      )}
  
       {loading ? (
         <div
           style={{
-            display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 1,
-            background: "var(--border)", borderRadius: 12, overflow: "hidden",
-            border: "1px solid var(--border)", marginBottom: 24,
+            display: "grid",
+            gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+            gap: 12,
+            marginBottom: 24,
           }}
         >
           {[0,1,2,3].map((i) => (
-            <div key={i} style={{ background: "var(--bg-1)", padding: "20px 24px" }}>
+            <div key={i} style={metricCardShell}>
+              <div style={{ padding: "20px 24px" }}>
               <div className="skeleton" style={{ height: 10, width: 80, marginBottom: 12 }} />
               <div className="skeleton" style={{ height: 28, width: 60, marginBottom: 8 }} />
               <div className="skeleton" style={{ height: 8, width: 120 }} />
+              </div>
             </div>
           ))}
         </div>
       ) : (
         <div
           style={{
-            display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 1,
-            background: "var(--border)", borderRadius: 12, overflow: "hidden",
-            border: "1px solid var(--border)", marginBottom: 24,
+            display: "grid",
+            gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+            gap: 12,
+            marginBottom: 24,
           }}
         >
-          <MetricCard
-            label="Total Calls"
-            value={cur?.total_calls ?? 0}
-            icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 10V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><path d="M1 10h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>}
-            delta={totalCallsDelta}
-          />
-          <MetricCard
-            label="Avg Duration"
-            value={formatDurationSeconds(cur?.avg_duration_seconds)}
-            icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.2"/><path d="M6 4v2.5l1.5 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>}
-            delta={avgDurationDelta}
-          />
-          <MetricCard
-            label="Sentiment Score"
-            value={
-              cur && (cur.positive_count + cur.neutral_count + cur.negative_count) > 0
-                ? sentimentScore(cur.positive_count, cur.neutral_count, cur.negative_count)
-                : "—"
-            }
-            valueSuffix={cur && (cur.positive_count + cur.neutral_count + cur.negative_count) > 0 ? "/5" : undefined}
-            delta={sentDelta}
-          >
-            {cur && (
-              <SentimentBar
-                positive={cur.positive_count}
-                neutral={cur.neutral_count}
-                negative={cur.negative_count}
-              />
-            )}
-          </MetricCard>
-          <MetricCard
-            label="Total Talk Time"
-            value={formatTalkTime(cur?.total_duration_ms ?? 0)}
-            icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h2M3 4v4M5 2v8M7 3v6M9 4v4M11 6h0" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>}
-            delta={talkTimeDelta}
-          />
+          <div style={metricCardShell}>
+            <MetricCard
+              label="Total Calls"
+              value={cur?.total_calls ?? 0}
+              icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 10V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><path d="M1 10h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>}
+              delta={totalCallsDelta}
+            />
+          </div>
+          <div style={metricCardShell}>
+            <MetricCard
+              label="Avg Duration"
+              value={formatDurationSeconds(cur?.avg_duration_seconds)}
+              icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.2"/><path d="M6 4v2.5l1.5 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>}
+              delta={avgDurationDelta}
+            />
+          </div>
+          <div style={metricCardShell}>
+            <MetricCard
+              label="Sentiment Score"
+              icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5l1.45 2.94 3.25.47-2.35 2.29.55 3.24L6 8.92 3.1 10.44l.55-3.24L1.3 4.91l3.25-.47L6 1.5z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round"/></svg>}
+              value={
+                cur && (cur.positive_count + cur.neutral_count + cur.negative_count) > 0
+                  ? sentimentScore(cur.positive_count, cur.neutral_count, cur.negative_count)
+                  : "—"
+              }
+              valueSuffix={cur && (cur.positive_count + cur.neutral_count + cur.negative_count) > 0 ? "/5" : undefined}
+              delta={sentDelta}
+            >
+              {cur && (
+                <SentimentBar
+                  positive={cur.positive_count}
+                  neutral={cur.neutral_count}
+                  negative={cur.negative_count}
+                />
+              )}
+            </MetricCard>
+          </div>
+          <div style={metricCardShell}>
+            <MetricCard
+              label="Total Talk Time"
+              value={formatTalkTime(cur?.total_duration_ms ?? 0)}
+              icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h2M3 4v4M5 2v8M7 3v6M9 4v4M11 6h0" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>}
+              delta={talkTimeDelta}
+            />
+          </div>
         </div>
       )}
  
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 340px", gap: 16, marginBottom: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1.2fr) minmax(360px, 0.85fr)", gap: 16, marginBottom: 16 }}>
         <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
             <div>
               <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>Call Volume</span>
               <span style={{ fontSize: 11, color: "var(--text-tertiary)", marginLeft: 8 }}>Daily</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 2, background: "rgba(237,237,237,0.5)", display: "inline-block" }} />
-                <span style={{ fontSize: 11, color: "var(--text-tertiary)" }}>Inbound</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 2, background: "rgba(59,130,246,0.7)", display: "inline-block" }} />
-                <span style={{ fontSize: 11, color: "var(--text-tertiary)" }}>Outbound</span>
-              </div>
-            </div>
           </div>
           <div style={{ padding: 20 }}>
             {loading || !volume ? (
               <div className="skeleton" style={{ height: 220 }} />
             ) : (
-              <CallVolumeChart data={volume} />
+              <CallVolumeChart data={inboundOnlyVolume} showOutbound={false} />
             )}
           </div>
         </div>

@@ -45,9 +45,10 @@ function CustomTooltip({ active, payload, label }: {
 
 interface CallVolumeChartProps {
   data: CallVolumeData;
+  showOutbound?: boolean;
 }
 
-export default function CallVolumeChart({ data }: CallVolumeChartProps) {
+export default function CallVolumeChart({ data, showOutbound = true }: CallVolumeChartProps) {
   const chartData = data.dates.map((date, i) => ({
     date,
     inbound: data.inbound[i] ?? 0,
@@ -72,7 +73,7 @@ export default function CallVolumeChart({ data }: CallVolumeChartProps) {
         />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
         <Bar dataKey="inbound" name="Inbound" stackId="a" fill="rgba(237,237,237,0.18)" radius={[2, 2, 0, 0]} />
-        <Bar dataKey="outbound" name="Outbound" stackId="a" fill="rgba(59,130,246,0.45)" radius={[2, 2, 0, 0]} />
+        {showOutbound && <Bar dataKey="outbound" name="Outbound" stackId="a" fill="rgba(59,130,246,0.45)" radius={[2, 2, 0, 0]} />}
       </BarChart>
     </ResponsiveContainer>
   );

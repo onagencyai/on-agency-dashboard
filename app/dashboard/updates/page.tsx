@@ -37,7 +37,7 @@ export default function UpdatesPage() {
         {/* Panel body */}
         <div style={{ padding: 28 }}>
           <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, maxWidth: 560, marginBottom: 24 }}>
-            Want to update your AI receptionist? We handle all changes for you — just send us a message.
+            Want to update your AI agent? We handle all changes for you — just send us a message.
           </p>
 
           <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text-tertiary)", marginBottom: 12 }}>
@@ -57,7 +57,7 @@ export default function UpdatesPage() {
               How to reach us
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
               <ContactCard
                 icon={<Mail size={20} style={{ color: "var(--text-secondary)" }} />}
                 label="Email"
