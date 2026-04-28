@@ -72,9 +72,11 @@ function buildNavSections(services: ServiceType[]): NavSection[] {
 interface NavSidebarProps {
   services: ServiceType[];
   businessName: string;
+  mobileOpen?: boolean;
+  onClose?: () => void;
 }
 
-export default function NavSidebar({ services, businessName }: NavSidebarProps) {
+export default function NavSidebar({ services, businessName, mobileOpen = false, onClose }: NavSidebarProps) {
   const pathname = usePathname();
   const { signOut } = useClerk();
   const sections = buildNavSections(services);
@@ -87,7 +89,7 @@ export default function NavSidebar({ services, businessName }: NavSidebarProps) 
   const displayBusiness = businessName.trim() || "Your business";
 
   return (
-    <aside className="dashboard-sidebar">
+    <aside className={`dashboard-sidebar${mobileOpen ? " is-open" : ""}`}>
       <div
         style={{
           height: 56,
@@ -101,7 +103,9 @@ export default function NavSidebar({ services, businessName }: NavSidebarProps) 
         <div style={{ width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "flex-start" }}>
           <LogoMark size={20} className="text-[var(--text-primary)]" />
         </div>
-        <ThemeToggle />
+        <div className="sidebar-theme-toggle">
+          <ThemeToggle />
+        </div>
       </div>
 
       <nav
@@ -130,7 +134,7 @@ export default function NavSidebar({ services, businessName }: NavSidebarProps) 
             </div>
             {section.items.map((item) => {
               const active = isActive(item.href);
-              return <NavLink key={item.href} item={item} active={active} />;
+              return <NavLink key={item.href} item={item} active={active} onNavigate={onClose} />;
             })}
           </div>
         ))}
@@ -164,11 +168,12 @@ export default function NavSidebar({ services, businessName }: NavSidebarProps) 
   );
 }
 
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+function NavLink({ item, active, onNavigate }: { item: NavItem; active: boolean; onNavigate?: () => void }) {
   const LucideIcon = item.icon === "overview" ? null : item.icon;
   return (
     <Link
       href={item.href}
+      onClick={onNavigate}
       style={{
         display: "flex",
         alignItems: "center",
