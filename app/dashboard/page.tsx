@@ -173,13 +173,13 @@ export default function ReceptionistOverviewPage() {
               </button>
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 14 }}>
             <span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)" }}>Period</span>
             <span
               style={{
                 fontSize: 11,
-                background: "var(--green-dim)",
-                border: "1px solid rgba(34,197,94,0.3)",
+                background: "var(--bg-3)",
+                border: "1px solid var(--border)",
                 color: "var(--green)",
                 padding: "2px 8px",
                 borderRadius: 20,
@@ -198,8 +198,8 @@ export default function ReceptionistOverviewPage() {
           <span
             style={{
               fontSize: 10,
-              background: "var(--green-dim)",
-              border: "1px solid rgba(34,197,94,0.3)",
+              background: "var(--bg-3)",
+              border: "1px solid var(--border)",
               color: "var(--green)",
               padding: "2px 8px",
               borderRadius: 20,

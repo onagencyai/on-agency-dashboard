@@ -123,7 +123,7 @@ export default function OutboundOverviewPage() {
         </span>
         <span style={{
           fontSize: 10, background: "var(--bg-3)", border: "1px solid var(--border)",
-          color: "var(--text-tertiary)", padding: "2px 8px", borderRadius: 20,
+          color: "var(--green)", padding: "2px 8px", borderRadius: 20,
           fontFamily: "var(--font-geist-mono, monospace)",
         }}>
           {dateLabel}

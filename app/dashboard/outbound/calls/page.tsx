@@ -92,7 +92,7 @@ export default function OutboundCallHistoryPage() {
     <div style={{ padding: 28 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
         <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Outbound Call History</span>
-        <span style={{ fontSize: 10, background: "var(--bg-3)", border: "1px solid var(--border)", color: "var(--text-tertiary)", padding: "2px 8px", borderRadius: 20, fontFamily: "var(--font-geist-mono, monospace)" }}>
+        <span style={{ fontSize: 10, background: "var(--bg-3)", border: "1px solid var(--border)", color: "var(--green)", padding: "2px 8px", borderRadius: 20, fontFamily: "var(--font-geist-mono, monospace)" }}>
           {dateLabel}
         </span>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
