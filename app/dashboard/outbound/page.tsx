@@ -120,7 +120,7 @@ export default function OutboundOverviewPage() {
     <div style={{ padding: 28 }}>
       {/* Section header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+        <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
           Outbound Overview
         </span>
         <span style={{

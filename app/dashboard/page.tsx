@@ -136,7 +136,7 @@ export default function ReceptionistOverviewPage() {
     <div style={{ padding: isMobile ? "18px 12px 20px" : "28px 24px 24px" }}>
       {/* Section header — title row like dashboard reference */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+        <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
           Overview
         </span>
         <span

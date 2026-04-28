@@ -123,6 +123,7 @@ export default function SignInPage() {
           .oa-top-grid {
             height: min(36vh, 300px);
             background-size: 46px 46px;
+            background-position: 0 0, 0 1px;
           }
         }
       `}</style>

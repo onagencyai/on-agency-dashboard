@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import type { ReactNode } from "react";
 import { PenLine, CheckCircle2, Mail, MessageSquare } from "lucide-react";
 
 const UPDATE_ITEMS = [
@@ -15,7 +16,7 @@ export default function UpdatesPage() {
   return (
     <div style={{ padding: 28 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+        <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
           Updates
         </span>
       </div>
@@ -84,7 +85,7 @@ export default function UpdatesPage() {
 }
 
 function ContactCard({ icon, label, value, buttonLabel, href }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: string;
   buttonLabel: string;
