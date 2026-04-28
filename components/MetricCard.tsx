@@ -15,27 +15,18 @@ interface MetricCardProps {
 }
 
 export default function MetricCard({ label, value, valueSuffix, icon, delta, children }: MetricCardProps) {
-  const safeDelta: DeltaProps = delta ?? { value: "— vs last period", direction: "up" };
-  const isPlaceholderDelta =
-    safeDelta.direction === "neutral" && safeDelta.value.trim().startsWith("—");
-  const normalizedDeltaValue = safeDelta.value.trim();
-  const deltaValueText =
-    normalizedDeltaValue === "—" || !normalizedDeltaValue.toLowerCase().includes("vs last period")
-      ? `${normalizedDeltaValue === "—" ? "—" : normalizedDeltaValue} vs last period`
-      : safeDelta.value;
+  const safeDelta: DeltaProps | undefined = delta;
 
   const deltaColor =
-    isPlaceholderDelta || safeDelta.direction === "up"
+    safeDelta?.direction === "up"
       ? "var(--green)"
-      : safeDelta.direction === "down"
+      : safeDelta?.direction === "down"
       ? "var(--red)"
       : "var(--text-tertiary)";
 
-  const arrow = isPlaceholderDelta
+  const arrow = safeDelta?.direction === "up"
     ? "↑"
-    : safeDelta.direction === "up"
-    ? "↑"
-    : safeDelta.direction === "down"
+    : safeDelta?.direction === "down"
     ? "↓"
     : "·";
 
@@ -43,7 +34,8 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
     <div
       style={{
         background: "var(--bg-1)",
-        padding: "20px 24px",
+        padding: "16px 20px",
+        minHeight: 144,
         transition: "background 0.15s",
         cursor: "default",
       }}
@@ -55,7 +47,7 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
           display: "flex",
           alignItems: "center",
           gap: 6,
-          marginBottom: 8,
+          marginBottom: 6,
         }}
       >
         {icon && (
@@ -79,7 +71,7 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
           display: "flex",
           alignItems: "baseline",
           gap: 4,
-          marginBottom: children ? 10 : 8,
+          marginBottom: children ? 8 : 6,
         }}
       >
         <span
@@ -102,16 +94,18 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
 
       {children}
 
-      <div
-        style={{
-          fontSize: 11,
-          fontFamily: "var(--font-geist-mono, monospace)",
-          color: deltaColor,
-          marginTop: children ? 12 : 6,
-        }}
-      >
-        {arrow} {deltaValueText}
-      </div>
+      {safeDelta && (
+        <div
+          style={{
+            fontSize: 11,
+            fontFamily: "var(--font-geist-mono, monospace)",
+            color: deltaColor,
+            marginTop: children ? 6 : 0,
+          }}
+        >
+          {arrow} {safeDelta.value}
+        </div>
+      )}
     </div>
   );
 }

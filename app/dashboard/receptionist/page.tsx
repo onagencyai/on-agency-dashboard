@@ -36,12 +36,6 @@ function sentimentScore(pos: number, neu: number, neg: number): string {
   return score.toFixed(1);
 }
 
-function sentimentScoreValue(pos: number, neu: number, neg: number): number | null {
-  const total = pos + neu + neg;
-  if (!total) return null;
-  return (pos * 5 + neu * 3 + neg * 1) / total;
-}
- 
 function formatTalkTime(ms: number): string {
   if (!ms) return "0m";
   const totalSec = Math.floor(ms / 1000);
@@ -133,17 +127,6 @@ export default function ReceptionistOverviewPage() {
   const avgDurationDelta = cur && prev ? pctDelta(cur.avg_duration_seconds * 1000, prev.avg_duration_seconds * 1000, true) : undefined;
   const talkTimeDelta = cur && prev ? pctDelta(cur.total_duration_ms, prev.total_duration_ms) : undefined;
  
-  const curScore = cur ? sentimentScoreValue(cur.positive_count, cur.neutral_count, cur.negative_count) : null;
-  const prevScore = prev ? sentimentScoreValue(prev.positive_count, prev.neutral_count, prev.negative_count) : null;
-  const sentDelta: { value: string; direction: "up" | "down" | "neutral" } | undefined = cur && prev
-    ? curScore === null || prevScore === null
-      ? { value: "—", direction: "neutral" }
-      : {
-          value: `${Math.abs(curScore - prevScore).toFixed(1)} vs last period`,
-          direction: curScore >= prevScore ? "up" : "down",
-        }
-    : undefined;
-
   const inboundOnlyVolume: CallVolumeData = volume
     ? { dates: volume.dates, inbound: volume.inbound, outbound: volume.dates.map(() => 0) }
     : { dates: [], inbound: [], outbound: [] };
@@ -283,7 +266,6 @@ export default function ReceptionistOverviewPage() {
                   : "—"
               }
               valueSuffix={cur && (cur.positive_count + cur.neutral_count + cur.negative_count) > 0 ? "/5" : undefined}
-              delta={sentDelta}
             >
               {cur && (
                 <SentimentBar
