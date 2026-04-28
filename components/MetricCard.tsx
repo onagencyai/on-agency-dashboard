@@ -18,8 +18,11 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
   const safeDelta: DeltaProps = delta ?? { value: "— vs last period", direction: "up" };
   const isPlaceholderDelta =
     safeDelta.direction === "neutral" && safeDelta.value.trim().startsWith("—");
+  const normalizedDeltaValue = safeDelta.value.trim();
   const deltaValueText =
-    safeDelta.value.trim() === "—" ? "— vs last period" : safeDelta.value;
+    normalizedDeltaValue === "—" || !normalizedDeltaValue.toLowerCase().includes("vs last period")
+      ? `${normalizedDeltaValue === "—" ? "—" : normalizedDeltaValue} vs last period`
+      : safeDelta.value;
 
   const deltaColor =
     isPlaceholderDelta || safeDelta.direction === "up"
@@ -104,7 +107,7 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
           fontSize: 11,
           fontFamily: "var(--font-geist-mono, monospace)",
           color: deltaColor,
-          marginTop: children ? 8 : 0,
+          marginTop: children ? 12 : 6,
         }}
       >
         {arrow} {deltaValueText}

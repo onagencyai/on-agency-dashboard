@@ -55,47 +55,38 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
     const [month = "", day = ""] = value.split(" ");
     return (
       <g transform={`translate(${x},${y})`}>
-        <text x={0} y={4} textAnchor="middle" fill="#8b8b8b" fontSize="11" fontWeight={600}>
+        <text x={0} y={12} textAnchor="middle" fill="#8b8b8b" fontSize="11" fontWeight={600}>
           {month}
         </text>
-        <text x={0} y={28} textAnchor="middle" fill="#b2b2b2" fontSize="11" fontWeight={500}>
+        <text x={0} y={36} textAnchor="middle" fill="#b2b2b2" fontSize="11" fontWeight={500}>
           {day}
         </text>
       </g>
     );
   };
 
-  const valueKey = showOutbound ? "outbound" : "inbound";
-  const rawValues = data.dates.map((_, i) => (showOutbound ? (data.outbound[i] ?? 0) : (data.inbound[i] ?? 0)));
-  const maxValue = Math.max(1, ...rawValues);
-  const chartData = data.dates.map((date, i) => {
-    const value = rawValues[i] ?? 0;
-    return {
-      date,
-      value,
-      valueMax: maxValue,
-      inbound: data.inbound[i] ?? 0,
-      outbound: data.outbound[i] ?? 0,
-    };
-  });
+  const chartData = data.dates.map((date, i) => ({
+    date,
+    inbound: data.inbound[i] ?? 0,
+    outbound: data.outbound[i] ?? 0,
+  }));
 
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <ResponsiveContainer width="100%" height={214}>
       <BarChart
         data={chartData}
-        barSize={Math.max(5, Math.min(11, 380 / (data.dates.length || 1)))}
-        margin={{ top: 6, right: 8, left: 0, bottom: 8 }}
-        barGap="-100%"
-        barCategoryGap="22%"
+        barSize={Math.max(5, Math.min(10, 360 / (data.dates.length || 1)))}
+        margin={{ top: 2, right: 8, left: 0, bottom: 0 }}
+        barCategoryGap="18%"
       >
         <XAxis
           dataKey="date"
           tickLine={false}
           axisLine={false}
           tick={<CustomTick />}
-          height={66}
-          minTickGap={8}
-          interval={0}
+          height={60}
+          minTickGap={24}
+          interval="preserveStartEnd"
           padding={{ left: 10, right: 10 }}
         />
         <YAxis
@@ -106,18 +97,11 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
         />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
         <Bar
-          dataKey="valueMax"
-          name="Capacity"
-          fill="rgba(79,127,247,0.14)"
-          radius={[8, 8, 8, 8]}
-          isAnimationActive={false}
-          tooltipType="none"
-        />
-        <Bar
-          dataKey="value"
-          name={valueKey === "outbound" ? "Outbound" : "Inbound"}
+          dataKey={showOutbound ? "outbound" : "inbound"}
+          name={showOutbound ? "Outbound" : "Inbound"}
           fill="#4f7ff7"
           radius={[8, 8, 8, 8]}
+          background={{ fill: "rgba(79,127,247,0.14)", radius: 8 }}
           activeBar={{ fill: "#6b95ff", stroke: "rgba(79,127,247,0.2)", strokeWidth: 1 }}
         />
       </BarChart>
