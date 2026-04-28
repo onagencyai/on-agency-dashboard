@@ -104,19 +104,17 @@ export default function CallHistoryPage() {
         <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
           Call History
         </span>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-          <span
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              background: "var(--green)",
-              flexShrink: 0,
-            }}
-          />
-          <span style={{ fontSize: 10, color: "var(--text-primary)", fontFamily: "var(--font-geist-mono, monospace)" }}>
-            {dateLabel}
-          </span>
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            padding: "2px 10px",
+            borderRadius: 20,
+            background: "var(--bg-2)",
+            border: "1px solid var(--border)",
+          }}
+        >
+          <span style={{ fontSize: 10, color: "#0060f2", fontFamily: "var(--font-geist-mono, monospace)" }}>{dateLabel}</span>
         </span>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
           <TimeRangeDropdown value={timeRange} onChange={(v) => { setTimeRange(v); setPage(1); }} />

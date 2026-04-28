@@ -11,7 +11,7 @@ async function fetchPeriodStats(supabase: ReturnType<typeof createServerSupabase
     .select("duration_ms, call_successful, in_voicemail, disconnection_reason, call_status")
     .eq("client_id", clientId)
     .eq("direction", "outbound")
-    .neq("call_status", "registered")
+    .or("call_status.neq.registered,call_status.is.null")
     .gte("started_at", from)
     .lte("started_at", to)
     .gte("started_at", new Date(Date.now() - NINETY_DAYS).toISOString());

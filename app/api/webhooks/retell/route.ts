@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 
+function toIsoFromEpoch(value: unknown): string | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  // Retell payloads can vary between epoch seconds and epoch milliseconds.
+  const ms = value < 1_000_000_000_000 ? value * 1000 : value;
+  const date = new Date(ms);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString();
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const body = await req.json() as Record<string, unknown>;
@@ -31,8 +40,8 @@ async function handleCallEnded(req: NextRequest, body: Record<string, unknown>):
       return;
     }
 
-    const startTs = call.start_timestamp as number | undefined;
-    const endTs = call.end_timestamp as number | undefined;
+    const startTs = call.start_timestamp;
+    const endTs = call.end_timestamp;
 
     const supabase = createServerSupabaseClient();
     const { error } = await supabase.from("calls").upsert(
@@ -50,8 +59,8 @@ async function handleCallEnded(req: NextRequest, body: Record<string, unknown>):
         transcript: (call.transcript as string) ?? null,
         recording_url: (call.recording_url as string) ?? null,
         disconnection_reason: (call.disconnection_reason as string) ?? null,
-        started_at: startTs ? new Date(startTs).toISOString() : null,
-        ended_at: endTs ? new Date(endTs).toISOString() : null,
+        started_at: toIsoFromEpoch(startTs),
+        ended_at: toIsoFromEpoch(endTs),
         raw_payload: body,
       },
       { onConflict: "call_id" }
