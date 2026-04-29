@@ -19,6 +19,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       await handleCallEnded(req, body);
     } else if (event === "call_analyzed") {
       await handleCallAnalyzed(body);
+    } else if (body.call_id && body.client_id) {
+      // Handle n8n-formatted AI-analyzed payload
+      await handleN8nAnalyzedCall(req, body);
     }
   } catch (err) {
     console.error("[retell webhook] unhandled error:", err);
@@ -106,5 +109,56 @@ async function handleCallAnalyzed(body: Record<string, unknown>): Promise<void> 
     }
   } catch (err) {
     console.error("[retell webhook] handleCallAnalyzed error:", err);
+  }
+}
+
+async function handleN8nAnalyzedCall(req: NextRequest, body: Record<string, unknown>): Promise<void> {
+  try {
+    const callId = body.call_id as string | undefined;
+    const clientId = (new URL(req.url)).searchParams.get("client_id");
+
+    if (!callId || !clientId) {
+      console.error("[retell webhook] missing call_id or client_id in n8n payload");
+      return;
+    }
+
+    const startTs = body.started_at;
+    const endTs = body.ended_at;
+
+    const supabase = createServerSupabaseClient();
+    const { error } = await supabase.from("calls").upsert(
+      {
+        call_id: callId,
+        client_id: clientId,
+        agent_id: (body.agent_id as string) ?? null,
+        agent_name: (body.agent_name as string) ?? null,
+        call_type: (body.call_type as string) ?? null,
+        call_status: (body.call_status as string) ?? null,
+        direction: (body.direction as string) ?? null,
+        from_number: (body.phone_number as string) ?? null,
+        to_number: (body.to_number as string) ?? null,
+        duration_ms: (body.duration_ms as number) ?? null,
+        transcript: (body.custom_analysis_data as Record<string, unknown> | undefined)?.transcript as string | undefined ?? null,
+        recording_url: (body.recording_url as string) ?? null,
+        disconnection_reason: (body.disconnection_reason as string) ?? null,
+        started_at: toIsoFromEpoch(startTs),
+        ended_at: toIsoFromEpoch(endTs),
+        call_summary: (body.call_summary as string) ?? null,
+        user_sentiment: (body.user_sentiment as string) ?? null,
+        call_successful: (body.call_successful as boolean) ?? null,
+        in_voicemail: (body.in_voicemail as boolean) ?? null,
+        custom_analysis_data: (body.custom_analysis_data as Record<string, unknown>) ?? null,
+        raw_payload: body,
+      },
+      { onConflict: "call_id" }
+    );
+
+    if (error) {
+      console.error("[retell webhook] upsert error (n8n analyzed):", error.message);
+    } else {
+      console.log("[retell webhook] n8n analyzed call success for call_id:", callId);
+    }
+  } catch (err) {
+    console.error("[retell webhook] handleN8nAnalyzedCall error:", err);
   }
 }
