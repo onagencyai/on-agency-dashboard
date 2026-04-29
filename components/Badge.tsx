@@ -8,6 +8,7 @@ export default function Badge({ variant, label }: BadgeProps) {
     voicemail: "bg-[var(--amber-bg)] text-[var(--amber)]",
     info: "bg-[var(--blue-bg)] text-[var(--blue)]",
     neutral: "bg-[var(--gray-badge-bg)] text-[var(--text-secondary)]",
+    spam: "bg-[var(--orange-bg)] text-[var(--orange)]",
   };
 
   return (

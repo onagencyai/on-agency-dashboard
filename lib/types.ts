@@ -51,7 +51,7 @@ export type ServiceType = "receptionist" | "outbound";
 export type TimeRange = "today" | "7d" | "30d" | "60d" | "90d" | "6m" | "1y";
 
 export interface BadgeProps {
-  variant: "success" | "failed" | "missed" | "voicemail" | "info" | "neutral";
+  variant: "success" | "failed" | "missed" | "voicemail" | "info" | "neutral" | "spam";
   label: string;
 }
 

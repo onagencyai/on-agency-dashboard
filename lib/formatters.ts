@@ -89,7 +89,7 @@ export function getSentimentBadgeProps(sentiment: string | null | undefined): Ba
     case "Neutral":
       return { variant: "neutral", label: "Neutral" };
     case "Spam":
-      return { variant: "neutral", label: "Spam" };
+      return { variant: "spam", label: "Spam" };
     default:
       return { variant: "neutral", label: "—" };
   }
