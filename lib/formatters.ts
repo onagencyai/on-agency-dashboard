@@ -104,7 +104,7 @@ export function getSentimentColor(sentiment: string | null | undefined): string 
     case "Neutral":
       return "var(--amber)";
     case "Spam":
-      return "var(--purple)";
+      return "var(--orange)";
     default:
       return "var(--text-tertiary)";
   }
