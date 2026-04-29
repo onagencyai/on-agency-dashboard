@@ -4,10 +4,10 @@ export const dynamic = "force-dynamic";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Search, Download, PhoneOff, ChevronLeft, ChevronRight } from "lucide-react";
-import type { TimeRange, CallRow } from "@/lib/types";
-import { getDateRange, formatDateRange } from "@/lib/dateRange";
+import type { CallRow } from "@/lib/types";
 import { formatDuration } from "@/lib/formatters";
-import TimeRangeDropdown from "@/components/TimeRangeDropdown";
+import CallRangePicker, { defaultRangeValue } from "@/components/CallRangePicker";
+import type { RangeValue } from "@/components/CallRangePicker";
 import CallDetailModal from "@/components/CallDetailModal";
 
 const PAGE_SIZE = 25;
@@ -34,7 +34,7 @@ function getCallOutcome(call: CallRow): { label: string; color: string; bg: stri
 export default function OutboundCallHistoryPage() {
   const { isLoaded } = useUser();
 
-  const [timeRange, setTimeRange] = useState<TimeRange>("30d");
+  const [rangeValue, setRangeValue] = useState<RangeValue>(defaultRangeValue);
   const [activeTab, setActiveTab] = useState<OutcomeTab>("all");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -45,8 +45,8 @@ export default function OutboundCallHistoryPage() {
   const [selectedCall, setSelectedCall] = useState<CallRow | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { from, to } = getDateRange(timeRange);
-  const dateLabel = formatDateRange(from, to);
+  const { from, to } = rangeValue;
+  const dateLabel = rangeValue.label;
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -78,14 +78,15 @@ export default function OutboundCallHistoryPage() {
     } finally {
       setLoading(false);
     }
-  }, [isLoaded, page, activeTab, debouncedSearch, timeRange]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isLoaded, page, activeTab, debouncedSearch, rangeValue]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { void fetchCalls(); }, [fetchCalls]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   function handleExport() {
-    window.location.href = `/api/export-calls?from=${from.toISOString()}&to=${to.toISOString()}&direction=outbound`;
+    const label = rangeValue.label.toLowerCase().replace(/\s+/g, "-");
+    window.location.href = `/api/export-calls?from=${from.toISOString()}&to=${to.toISOString()}&direction=outbound&label=${label}`;
   }
 
   return (
@@ -107,7 +108,7 @@ export default function OutboundCallHistoryPage() {
           <span style={{ fontSize: 10, color: "var(--green)", fontFamily: "var(--font-geist-mono, monospace)" }}>{dateLabel}</span>
         </span>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
-          <TimeRangeDropdown value={timeRange} onChange={(v) => { setTimeRange(v); setPage(1); }} />
+          <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
           <button
             onClick={handleExport}
             style={{ background: "var(--accent)", color: "var(--bg)", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
