@@ -1,17 +1,31 @@
 "use client";
 export const dynamic = "force-dynamic";
 
+import { useEffect, useState } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { LogOut } from "lucide-react";
-import type { UserPublicMetadata } from "@/lib/types";
 
 export default function SettingsPage() {
   const { user } = useUser();
   const { signOut } = useClerk();
-  const metadata = (user?.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
-
-  const businessName = metadata.business_name ?? "—";
+  const [businessName, setBusinessName] = useState("—");
   const email = user?.primaryEmailAddress?.emailAddress ?? "—";
+
+  useEffect(() => {
+    async function fetchClientInfo() {
+      try {
+        const res = await fetch("/api/client-info", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json() as { business_name?: unknown };
+        if (typeof data.business_name === "string" && data.business_name.trim()) {
+          setBusinessName(data.business_name);
+        }
+      } catch {
+        // keep default "—"
+      }
+    }
+    void fetchClientInfo();
+  }, []);
 
   return (
     <div style={{ padding: 28 }}>
