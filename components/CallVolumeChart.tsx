@@ -52,7 +52,7 @@ interface CallVolumeChartProps {
 
 export default function CallVolumeChart({ data, showOutbound = true }: CallVolumeChartProps) {
   const isDarkMode = typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
-  const gridStroke = isDarkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.1)";
+  const gridStroke = isDarkMode ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.14)";
 
   const CustomTick = ({ x, y, payload }: SVGProps<SVGTextElement> & { payload?: { value?: string } }) => {
     const value = payload?.value ?? "";
@@ -99,7 +99,7 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
           axisLine={false}
           tick={{ fill: "#707070", fontSize: 11 }}
           tickMargin={4}
-          width={28}
+          width={40}
           domain={[0, "dataMax + 2"]}
         />
         <CartesianGrid vertical={false} stroke={gridStroke} strokeDasharray="0" />
