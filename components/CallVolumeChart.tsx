@@ -55,12 +55,21 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
   const [isDarkMode, setIsDarkMode] = useState(
     () => typeof document !== "undefined" && document.documentElement.classList.contains("dark")
   );
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 900px)").matches
+  );
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setIsDarkMode(document.documentElement.classList.contains("dark"));
     });
     observer.observe(document.documentElement, { attributeFilter: ["class"] });
     return () => observer.disconnect();
+  }, []);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 900px)");
+    const apply = () => setIsMobile(mq.matches);
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
   }, []);
   const gridStroke = isDarkMode ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.14)";
 
@@ -79,11 +88,29 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
     );
   };
 
-  const chartData = data.dates.map((date, i) => ({
+  const rawData = data.dates.map((date, i) => ({
     date,
     inbound: data.inbound[i] ?? 0,
     outbound: data.outbound[i] ?? 0,
   }));
+
+  // Mobile only: bucket into fixed bar counts. Today (1) and 7d (≤7) are left as-is.
+  // 30d → 10 bars, 60d → 10 bars, 90d → 12 bars.
+  const chartData = (() => {
+    if (!isMobile || rawData.length <= 7) return rawData;
+    const targetBars = rawData.length > 65 ? 12 : 10;
+    const bucketSize = Math.ceil(rawData.length / targetBars);
+    const buckets = [];
+    for (let i = 0; i < rawData.length; i += bucketSize) {
+      const slice = rawData.slice(i, i + bucketSize);
+      buckets.push({
+        date: slice[0].date,
+        inbound: slice.reduce((s, r) => s + r.inbound, 0),
+        outbound: slice.reduce((s, r) => s + r.outbound, 0),
+      });
+    }
+    return buckets;
+  })();
 
   const tickInterval = Math.max(0, Math.floor(data.dates.length / 15) - 1);
 

@@ -68,11 +68,9 @@ export async function GET(req: NextRequest) {
     inboundMap[todayKey] = inboundMap[todayKey] ?? 0;
     outboundMap[todayKey] = outboundMap[todayKey] ?? 0;
   }
-  const filteredDays = days.slice(-30);
-
   return NextResponse.json({
-    dates: filteredDays,
-    inbound: filteredDays.map((d) => inboundMap[d] ?? 0),
-    outbound: filteredDays.map((d) => outboundMap[d] ?? 0),
+    dates: days,
+    inbound: days.map((d) => inboundMap[d] ?? 0),
+    outbound: days.map((d) => outboundMap[d] ?? 0),
   });
 }
