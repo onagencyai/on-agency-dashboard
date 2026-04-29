@@ -51,6 +51,9 @@ interface CallVolumeChartProps {
 }
 
 export default function CallVolumeChart({ data, showOutbound = true }: CallVolumeChartProps) {
+  const isDarkMode = typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  const gridStroke = isDarkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.1)";
+
   const CustomTick = ({ x, y, payload }: SVGProps<SVGTextElement> & { payload?: { value?: string } }) => {
     const value = payload?.value ?? "";
     const [month = "", day = ""] = value.split(" ");
@@ -97,8 +100,9 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
           tick={{ fill: "#707070", fontSize: 11 }}
           tickMargin={4}
           width={28}
+          domain={[0, "dataMax + 2"]}
         />
-        <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.12)" strokeDasharray="0" />
+        <CartesianGrid vertical={false} stroke={gridStroke} strokeDasharray="0" />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
         <Bar
           dataKey={showOutbound ? "outbound" : "inbound"}
