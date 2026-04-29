@@ -77,7 +77,7 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
       <BarChart
         data={chartData}
         barSize={Math.max(6, Math.min(11, 360 / (data.dates.length || 1)))}
-        margin={{ top: 10, right: 8, left: 8, bottom: 0 }}
+        margin={{ top: 2, right: 8, left: 8, bottom: 0 }}
         barCategoryGap="18%"
       >
         <XAxis
@@ -86,20 +86,18 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
           axisLine={false}
           tick={<CustomTick />}
           height={52}
-          minTickGap={8}
-          interval={0}
+          minTickGap={14}
+          interval="preserveStartEnd"
           padding={{ left: 10, right: 10 }}
         />
         <YAxis
-          domain={[0, "dataMax"]}
-          interval={0}
           tickLine={false}
           axisLine={false}
-          tick={{ fill: "#707070", fontSize: 11, dy: 2 }}
+          tick={{ fill: "#707070", fontSize: 11 }}
           tickMargin={6}
           width={40}
         />
-        <CartesianGrid vertical={false} stroke="var(--chart-grid)" strokeDasharray="0" />
+        <CartesianGrid vertical={false} stroke="rgba(0,0,0,0.08)" strokeDasharray="0" />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
         <Bar
           dataKey={showOutbound ? "outbound" : "inbound"}

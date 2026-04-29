@@ -81,7 +81,10 @@ export default function NavSidebar({ services, businessName, mobileOpen = false,
 
   const isActive = (href: string) => {
     if (href === "/dashboard/receptionist") return pathname === "/dashboard/receptionist" || pathname === "/dashboard";
-    return pathname.startsWith(href);
+    if (href === "/dashboard/receptionist-call-history") return pathname === "/dashboard/receptionist-call-history";
+    if (href === "/dashboard/outbound") return pathname === "/dashboard/outbound";
+    if (href === "/dashboard/outbound-call-history") return pathname === "/dashboard/outbound-call-history";
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   const displayBusiness = businessName.trim() || "Your business";
