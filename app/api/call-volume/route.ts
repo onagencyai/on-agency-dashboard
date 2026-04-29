@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // Keep contiguous days and always include "today" so today's bar can render.
+  // Always include today so today's bar renders even with no calls.
   const todayKey = dayKeyUTC(new Date());
   if (!days.includes(todayKey)) {
     days.push(todayKey);
@@ -69,21 +69,9 @@ export async function GET(req: NextRequest) {
     outboundMap[todayKey] = outboundMap[todayKey] ?? 0;
   }
 
-  // Bucket longer ranges to ~30 bars: 60d → every 2 days, 90d → every 3 days.
-  const bucketSize = days.length > 65 ? 3 : days.length > 35 ? 2 : 1;
-  const finalDays: string[] = [];
-  const finalInbound: number[] = [];
-  const finalOutbound: number[] = [];
-  for (let i = 0; i < days.length; i += bucketSize) {
-    const slice = days.slice(i, i + bucketSize);
-    finalDays.push(slice[0]);
-    finalInbound.push(slice.reduce((s, d) => s + (inboundMap[d] ?? 0), 0));
-    finalOutbound.push(slice.reduce((s, d) => s + (outboundMap[d] ?? 0), 0));
-  }
-
   return NextResponse.json({
-    dates: finalDays,
-    inbound: finalInbound,
-    outbound: finalOutbound,
+    dates: days,
+    inbound: days.map((d) => inboundMap[d] ?? 0),
+    outbound: days.map((d) => outboundMap[d] ?? 0),
   });
 }
