@@ -18,6 +18,20 @@ interface TranscriptTurn {
 }
 
 function parseTranscript(transcript: string): TranscriptTurn[] {
+  // Try to parse as JSON array first (transcript_object format)
+  try {
+    const parsed = JSON.parse(transcript);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed.map((turn: { role?: string; content?: string }) => ({
+        speaker: turn.role === "agent" || turn.role === "assistant" ? "agent" : "caller",
+        text: turn.content || "",
+      }));
+    }
+  } catch {
+    // Not JSON, fall through to text parsing
+  }
+
+  // Fall back to newline-separated text format
   const lines = transcript.split("\n").filter(Boolean);
   const turns: TranscriptTurn[] = [];
 
