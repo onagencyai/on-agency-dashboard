@@ -15,7 +15,10 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/dashboard/outbound)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/dashboard/billing)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/dashboard/updates)",
-      "Bash(grep -E \"\\\\.\\(ts|tsx|js\\)$\")"
+      "Bash(grep -E \"\\\\.\\(ts|tsx|js\\)$\")",
+      "Bash(git add *)",
+      "Bash(git commit -m 'Add n8n webhook handler for AI-analyzed call payloads *)",
+      "Bash(git push *)"
     ]
   }
 }
