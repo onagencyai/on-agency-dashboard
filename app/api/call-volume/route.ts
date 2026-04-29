@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
     .eq("client_id", clientId)
     .gte("started_at", from)
     .lte("started_at", to)
+    .gte("started_at", new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
     .order("started_at", { ascending: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -60,29 +61,18 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // Always include today so today's bar renders even with no calls.
+  // Keep contiguous days and always include "today" so today's bar can render.
   const todayKey = dayKeyUTC(new Date());
   if (!days.includes(todayKey)) {
     days.push(todayKey);
     inboundMap[todayKey] = inboundMap[todayKey] ?? 0;
     outboundMap[todayKey] = outboundMap[todayKey] ?? 0;
   }
-
-  // Bucket into ~9 evenly-distributed bars so the chart always looks clean.
-  const bucketSize = Math.max(1, Math.ceil(days.length / 9));
-  const buckets: { date: string; inbound: number; outbound: number }[] = [];
-  for (let i = 0; i < days.length; i += bucketSize) {
-    const slice = days.slice(i, i + bucketSize);
-    buckets.push({
-      date: slice[0],
-      inbound: slice.reduce((s, d) => s + (inboundMap[d] ?? 0), 0),
-      outbound: slice.reduce((s, d) => s + (outboundMap[d] ?? 0), 0),
-    });
-  }
+  const filteredDays = days.slice(-30);
 
   return NextResponse.json({
-    dates: buckets.map((b) => b.date),
-    inbound: buckets.map((b) => b.inbound),
-    outbound: buckets.map((b) => b.outbound),
+    dates: filteredDays,
+    inbound: filteredDays.map((d) => inboundMap[d] ?? 0),
+    outbound: filteredDays.map((d) => outboundMap[d] ?? 0),
   });
 }
