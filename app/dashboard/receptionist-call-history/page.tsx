@@ -49,10 +49,19 @@ export default function CallHistoryPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedCall, setSelectedCall] = useState<CallRow | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { from, to } = rangeValue;
   const dateLabel = rangeValue.label;
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 900px)");
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -97,43 +106,49 @@ export default function CallHistoryPage() {
   }
 
   return (
-    <div style={{ padding: 28 }}>
-      {/* Section header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
-          Call History
-        </span>
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            padding: "2px 10px",
-            borderRadius: 20,
-            background: "var(--green-dim)",
-            border: "1px solid rgba(34,197,94,0.28)",
-          }}
-        >
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", flexShrink: 0 }} />
-          <span style={{ fontSize: 10, color: "var(--green)", fontFamily: "var(--font-geist-mono, monospace)" }}>{dateLabel}</span>
-        </span>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
-          <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
-          <button
-            onClick={handleExport}
-            style={{
-              background: "var(--accent)", color: "var(--bg)", border: "none",
-              padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
-              cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6,
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-          >
-            <Download size={12} />
-            Export CSV
-          </button>
+    <div style={{ padding: isMobile ? "18px 12px 20px" : 28 }}>
+      {isMobile ? (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+            <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Call History</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
+              <button onClick={handleExport}
+                style={{ background: "var(--accent)", color: "var(--bg)", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+              >
+                <Download size={12} /> Export CSV
+              </button>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 18 }}>
+            <span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)" }}>Period</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "2px 10px", borderRadius: 20, background: "var(--green-dim)", border: "1px solid rgba(34,197,94,0.28)" }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", flexShrink: 0 }} />
+              <span style={{ fontSize: 11, color: "var(--green)", fontFamily: "var(--font-geist-mono, monospace)" }}>{dateLabel}</span>
+            </span>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+          <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Call History</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "2px 10px", borderRadius: 20, background: "var(--green-dim)", border: "1px solid rgba(34,197,94,0.28)" }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", flexShrink: 0 }} />
+            <span style={{ fontSize: 10, color: "var(--green)", fontFamily: "var(--font-geist-mono, monospace)" }}>{dateLabel}</span>
+          </span>
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+            <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
+            <button onClick={handleExport}
+              style={{ background: "var(--accent)", color: "var(--bg)", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+            >
+              <Download size={12} /> Export CSV
+            </button>
+          </div>
+        </div>
+      )}
 
       <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
         {/* Tabs */}
