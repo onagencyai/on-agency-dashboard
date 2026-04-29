@@ -14,7 +14,7 @@ export interface CallRow {
   recording_url: string | null;
   disconnection_reason: string | null;
   call_summary: string | null;
-  user_sentiment: "Positive" | "Negative" | "Neutral" | "Unknown" | null;
+  user_sentiment: "Positive" | "Negative" | "Neutral" | "Spam" | "Unknown" | null;
   call_successful: boolean | null;
   in_voicemail: boolean | null;
   custom_analysis_data: Record<string, unknown> | null;
@@ -75,6 +75,7 @@ export interface ReceptionistStats {
     positive_count: number;
     neutral_count: number;
     negative_count: number;
+    spam_count: number;
   };
   previous: {
     total_calls: number;
@@ -83,6 +84,7 @@ export interface ReceptionistStats {
     positive_count: number;
     neutral_count: number;
     negative_count: number;
+    spam_count: number;
   };
 }
 

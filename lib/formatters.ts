@@ -88,8 +88,25 @@ export function getSentimentBadgeProps(sentiment: string | null | undefined): Ba
       return { variant: "failed", label: "Negative" };
     case "Neutral":
       return { variant: "neutral", label: "Neutral" };
+    case "Spam":
+      return { variant: "neutral", label: "Spam" };
     default:
       return { variant: "neutral", label: "—" };
+  }
+}
+
+export function getSentimentColor(sentiment: string | null | undefined): string {
+  switch (sentiment) {
+    case "Positive":
+      return "var(--green)";
+    case "Negative":
+      return "var(--red)";
+    case "Neutral":
+      return "var(--amber)";
+    case "Spam":
+      return "var(--purple)";
+    default:
+      return "var(--text-tertiary)";
   }
 }
 

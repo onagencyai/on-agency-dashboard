@@ -24,8 +24,9 @@ async function fetchPeriodStats(supabase: ReturnType<typeof createServerSupabase
   const positive_count = data.filter((r) => r.user_sentiment === "Positive").length;
   const neutral_count = data.filter((r) => r.user_sentiment === "Neutral").length;
   const negative_count = data.filter((r) => r.user_sentiment === "Negative").length;
+  const spam_count = data.filter((r) => r.user_sentiment === "Spam").length;
 
-  return { total_calls, avg_duration_seconds, total_duration_ms, positive_count, neutral_count, negative_count };
+  return { total_calls, avg_duration_seconds, total_duration_ms, positive_count, neutral_count, negative_count, spam_count };
 }
 
 export async function GET(req: NextRequest) {
@@ -49,7 +50,7 @@ export async function GET(req: NextRequest) {
     fetchPeriodStats(supabase, clientId, prevFrom, prevTo),
   ]);
 
-  const empty = { total_calls: 0, avg_duration_seconds: 0, total_duration_ms: 0, positive_count: 0, neutral_count: 0, negative_count: 0 };
+  const empty = { total_calls: 0, avg_duration_seconds: 0, total_duration_ms: 0, positive_count: 0, neutral_count: 0, negative_count: 0, spam_count: 0 };
 
   return NextResponse.json({ current: current ?? empty, previous: previous ?? empty });
 }
