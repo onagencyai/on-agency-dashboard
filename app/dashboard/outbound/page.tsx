@@ -252,7 +252,7 @@ export default function OutboundOverviewPage() {
             {loading ? (
               <div className="skeleton" style={{ height: 220 }} />
             ) : (
-              <CallVolumeChart data={outboundVolume} isMobile={isMobile} />
+              <CallVolumeChart data={outboundVolume} />
             )}
           </div>
         </div>

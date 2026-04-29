@@ -300,7 +300,7 @@ export default function ReceptionistOverviewPage() {
             {loading || !volume ? (
               <div className="skeleton" style={{ height: 220 }} />
             ) : (
-              <CallVolumeChart data={inboundOnlyVolume} showOutbound={false} isMobile={isMobile} />
+              <CallVolumeChart data={inboundOnlyVolume} showOutbound={false} />
             )}
           </div>
         </div>

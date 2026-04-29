@@ -68,22 +68,20 @@ export async function GET(req: NextRequest) {
     outboundMap[todayKey] = outboundMap[todayKey] ?? 0;
   }
 
-  // Bucket days so the chart always renders ~9 evenly-spaced bars.
-  // e.g. 7d → 1 day/bucket (7 bars), 30d → 4 days/bucket (8 bars),
-  //      60d → 7 days/bucket (9 bars), 90d → 10 days/bucket (9 bars).
-  const bucketSize = Math.max(1, Math.ceil(days.length / 10));
-  const buckets: { label: string; inbound: number; outbound: number }[] = [];
+  // Bucket into ~9 evenly-distributed bars so the chart always looks clean.
+  const bucketSize = Math.max(1, Math.ceil(days.length / 9));
+  const buckets: { date: string; inbound: number; outbound: number }[] = [];
   for (let i = 0; i < days.length; i += bucketSize) {
     const slice = days.slice(i, i + bucketSize);
     buckets.push({
-      label: slice[0],
-      inbound: slice.reduce((sum, d) => sum + (inboundMap[d] ?? 0), 0),
-      outbound: slice.reduce((sum, d) => sum + (outboundMap[d] ?? 0), 0),
+      date: slice[0],
+      inbound: slice.reduce((s, d) => s + (inboundMap[d] ?? 0), 0),
+      outbound: slice.reduce((s, d) => s + (outboundMap[d] ?? 0), 0),
     });
   }
 
   return NextResponse.json({
-    dates: buckets.map((b) => b.label),
+    dates: buckets.map((b) => b.date),
     inbound: buckets.map((b) => b.inbound),
     outbound: buckets.map((b) => b.outbound),
   });
