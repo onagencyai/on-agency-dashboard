@@ -49,6 +49,7 @@ export default function TimeRangeDropdown({ value, onChange }: TimeRangeDropdown
           fontSize: 12,
           cursor: "pointer",
           transition: "all 0.15s",
+          whiteSpace: "nowrap",
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.borderColor = "var(--border-hover)";
