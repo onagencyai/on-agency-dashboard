@@ -15,18 +15,29 @@ import CallVolumeChart from "@/components/CallVolumeChart";
 import IntentChart from "@/components/IntentChart";
 import CallDetailModal from "@/components/CallDetailModal";
  
-function pctDelta(current: number, previous: number, isMs = false): { value: string; direction: "up" | "down" | "neutral" } {
+function periodLabel(range: TimeRange): string {
+  switch (range) {
+    case "today": return "vs yesterday";
+    case "7d":    return "vs 7 days ago";
+    case "30d":   return "vs 30 days ago";
+    case "60d":   return "vs 60 days ago";
+    case "90d":   return "vs 90 days ago";
+  }
+}
+
+function pctDelta(current: number, previous: number, range: TimeRange, isMs = false): { value: string; direction: "up" | "down" | "neutral" } {
   if (!previous || previous === 0) return { value: "—", direction: "neutral" };
   const pct = ((current - previous) / previous) * 100;
+  const label = periodLabel(range);
   if (isMs) {
     const diffSec = Math.abs((current - previous) / 1000);
     const m = Math.floor(diffSec / 60);
     const s = Math.floor(diffSec % 60);
-    const label = m > 0 ? `${m}:${s.toString().padStart(2, "0")} vs last period` : `0:${s.toString().padStart(2, "0")} vs last period`;
-    return { value: label, direction: current >= previous ? "up" : "down" };
+    const dur = m > 0 ? `${m}:${s.toString().padStart(2, "0")}` : `0:${s.toString().padStart(2, "0")}`;
+    return { value: `${dur} ${label}`, direction: current >= previous ? "up" : "down" };
   }
   const sign = pct >= 0 ? "up" : "down";
-  return { value: `${Math.abs(pct).toFixed(1)}% vs last period`, direction: sign };
+  return { value: `${Math.abs(pct).toFixed(1)}% ${label}`, direction: sign };
 }
  
 function sentimentScore(pos: number, neu: number, neg: number): string {
@@ -124,9 +135,9 @@ export default function ReceptionistOverviewPage() {
     background: "var(--bg-1)",
   } as const;
  
-  const totalCallsDelta = cur && prev ? pctDelta(cur.total_calls, prev.total_calls) : undefined;
-  const avgDurationDelta = cur && prev ? pctDelta(cur.avg_duration_seconds * 1000, prev.avg_duration_seconds * 1000, true) : undefined;
-  const talkTimeDelta = cur && prev ? pctDelta(cur.total_duration_ms, prev.total_duration_ms) : undefined;
+  const totalCallsDelta = cur && prev ? pctDelta(cur.total_calls, prev.total_calls, timeRange) : undefined;
+  const avgDurationDelta = cur && prev ? pctDelta(cur.avg_duration_seconds * 1000, prev.avg_duration_seconds * 1000, timeRange, true) : undefined;
+  const talkTimeDelta = cur && prev ? pctDelta(cur.total_duration_ms, prev.total_duration_ms, timeRange) : undefined;
  
   const inboundOnlyVolume: CallVolumeData = volume
     ? { dates: volume.dates, inbound: volume.inbound, outbound: volume.dates.map(() => 0) }

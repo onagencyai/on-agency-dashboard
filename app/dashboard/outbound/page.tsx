@@ -14,11 +14,21 @@ import CallVolumeChart from "@/components/CallVolumeChart";
 import IntentChart from "@/components/IntentChart";
 import CallDetailModal from "@/components/CallDetailModal";
 
-function pctDelta(current: number, previous: number): { value: string; direction: "up" | "down" | "neutral" } {
+function periodLabel(range: TimeRange): string {
+  switch (range) {
+    case "today": return "vs yesterday";
+    case "7d":    return "vs 7 days ago";
+    case "30d":   return "vs 30 days ago";
+    case "60d":   return "vs 60 days ago";
+    case "90d":   return "vs 90 days ago";
+  }
+}
+
+function pctDelta(current: number, previous: number, range: TimeRange): { value: string; direction: "up" | "down" | "neutral" } {
   if (!previous || previous === 0) return { value: "—", direction: "neutral" };
   const pct = ((current - previous) / previous) * 100;
   return {
-    value: `${Math.abs(pct).toFixed(1)}% vs last period`,
+    value: `${Math.abs(pct).toFixed(1)}% ${periodLabel(range)}`,
     direction: pct >= 0 ? "up" : "down",
   };
 }
@@ -198,7 +208,7 @@ export default function OutboundOverviewPage() {
               label="Total Calls Made"
               value={cur?.total_calls ?? 0}
               icon={<PhoneCall size={12} />}
-              delta={cur && prev ? pctDelta(cur.total_calls, prev.total_calls) : undefined}
+              delta={cur && prev ? pctDelta(cur.total_calls, prev.total_calls, timeRange) : undefined}
             />
           </div>
           <div style={metricCardShell}>
@@ -209,6 +219,7 @@ export default function OutboundOverviewPage() {
               delta={cur && prev ? pctDelta(
                 cur.total_calls > 0 ? cur.contacted_count / cur.total_calls : 0,
                 prev.total_calls > 0 ? prev.contacted_count / prev.total_calls : 0,
+                timeRange,
               ) : undefined}
             />
           </div>
@@ -220,6 +231,7 @@ export default function OutboundOverviewPage() {
               delta={cur && prev ? pctDelta(
                 cur.contacted_count > 0 ? cur.converted_count / cur.contacted_count : 0,
                 prev.contacted_count > 0 ? prev.converted_count / prev.contacted_count : 0,
+                timeRange,
               ) : undefined}
             />
           </div>
@@ -229,7 +241,7 @@ export default function OutboundOverviewPage() {
               value={formatDurationSeconds(cur?.avg_duration_seconds)}
               icon={<Clock3 size={12} />}
               delta={cur && prev ? {
-                value: `${formatDurationSeconds(Math.abs(cur.avg_duration_seconds - prev.avg_duration_seconds))} vs last period`,
+                value: `${formatDurationSeconds(Math.abs(cur.avg_duration_seconds - prev.avg_duration_seconds))} ${periodLabel(timeRange)}`,
                 direction: cur.avg_duration_seconds >= prev.avg_duration_seconds ? "up" : "down",
               } : undefined}
             />

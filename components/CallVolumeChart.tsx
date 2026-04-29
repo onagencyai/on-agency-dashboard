@@ -138,6 +138,7 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
           width={40}
           domain={[0, "dataMax + 2"]}
           allowDecimals={false}
+          tickCount={5}
         />
         <CartesianGrid vertical={false} stroke={gridStroke} strokeDasharray="0" />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
