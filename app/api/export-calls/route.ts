@@ -20,6 +20,27 @@ function getIntent(call: CallRow): string {
   return typeof raw === "string" ? raw : "";
 }
 
+function formatTranscriptForExport(transcript: string | null): string {
+  if (!transcript) return "";
+
+  // Try to parse as JSON array (transcript_object format)
+  try {
+    const parsed = JSON.parse(transcript);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed
+        .map((turn: { role?: string; content?: string }) => {
+          const speaker = turn.role === "agent" || turn.role === "assistant" ? "Agent" : "Caller";
+          return `${speaker}: ${turn.content || ""}`;
+        })
+        .join("\n");
+    }
+  } catch {
+    // Not JSON, return as-is
+  }
+
+  return transcript;
+}
+
 function escapeCsv(val: string | number | null | undefined): string {
   if (val === null || val === undefined) return "";
   const str = String(val);
@@ -40,6 +61,7 @@ export async function GET(req: NextRequest) {
   const from = searchParams.get("from") ?? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const to = searchParams.get("to") ?? new Date().toISOString();
   const direction = searchParams.get("direction");
+  const label = searchParams.get("label") ?? "export";
 
   const supabase = createServerSupabaseClient();
   let query = supabase
@@ -65,7 +87,7 @@ export async function GET(req: NextRequest) {
       call.from_number ?? "",
       call.to_number ?? "",
       call.duration_ms ? Math.floor(call.duration_ms / 1000) : "",
-      call.transcript ?? "",
+      formatTranscriptForExport(call.transcript),
       call.disconnection_reason ?? "",
       call.user_sentiment ?? "",
       getIntent(call),
@@ -75,12 +97,11 @@ export async function GET(req: NextRequest) {
   });
 
   const csv = [header, ...rows].join("\n");
-  const today = new Date().toISOString().split("T")[0];
 
   return new NextResponse(csv, {
     headers: {
       "Content-Type": "text/csv",
-      "Content-Disposition": `attachment; filename="calls-${today}.csv"`,
+      "Content-Disposition": `attachment; filename="calls-${label}.csv"`,
     },
   });
 }
