@@ -125,12 +125,18 @@ async function handleN8nAnalyzedCall(req: NextRequest, body: Record<string, unkn
     const startTs = body.started_at;
     const endTs = body.ended_at;
 
-    // Extract transcript: prefer transcript_object (array), fall back to transcript string
+    // Extract transcript and custom_analysis_data
+    const customAnalysisData = body.custom_analysis_data as Record<string, unknown> | undefined;
+
+    // Extract transcript from transcript_object inside custom_analysis_data
     let transcript: string | null = null;
-    if (Array.isArray(body.transcript_object)) {
-      transcript = JSON.stringify(body.transcript_object);
-    } else if (typeof body.transcript === "string") {
-      transcript = body.transcript;
+    if (customAnalysisData?.transcript_object) {
+      const transcriptObj = customAnalysisData.transcript_object;
+      if (Array.isArray(transcriptObj)) {
+        transcript = JSON.stringify(transcriptObj);
+      } else if (typeof transcriptObj === "string") {
+        transcript = transcriptObj;
+      }
     }
 
     const supabase = createServerSupabaseClient();
@@ -155,7 +161,7 @@ async function handleN8nAnalyzedCall(req: NextRequest, body: Record<string, unkn
         user_sentiment: (body.user_sentiment as string) ?? null,
         call_successful: (body.call_successful as boolean) ?? null,
         in_voicemail: (body.in_voicemail as boolean) ?? null,
-        custom_analysis_data: (body.custom_analysis_data as Record<string, unknown>) ?? null,
+        custom_analysis_data: customAnalysisData ?? null,
         raw_payload: body,
       },
       { onConflict: "call_id" }
