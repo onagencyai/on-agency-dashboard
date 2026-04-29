@@ -7,7 +7,7 @@ import { Download, PhoneOff, PhoneCall, UserCheck, Target, Clock3 } from "lucide
 import Link from "next/link";
 import type { TimeRange, OutboundStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange, formatDateRange } from "@/lib/dateRange";
-import { formatDuration, formatDurationSeconds } from "@/lib/formatters";
+import { formatDuration, formatDurationSeconds, getSentimentColor } from "@/lib/formatters";
 import TimeRangeDropdown from "@/components/TimeRangeDropdown";
 import MetricCard from "@/components/MetricCard";
 import CallVolumeChart from "@/components/CallVolumeChart";
@@ -311,7 +311,7 @@ export default function OutboundOverviewPage() {
                 {recentCalls.map((call) => {
                   const outcome = getCallOutcome(call);
                   const sentiment = call.user_sentiment;
-                  const sentColor = sentiment === "Positive" ? "var(--green)" : sentiment === "Negative" ? "var(--red)" : sentiment === "Neutral" ? "var(--amber)" : "var(--text-tertiary)";
+                  const sentColor = getSentimentColor(sentiment);
                   return (
                     <tr key={call.id}
                       style={{ borderBottom: "1px solid var(--border)", transition: "background 0.1s", cursor: "pointer" }}

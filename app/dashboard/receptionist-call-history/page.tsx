@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Search, Download, PhoneOff, ChevronLeft, ChevronRight } from "lucide-react";
 import type { CallRow } from "@/lib/types";
-import { formatDuration } from "@/lib/formatters";
+import { formatDuration, getSentimentColor } from "@/lib/formatters";
 import CallRangePicker, { defaultRangeValue } from "@/components/CallRangePicker";
 import type { RangeValue } from "@/components/CallRangePicker";
 import CallDetailModal from "@/components/CallDetailModal";
@@ -221,7 +221,7 @@ export default function CallHistoryPage() {
                   const outcome = getCallOutcome(call);
                   const intent = getCallIntent(call);
                   const sentiment = call.user_sentiment;
-                  const sentColor = sentiment === "Positive" ? "var(--green)" : sentiment === "Negative" ? "var(--red)" : sentiment === "Neutral" ? "var(--amber)" : "var(--text-tertiary)";
+                  const sentColor = getSentimentColor(sentiment);
                   return (
                     <tr
                       key={call.id}

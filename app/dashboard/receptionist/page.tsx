@@ -7,7 +7,7 @@ import { Download, PhoneOff } from "lucide-react";
 import Link from "next/link";
 import type { TimeRange, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange, formatDateRange } from "@/lib/dateRange";
-import { formatDuration, formatDurationSeconds } from "@/lib/formatters";
+import { formatDuration, formatDurationSeconds, getSentimentColor } from "@/lib/formatters";
 import TimeRangeDropdown from "@/components/TimeRangeDropdown";
 import MetricCard from "@/components/MetricCard";
 import SentimentBar from "@/components/SentimentBar";
@@ -366,7 +366,7 @@ export default function ReceptionistOverviewPage() {
                   const outcome = getCallOutcome(call);
                   const intent = getCallIntent(call);
                   const sentiment = call.user_sentiment;
-                  const sentColor = sentiment === "Positive" ? "var(--green)" : sentiment === "Negative" ? "var(--red)" : sentiment === "Neutral" ? "var(--amber)" : "var(--text-tertiary)";
+                  const sentColor = getSentimentColor(sentiment);
                   return (
                     <tr
                       key={call.id}
