@@ -51,7 +51,7 @@ interface CallVolumeChartProps {
 }
 
 export default function CallVolumeChart({ data, showOutbound = true }: CallVolumeChartProps) {
-  const isDarkMode = typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  const isDarkMode = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
   const gridStroke = isDarkMode ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.14)";
 
   const CustomTick = ({ x, y, payload }: SVGProps<SVGTextElement> & { payload?: { value?: string } }) => {
