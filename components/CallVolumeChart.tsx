@@ -98,7 +98,7 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
           tickMargin={4}
           width={28}
         />
-        <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.06)" strokeDasharray="0" />
+        <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.12)" strokeDasharray="0" />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
         <Bar
           dataKey={showOutbound ? "outbound" : "inbound"}

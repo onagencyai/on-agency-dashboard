@@ -80,10 +80,11 @@ export default function ReceptionistOverviewPage() {
     setLoading(true);
     const f = from.toISOString();
     const t = to.toISOString();
- 
+    const tPlusOne = new Date(to.getTime() + 86400000).toISOString();
+
     const [statsRes, volRes, intentRes, callsRes] = await Promise.allSettled([
       fetch(`/api/receptionist-stats?from=${f}&to=${t}`).then((r) => r.json()),
-      fetch(`/api/call-volume?from=${f}&to=${t}`).then((r) => r.json()),
+      fetch(`/api/call-volume?from=${f}&to=${tPlusOne}`).then((r) => r.json()),
       fetch(`/api/call-intents?from=${f}&to=${t}&direction=inbound`).then((r) => r.json()),
       fetch(`/api/calls?from=${f}&to=${t}&direction=inbound&page=1&limit=10`).then((r) => r.json()),
     ]);

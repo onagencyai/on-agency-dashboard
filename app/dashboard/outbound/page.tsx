@@ -84,10 +84,11 @@ export default function OutboundOverviewPage() {
     setLoading(true);
     const f = from.toISOString();
     const t = to.toISOString();
+    const tPlusOne = new Date(to.getTime() + 86400000).toISOString();
 
     const [statsRes, volRes, callsRes] = await Promise.allSettled([
       fetch(`/api/outbound-stats?from=${f}&to=${t}`).then((r) => r.json()),
-      fetch(`/api/call-volume?from=${f}&to=${t}`).then((r) => r.json()),
+      fetch(`/api/call-volume?from=${f}&to=${tPlusOne}`).then((r) => r.json()),
       fetch(`/api/calls?from=${f}&to=${t}&direction=outbound&page=1&limit=10`).then((r) => r.json()),
     ]);
 
