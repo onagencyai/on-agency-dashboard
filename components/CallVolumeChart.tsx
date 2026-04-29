@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import { useState, useEffect } from "react";
 import type { CallVolumeData } from "@/lib/types";
 import type { SVGProps } from "react";
 
@@ -51,7 +52,16 @@ interface CallVolumeChartProps {
 }
 
 export default function CallVolumeChart({ data, showOutbound = true }: CallVolumeChartProps) {
-  const isDarkMode = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+  const [isDarkMode, setIsDarkMode] = useState(
+    () => typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+  );
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
   const gridStroke = isDarkMode ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.14)";
 
   const CustomTick = ({ x, y, payload }: SVGProps<SVGTextElement> & { payload?: { value?: string } }) => {
@@ -101,6 +111,7 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
           tickMargin={4}
           width={40}
           domain={[0, "dataMax + 2"]}
+          allowDecimals={false}
         />
         <CartesianGrid vertical={false} stroke={gridStroke} strokeDasharray="0" />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
