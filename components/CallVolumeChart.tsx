@@ -94,11 +94,13 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
     outbound: data.outbound[i] ?? 0,
   }));
 
-  // Mobile only: bucket into fixed bar counts. Today (1) and 7d (≤7) are left as-is.
-  // 30d → 10 bars, 60d → 10 bars, 90d → 12 bars.
+  // Mobile only: bucket into fixed bar counts.
+  // today → as-is, 7d → 7 bars, 30d → 10 bars, 60d → 10 bars, 90d → 12 bars.
   const chartData = (() => {
-    if (!isMobile || rawData.length <= 7) return rawData;
-    const targetBars = rawData.length > 65 ? 12 : 10;
+    if (!isMobile || rawData.length <= 2) return rawData; // today
+    const targetBars = rawData.length <= 10 ? 7
+      : rawData.length > 65 ? 12
+      : 10;
     const bucketSize = Math.ceil(rawData.length / targetBars);
     const buckets = [];
     for (let i = 0; i < rawData.length; i += bucketSize) {
@@ -112,7 +114,8 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
     return buckets;
   })();
 
-  const tickInterval = Math.max(0, Math.floor(data.dates.length / 15) - 1);
+  // Base tickInterval on chartData length so labels are evenly distributed across actual bars.
+  const tickInterval = Math.max(0, Math.floor(chartData.length / 15) - 1);
 
   return (
     <ResponsiveContainer width="100%" height={226}>
