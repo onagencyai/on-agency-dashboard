@@ -49,9 +49,10 @@ function CustomTooltip({ active, payload, label }: {
 interface CallVolumeChartProps {
   data: CallVolumeData;
   showOutbound?: boolean;
+  isMobile?: boolean;
 }
 
-export default function CallVolumeChart({ data, showOutbound = true }: CallVolumeChartProps) {
+export default function CallVolumeChart({ data, showOutbound = true, isMobile = false }: CallVolumeChartProps) {
   const [isDarkMode, setIsDarkMode] = useState(
     () => typeof document !== "undefined" && document.documentElement.classList.contains("dark")
   );
@@ -92,7 +93,7 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
       <BarChart
         data={chartData}
         barSize={Math.max(6, Math.min(11, 360 / (data.dates.length || 1)))}
-        margin={{ top: 10, right: 8, left: 0, bottom: 0 }}
+        margin={{ top: 10, right: 8, left: isMobile ? 8 : 0, bottom: 0 }}
         barCategoryGap="18%"
       >
         <XAxis
@@ -109,7 +110,7 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
           axisLine={false}
           tick={{ fill: "#707070", fontSize: 11 }}
           tickMargin={4}
-          width={40}
+          width={isMobile ? 28 : 40}
           domain={[0, "dataMax + 2"]}
           allowDecimals={false}
         />

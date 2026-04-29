@@ -21,12 +21,6 @@ export function getDateRange(range: TimeRange): { from: Date; to: Date } {
     case "90d":
       from.setDate(from.getDate() - 90);
       break;
-    case "6m":
-      from.setMonth(from.getMonth() - 6);
-      break;
-    case "1y":
-      from.setFullYear(from.getFullYear() - 1);
-      break;
     default:
       from.setDate(from.getDate() - 30);
   }
