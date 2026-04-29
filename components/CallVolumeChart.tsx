@@ -94,14 +94,11 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
     outbound: data.outbound[i] ?? 0,
   }));
 
-  // Mobile only: bucket into fixed bar counts.
-  // today → as-is, 7d → 7 bars, 30d → 10 bars, 60d → 10 bars, 90d → 12 bars.
+  // Mobile only: if range is longer than 7d (>10 raw bars), bucket down to 9 bars
+  // so 30d/60d/90d look identical in density to the 7d view. Today and 7d untouched.
   const chartData = (() => {
-    if (!isMobile || rawData.length <= 2) return rawData; // today
-    const targetBars = rawData.length <= 10 ? 7
-      : rawData.length > 65 ? 12
-      : 10;
-    const bucketSize = Math.ceil(rawData.length / targetBars);
+    if (!isMobile || rawData.length <= 10) return rawData;
+    const bucketSize = Math.ceil(rawData.length / 9);
     const buckets = [];
     for (let i = 0; i < rawData.length; i += bucketSize) {
       const slice = rawData.slice(i, i + bucketSize);
@@ -114,14 +111,13 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
     return buckets;
   })();
 
-  // Base tickInterval on chartData length so labels are evenly distributed across actual bars.
   const tickInterval = Math.max(0, Math.floor(chartData.length / 15) - 1);
 
   return (
     <ResponsiveContainer width="100%" height={226}>
       <BarChart
         data={chartData}
-        barSize={Math.max(6, Math.min(11, 360 / (data.dates.length || 1)))}
+        barSize={Math.max(6, Math.min(11, 360 / (chartData.length || 1)))}
         margin={{ top: 10, right: 8, left: 0, bottom: 0 }}
         barCategoryGap="18%"
       >
