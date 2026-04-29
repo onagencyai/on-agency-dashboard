@@ -125,6 +125,14 @@ async function handleN8nAnalyzedCall(req: NextRequest, body: Record<string, unkn
     const startTs = body.started_at;
     const endTs = body.ended_at;
 
+    // Extract transcript: prefer transcript_object (array), fall back to transcript string
+    let transcript: string | null = null;
+    if (Array.isArray(body.transcript_object)) {
+      transcript = JSON.stringify(body.transcript_object);
+    } else if (typeof body.transcript === "string") {
+      transcript = body.transcript;
+    }
+
     const supabase = createServerSupabaseClient();
     const { error } = await supabase.from("calls").upsert(
       {
@@ -138,7 +146,7 @@ async function handleN8nAnalyzedCall(req: NextRequest, body: Record<string, unkn
         from_number: (body.phone_number as string) ?? null,
         to_number: (body.to_number as string) ?? null,
         duration_ms: (body.duration_ms as number) ?? null,
-        transcript: (body.custom_analysis_data as Record<string, unknown> | undefined)?.transcript as string | undefined ?? null,
+        transcript,
         recording_url: (body.recording_url as string) ?? null,
         disconnection_reason: (body.disconnection_reason as string) ?? null,
         started_at: toIsoFromEpoch(startTs),
