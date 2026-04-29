@@ -121,7 +121,6 @@ export default function OutboundOverviewPage() {
     borderRadius: 12,
     overflow: "hidden",
     background: "var(--bg-1)",
-    height: isMobile ? 124 : 136,
   } as const;
 
   const outboundVolume: CallVolumeData = volume

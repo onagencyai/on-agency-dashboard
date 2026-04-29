@@ -121,7 +121,6 @@ export default function ReceptionistOverviewPage() {
     borderRadius: 12,
     overflow: "hidden",
     background: "var(--bg-1)",
-    height: isMobile ? 124 : 136,
   } as const;
  
   const totalCallsDelta = cur && prev ? pctDelta(cur.total_calls, prev.total_calls) : undefined;

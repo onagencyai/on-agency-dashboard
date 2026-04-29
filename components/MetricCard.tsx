@@ -35,7 +35,6 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
       style={{
         background: "var(--bg-1)",
         padding: "14px 18px",
-        minHeight: 128,
         transition: "background 0.15s",
         cursor: "default",
       }}
