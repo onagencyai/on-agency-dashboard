@@ -3,6 +3,12 @@ import { currentUser } from "@clerk/nextjs/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { resolveClientId } from "@/lib/resolve-client-id";
 
+// Allow only digits, +, -, spaces, and parentheses — the characters that can
+// appear in a phone number. Anything else is stripped before the ILIKE query.
+function sanitizePhoneSearch(raw: string): string {
+  return raw.replace(/[^0-9+\-() ]/g, "").slice(0, 30);
+}
+
 export async function GET(req: NextRequest) {
   const user = await currentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -15,7 +21,8 @@ export async function GET(req: NextRequest) {
   const to = searchParams.get("to") ?? new Date().toISOString();
   const direction = searchParams.get("direction");
   const outcome = searchParams.get("outcome");
-  const search = searchParams.get("search") ?? "";
+  const search = sanitizePhoneSearch(searchParams.get("search") ?? "");
+  const hasTranscript = searchParams.get("hasTranscript") === "true";
   const page = parseInt(searchParams.get("page") ?? "1");
   const limit = parseInt(searchParams.get("limit") ?? "25");
 
@@ -32,6 +39,10 @@ export async function GET(req: NextRequest) {
 
   if (direction) query = query.eq("direction", direction);
 
+  if (hasTranscript) {
+    query = query.not("transcript", "is", null).neq("transcript", "");
+  }
+
   if (outcome === "resolved") {
     query = query.eq("call_successful", true).eq("in_voicemail", false);
   } else if (outcome === "transferred") {
@@ -47,7 +58,7 @@ export async function GET(req: NextRequest) {
   }
 
   const { data, error, count } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Internal server error" }, { status: 500 });
 
   return NextResponse.json({ calls: data ?? [], total: count ?? 0 });
 }

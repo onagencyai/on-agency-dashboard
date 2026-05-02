@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     .gte("started_at", new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
     .order("started_at", { ascending: true });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Internal server error" }, { status: 500 });
 
   const fromDate = new Date(from);
   const toDate = new Date(to);

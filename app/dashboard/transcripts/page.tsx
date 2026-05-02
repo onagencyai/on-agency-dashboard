@@ -6,7 +6,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Search, AlertCircle, FileText, ChevronDown } from "lucide-react";
 import type { CallRow } from "@/lib/types";
-import { getSupabaseClient } from "@/lib/supabase-client";
 import Badge from "@/components/Badge";
 import EmptyState from "@/components/EmptyState";
 import { TranscriptCardSkeleton } from "@/components/Skeleton";
@@ -130,8 +129,7 @@ function TranscriptCard({ call }: { call: CallRow }) {
 }
 
 export default function TranscriptsPage() {
-  const { user, isLoaded } = useUser();
-  const [clientId, setClientId] = useState<string>("");
+  const { isLoaded } = useUser();
 
   const [calls, setCalls] = useState<CallRow[]>([]);
   const [filtered, setFiltered] = useState<CallRow[]>([]);
@@ -140,69 +138,32 @@ export default function TranscriptsPage() {
   const [search, setSearch] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    if (!isLoaded) return;
-    const metadataClientId =
-      typeof user?.publicMetadata === "object" &&
-      user?.publicMetadata &&
-      "client_id" in user.publicMetadata &&
-      typeof (user.publicMetadata as { client_id?: unknown }).client_id === "string"
-        ? ((user.publicMetadata as { client_id?: string }).client_id ?? "")
-        : "";
-
-    if (metadataClientId) {
-      setClientId(metadataClientId);
-      return;
-    }
-
-    void fetch("/api/client-info")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.client_id && typeof data.client_id === "string") {
-          setClientId(data.client_id);
-        } else {
-          setClientId("");
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        setClientId("");
-        setLoading(false);
-      });
-  }, [isLoaded, user]);
-
   const fetchTranscripts = useCallback(async () => {
-    if (!isLoaded || !clientId) return;
+    if (!isLoaded) return;
     setLoading(true);
     setError(false);
 
     try {
-      const { data, error: fetchError } = await getSupabaseClient()
-        .from("calls")
-        .select("*")
-        .eq("client_id", clientId)
-        .not("transcript", "is", null)
-        .neq("transcript", "")
-        .order("started_at", { ascending: false })
-        .limit(100);
-
-      if (fetchError) {
+      const res = await fetch("/api/calls?hasTranscript=true&limit=100", { cache: "no-store" });
+      if (!res.ok) {
         setError(true);
-      } else {
-        const result = (data ?? []) as CallRow[];
-        setCalls(result);
-        setFiltered(result);
+        return;
       }
+      const data = await res.json() as { calls: CallRow[] };
+      const result = data.calls ?? [];
+      setCalls(result);
+      setFiltered(result);
     } catch {
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, [clientId, isLoaded]);
+  }, [isLoaded]);
 
   useEffect(() => {
     void fetchTranscripts();
   }, [fetchTranscripts]);
+
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);

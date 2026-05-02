@@ -18,7 +18,8 @@
       "Bash(grep -E \"\\\\.\\(ts|tsx|js\\)$\")",
       "Bash(git add *)",
       "Bash(git commit -m 'Add n8n webhook handler for AI-analyzed call payloads *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(xargs ls *)"
     ]
   }
 }

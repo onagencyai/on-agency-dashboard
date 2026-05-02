@@ -61,7 +61,9 @@ export async function GET(req: NextRequest) {
   const from = searchParams.get("from") ?? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const to = searchParams.get("to") ?? new Date().toISOString();
   const direction = searchParams.get("direction");
-  const label = searchParams.get("label") ?? "export";
+  // Strip characters that could escape the Content-Disposition header value.
+  const rawLabel = searchParams.get("label") ?? "export";
+  const label = rawLabel.replace(/[^a-zA-Z0-9_\-]/g, "").slice(0, 50) || "export";
 
   const supabase = createServerSupabaseClient();
   let query = supabase
@@ -76,7 +78,7 @@ export async function GET(req: NextRequest) {
   if (direction) query = query.eq("direction", direction);
 
   const { data, error } = await query;
-  if (error) return new NextResponse(error.message, { status: 500 });
+  if (error) return new NextResponse("Internal server error", { status: 500 });
 
   const calls = (data ?? []) as CallRow[];
 

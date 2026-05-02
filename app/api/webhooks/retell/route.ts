@@ -10,7 +10,26 @@ function toIsoFromEpoch(value: unknown): string | null {
   return date.toISOString();
 }
 
+function isAuthorized(req: NextRequest): boolean {
+  const secret = process.env.RETELL_WEBHOOK_SECRET;
+  if (!secret) {
+    // No secret configured — reject all requests to prevent unauthenticated writes.
+    console.error("[retell webhook] RETELL_WEBHOOK_SECRET is not set; rejecting request");
+    return false;
+  }
+  // Accept the secret via the Authorization header (Bearer <secret>) or
+  // as a ?secret= query param (for Retell dashboard URL configuration).
+  const authHeader = req.headers.get("authorization");
+  if (authHeader === `Bearer ${secret}`) return true;
+  const urlSecret = new URL(req.url).searchParams.get("secret");
+  return urlSecret === secret;
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  if (!isAuthorized(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await req.json() as Record<string, unknown>;
     const event = body.event as string | undefined;
