@@ -134,7 +134,7 @@ async function handleCallAnalyzed(body: Record<string, unknown>): Promise<void> 
 async function handleN8nAnalyzedCall(req: NextRequest, body: Record<string, unknown>): Promise<void> {
   try {
     const callId = body.call_id as string | undefined;
-    const clientId = (new URL(req.url)).searchParams.get("client_id");
+    const clientId = (new URL(req.url)).searchParams.get("client_id") ?? (body.client_id as string) ?? null;
 
     if (!callId || !clientId) {
       console.error("[retell webhook] missing call_id or client_id in n8n payload");
