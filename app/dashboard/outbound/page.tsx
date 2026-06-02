@@ -159,18 +159,18 @@ export default function OutboundOverviewPage() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 18 }}>
             <span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)" }}>Period</span>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#6b7280" }}>
-              <Calendar size={12} />
-              <span style={{ fontSize: 12, color: "#6b7280", fontFamily: "var(--font-geist-mono, monospace)", textTransform: "uppercase", letterSpacing: "0.04em" }}>{dateLabel}</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 999, background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)", color: "#818cf8" }}>
+              <Calendar size={11} />
+              <span style={{ fontSize: 12, fontWeight: 500 }}>{dateLabel}</span>
             </span>
           </div>
         </div>
       ) : (
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
           <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Outbound Overview</span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#6b7280", marginLeft: 12 }}>
-            <Calendar size={12} />
-            <span style={{ fontSize: 11, color: "#6b7280", fontFamily: "var(--font-geist-mono, monospace)", textTransform: "uppercase", letterSpacing: "0.04em" }}>{dateLabel}</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 999, background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)", color: "#818cf8", marginLeft: 12 }}>
+            <Calendar size={11} />
+            <span style={{ fontSize: 12, fontWeight: 500 }}>{dateLabel}</span>
           </span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
