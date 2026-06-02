@@ -159,18 +159,18 @@ export default function OutboundOverviewPage() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 18 }}>
             <span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)" }}>Period</span>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "2px 10px", borderRadius: 20, background: "var(--green-dim)", border: "1px solid rgba(34,197,94,0.28)" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", flexShrink: 0 }} />
-              <span style={{ fontSize: 11, color: "var(--green)", fontFamily: "var(--font-geist-mono, monospace)" }}>{dateLabel}</span>
+              <span style={{ fontSize: 11, color: "var(--text-primary)", fontFamily: "var(--font-geist-mono, monospace)" }}>{dateLabel}</span>
             </span>
           </div>
         </div>
       ) : (
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
           <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Outbound Overview</span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "2px 10px", borderRadius: 20, background: "var(--green-dim)", border: "1px solid rgba(34,197,94,0.28)" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", flexShrink: 0 }} />
-            <span style={{ fontSize: 10, color: "var(--green)", fontFamily: "var(--font-geist-mono, monospace)" }}>{dateLabel}</span>
+            <span style={{ fontSize: 10, color: "var(--text-primary)", fontFamily: "var(--font-geist-mono, monospace)" }}>{dateLabel}</span>
           </span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
