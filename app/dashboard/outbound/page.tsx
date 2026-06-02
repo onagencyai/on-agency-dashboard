@@ -3,10 +3,10 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Download, PhoneOff, PhoneCall, UserCheck, Target, Clock3, Calendar } from "lucide-react";
+import { Download, PhoneOff, PhoneCall, UserCheck, Target, Clock3 } from "lucide-react";
 import Link from "next/link";
 import type { TimeRange, OutboundStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
-import { getDateRange, formatDateRange } from "@/lib/dateRange";
+import { getDateRange } from "@/lib/dateRange";
 import { formatDuration, formatDurationSeconds, getSentimentColor } from "@/lib/formatters";
 import TimeRangeDropdown from "@/components/TimeRangeDropdown";
 import MetricCard from "@/components/MetricCard";
@@ -87,7 +87,6 @@ export default function OutboundOverviewPage() {
   const [isMobile, setIsMobile] = useState(false);
 
   const { from, to } = getDateRange(timeRange);
-  const dateLabel = formatDateRange(from, to);
 
   const fetchData = useCallback(async () => {
     if (!isLoaded) return;
@@ -157,21 +156,10 @@ export default function OutboundOverviewPage() {
               </button>
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 18 }}>
-            <span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)" }}>Period</span>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 999, background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)", color: "#818cf8" }}>
-              <Calendar size={11} />
-              <span style={{ fontSize: 12, fontWeight: 500 }}>{dateLabel}</span>
-            </span>
-          </div>
         </div>
       ) : (
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
           <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Outbound Overview</span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 999, background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)", color: "#818cf8", marginLeft: 12 }}>
-            <Calendar size={11} />
-            <span style={{ fontSize: 12, fontWeight: 500 }}>{dateLabel}</span>
-          </span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
             <button onClick={handleExport}
