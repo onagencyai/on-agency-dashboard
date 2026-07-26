@@ -156,7 +156,7 @@ export default function SignInPage() {
           justify-content: center;
           gap: 8px;
           width: 100%;
-          height: 36px;
+          height: 37px;
           padding: 0 14px;
           background: var(--oa-surface-base);
           border: 1px solid var(--oa-border-default);
@@ -199,7 +199,7 @@ export default function SignInPage() {
           style={{
             display: "flex",
             justifyContent: "center",
-            padding: "32px 0 0",
+            padding: "52px 0 0",
             color: "var(--oa-content-strong)",
             position: "relative",
             zIndex: 2,
@@ -215,12 +215,12 @@ export default function SignInPage() {
             <h1
               style={{
                 color: "var(--oa-content-strong)",
-                fontSize: "20px",
+                fontSize: "22px",
                 fontWeight: 600,
                 letterSpacing: "-0.02em",
                 lineHeight: 1.3,
                 textAlign: "center",
-                marginBottom: 8,
+                marginBottom: 13,
                 marginTop: 0,
               }}
             >
@@ -234,7 +234,7 @@ export default function SignInPage() {
                 fontSize: "13px",
                 textAlign: "center",
                 lineHeight: 1.5,
-                marginBottom: 30,
+                marginBottom: 35,
               }}
             >
               Welcome back to On Agency
