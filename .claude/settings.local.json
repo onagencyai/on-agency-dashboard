@@ -19,7 +19,10 @@
       "Bash(git add *)",
       "Bash(git commit -m 'Add n8n webhook handler for AI-analyzed call payloads *)",
       "Bash(git push *)",
-      "Bash(xargs ls *)"
+      "Bash(xargs ls *)",
+      "mcp__e94734f3-1c7e-4c48-a0a8-935bd401fd7c__list_teams",
+      "mcp__e94734f3-1c7e-4c48-a0a8-935bd401fd7c__list_projects",
+      "mcp__e94734f3-1c7e-4c48-a0a8-935bd401fd7c__get_project"
     ]
   }
 }
