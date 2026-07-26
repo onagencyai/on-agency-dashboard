@@ -108,7 +108,7 @@ export default function SignInPage() {
           color: var(--oa-content-disabled);
         }
         .oa-footer-text {
-          color: var(--oa-content-subtle);
+          color: #7e7e7f;
           font-size: 12px;
           font-family: inherit;
         }
