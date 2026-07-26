@@ -3,7 +3,7 @@
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState, FormEvent } from "react";
-import Image from "next/image";
+import LogoMark from "@/components/LogoMark";
 
 export default function SignInPage() {
   const { isLoaded, signIn, setActive } = useSignIn();
@@ -96,20 +96,48 @@ export default function SignInPage() {
           position: relative;
           z-index: 2;
         }
-        .oa-top-grid {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: min(42vh, 360px);
-          pointer-events: none;
-          background-image:
-            linear-gradient(to right, rgba(17, 24, 39, 0.055) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(17, 24, 39, 0.055) 1px, transparent 1px);
-          background-size: 56px 56px;
-          background-position: 0 0, 0 56px;
-          -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95) 30%, rgba(0, 0, 0, 0));
-          mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95) 30%, rgba(0, 0, 0, 0));
+        .oa-divider {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin: 20px 0;
+        }
+        .oa-divider-line {
+          height: 1px;
+          flex: 1;
+          background: rgba(17, 24, 39, 0.1);
+        }
+        .oa-divider-text {
+          font-size: 11px;
+          font-weight: 500;
+          letter-spacing: 0.08em;
+          color: rgba(17, 24, 39, 0.4);
+          text-transform: uppercase;
+        }
+        .oa-google-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          width: 100%;
+          padding: 10px 16px;
+          background: #ffffff;
+          border: 1px solid rgba(17, 24, 39, 0.12);
+          border-radius: 8px;
+          color: rgba(17, 24, 39, 0.85);
+          font-size: 14px;
+          font-weight: 500;
+          letter-spacing: -0.01em;
+          cursor: pointer;
+          transition: background-color 0.15s ease, box-shadow 0.15s ease;
+          font-family: inherit;
+        }
+        .oa-google-btn:hover:not(:disabled) {
+          background: rgba(17, 24, 39, 0.03);
+        }
+        .oa-google-btn:disabled {
+          cursor: not-allowed;
+          opacity: 0.6;
         }
         @media (max-width: 640px) {
           .oa-auth-container {
@@ -120,11 +148,6 @@ export default function SignInPage() {
           }
           .oa-footer {
             padding: 0 16px 42px;
-          }
-          .oa-top-grid {
-            height: min(36vh, 300px);
-            background-size: 46px 46px;
-            background-position: 0 0, 0 46px;
           }
         }
       `}</style>
@@ -141,8 +164,6 @@ export default function SignInPage() {
           WebkitFontSmoothing: "antialiased",
         }}
       >
-        <div className="oa-top-grid" />
-
         {/* Centered form area */}
         <main className="oa-main">
           <div className="oa-auth-container">
@@ -151,35 +172,30 @@ export default function SignInPage() {
               style={{
                 display: "flex",
                 justifyContent: "center",
-                marginBottom: 40,
+                marginBottom: 24,
+                color: "#171717",
               }}
             >
-              <Image
-                src="/logos/on-agency-four-line.svg"
-                alt="On Agency Four Line"
-                width={64}
-                height={64}
-                priority
-              />
+              <LogoMark size={30} />
             </div>
 
             {/* Heading */}
             <h1
               style={{
                 color: "rgb(23, 23, 23)",
-                fontSize: "32px",
+                fontSize: "26px",
                 fontWeight: 600,
                 letterSpacing: "-0.03em",
-                lineHeight: "40px",
+                lineHeight: "32px",
                 textAlign: "center",
-                marginBottom: 12,
+                marginBottom: 8,
                 marginTop: 0,
                 fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
                 textRendering: "optimizeLegibility",
                 WebkitFontSmoothing: "antialiased",
               }}
             >
-              Log in to On Agency
+              Sign in
             </h1>
 
             {/* Subheading */}
@@ -189,12 +205,41 @@ export default function SignInPage() {
                 fontSize: "14px",
                 textAlign: "center",
                 lineHeight: 1.55,
-                marginBottom: 36,
+                marginBottom: 28,
                 letterSpacing: "-0.01em",
               }}
             >
-              Access your dashboard and manage your AI agents
+              Welcome back to On Agency
             </p>
+
+            {/* Google sign-in */}
+            <button
+              type="button"
+              className="oa-google-btn"
+              disabled={!isLoaded || loading}
+              onClick={() => {
+                if (!isLoaded || !signIn) return;
+                signIn.authenticateWithRedirect({
+                  strategy: "oauth_google",
+                  redirectUrl: "/sign-in/sso-callback",
+                  redirectUrlComplete: "/dashboard",
+                });
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+                <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" />
+                <path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" />
+                <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" />
+                <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" />
+              </svg>
+              Sign in with Google
+            </button>
+
+            <div className="oa-divider">
+              <span className="oa-divider-line" />
+              <span className="oa-divider-text">Or</span>
+              <span className="oa-divider-line" />
+            </div>
 
             {/* Form */}
             <form
@@ -410,6 +455,9 @@ export default function SignInPage() {
         </main>
 
         <footer className="oa-footer">
+          <span className="oa-footer-link" style={{ cursor: "default" }}>
+            © 2026 On Agency
+          </span>
           <a
             className="oa-footer-link"
             href="https://onagency.ai/terms-of-service"
