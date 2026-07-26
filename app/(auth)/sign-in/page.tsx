@@ -128,7 +128,7 @@ export default function SignInPage() {
         .oa-footer {
           display: flex;
           justify-content: center;
-          padding: 0 16px 24px;
+          padding: 0 16px 44px;
           position: relative;
           z-index: 2;
         }
@@ -156,7 +156,7 @@ export default function SignInPage() {
           justify-content: center;
           gap: 8px;
           width: 100%;
-          height: 34px;
+          height: 36px;
           padding: 0 14px;
           background: var(--oa-surface-base);
           border: 1px solid var(--oa-border-default);
@@ -194,21 +194,23 @@ export default function SignInPage() {
           WebkitFontSmoothing: "antialiased",
         }}
       >
+        {/* Logo above the form */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            padding: "32px 0 0",
+            color: "var(--oa-content-strong)",
+            position: "relative",
+            zIndex: 2,
+          }}
+        >
+          <LogoMark size={26} />
+        </div>
+
         {/* Centered form area */}
         <main className="oa-main">
           <div className="oa-auth-container">
-            {/* Icon */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: 20,
-                color: "var(--oa-content-strong)",
-              }}
-            >
-              <LogoMark size={26} />
-            </div>
-
             {/* Heading */}
             <h1
               style={{
@@ -218,7 +220,7 @@ export default function SignInPage() {
                 letterSpacing: "-0.02em",
                 lineHeight: 1.3,
                 textAlign: "center",
-                marginBottom: 6,
+                marginBottom: 8,
                 marginTop: 0,
               }}
             >
@@ -229,10 +231,10 @@ export default function SignInPage() {
             <p
               style={{
                 color: "var(--oa-content-subtle)",
-                fontSize: "12px",
+                fontSize: "13px",
                 textAlign: "center",
                 lineHeight: 1.5,
-                marginBottom: 20,
+                marginBottom: 30,
               }}
             >
               Welcome back to On Agency
