@@ -199,7 +199,7 @@ export default function SignInPage() {
           style={{
             display: "flex",
             justifyContent: "center",
-            padding: "52px 0 0",
+            padding: "42px 0 0",
             color: "var(--oa-content-strong)",
             position: "relative",
             zIndex: 2,
