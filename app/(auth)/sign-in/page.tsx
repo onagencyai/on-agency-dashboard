@@ -215,7 +215,7 @@ export default function SignInPage() {
             <h1
               style={{
                 color: "var(--oa-content-strong)",
-                fontSize: "22px",
+                fontSize: "21px",
                 fontWeight: 600,
                 letterSpacing: "-0.02em",
                 lineHeight: 1.3,
