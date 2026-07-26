@@ -3,7 +3,10 @@
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState, FormEvent } from "react";
+import { Inter } from "next/font/google";
 import LogoMark from "@/components/LogoMark";
+
+const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"] });
 
 export default function SignInPage() {
   const { isLoaded, signIn, setActive } = useSignIn();
@@ -45,54 +48,87 @@ export default function SignInPage() {
   return (
     <>
       <style>{`
+        :root {
+          --oa-surface-subtle: #fafafa;
+          --oa-surface-base: #ffffff;
+          --oa-border-default: #e5e5e5;
+          --oa-content-strong: #1a1a1a;
+          --oa-content-default: #333333;
+          --oa-content-subtle: #646465;
+          --oa-content-disabled: #c2c2c2;
+          --oa-interactive-hover: #f0f0f0;
+          --oa-interactive-disabled: #e5e5e5;
+          --oa-accent: #0391ff;
+          --oa-accent-hover: #0380e0;
+        }
+        .oa-input {
+          width: 100%;
+          min-width: 0;
+          outline: none;
+          box-sizing: border-box;
+          color: var(--oa-content-strong);
+          background: var(--oa-surface-base);
+          border: 1px solid var(--oa-border-default);
+          border-radius: 8px;
+          height: 34px;
+          padding: 4px 10px;
+          font-size: 14px;
+          font-family: inherit;
+          transition: border-color 150ms, background 150ms, box-shadow 150ms;
+          appearance: none;
+          -webkit-appearance: none;
+        }
         .oa-input::placeholder {
-          color: rgba(17, 24, 39, 0.4);
+          color: var(--oa-content-disabled);
+        }
+        .oa-input:hover {
+          background: var(--oa-interactive-hover);
+        }
+        .oa-input:focus {
+          border-color: var(--oa-content-disabled);
+          background: var(--oa-interactive-hover);
+          box-shadow: 0 0 0 3px #e1e1e1;
         }
         .oa-input:-webkit-autofill,
         .oa-input:-webkit-autofill:hover,
         .oa-input:-webkit-autofill:focus {
           -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
-          -webkit-text-fill-color: #111827;
-          caret-color: #111827;
+          -webkit-text-fill-color: var(--oa-content-strong);
+          caret-color: var(--oa-content-strong);
           transition: background-color 5000s ease-in-out 0s;
         }
+        .oa-btn {
+          background: var(--oa-accent);
+        }
         .oa-btn:hover:not(:disabled) {
-          opacity: 0.88 !important;
+          background: var(--oa-accent-hover);
         }
-        .oa-btn:active:not(:disabled) {
-          opacity: 0.78 !important;
-          transform: scale(0.99);
+        .oa-btn:disabled {
+          background: var(--oa-interactive-disabled);
+          color: var(--oa-content-disabled);
         }
-        .oa-footer-link {
-          color: rgba(17, 24, 39, 0.45);
-          font-size: 13px;
-          line-height: 1;
-          letter-spacing: -0.02em;
-          font-family: var(--font-geist-sans, system-ui, sans-serif);
-          text-decoration: none;
-          transition: color 0.15s ease;
-        }
-        .oa-footer-link:hover {
-          color: rgba(17, 24, 39, 0.75);
+        .oa-footer-text {
+          color: var(--oa-content-subtle);
+          font-size: 12px;
+          font-family: inherit;
         }
         .oa-auth-container {
           width: 100%;
-          max-width: 376px;
+          max-width: 360px;
         }
         .oa-main {
           flex: 1;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 112px 16px 64px;
+          padding: 48px 16px;
           position: relative;
           z-index: 2;
         }
         .oa-footer {
           display: flex;
           justify-content: center;
-          gap: 20px;
-          padding: 0 16px 32px;
+          padding: 0 16px 24px;
           position: relative;
           z-index: 2;
         }
@@ -100,40 +136,40 @@ export default function SignInPage() {
           display: flex;
           align-items: center;
           gap: 12px;
-          margin: 20px 0;
+          margin: 18px 0;
         }
         .oa-divider-line {
           height: 1px;
           flex: 1;
-          background: rgba(17, 24, 39, 0.1);
+          background: var(--oa-border-default);
         }
         .oa-divider-text {
           font-size: 11px;
           font-weight: 500;
           letter-spacing: 0.08em;
-          color: rgba(17, 24, 39, 0.4);
+          color: var(--oa-content-subtle);
           text-transform: uppercase;
         }
         .oa-google-btn {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
+          gap: 8px;
           width: 100%;
-          padding: 10px 16px;
-          background: #ffffff;
-          border: 1px solid rgba(17, 24, 39, 0.12);
+          height: 34px;
+          padding: 0 14px;
+          background: var(--oa-surface-base);
+          border: 1px solid var(--oa-border-default);
           border-radius: 8px;
-          color: rgba(17, 24, 39, 0.85);
+          color: var(--oa-content-default);
           font-size: 14px;
           font-weight: 500;
-          letter-spacing: -0.01em;
-          cursor: pointer;
-          transition: background-color 0.15s ease, box-shadow 0.15s ease;
           font-family: inherit;
+          cursor: pointer;
+          transition: background-color 150ms;
         }
         .oa-google-btn:hover:not(:disabled) {
-          background: rgba(17, 24, 39, 0.03);
+          background: var(--oa-interactive-hover);
         }
         .oa-google-btn:disabled {
           cursor: not-allowed;
@@ -141,26 +177,20 @@ export default function SignInPage() {
         }
         @media (max-width: 640px) {
           .oa-auth-container {
-            max-width: 340px;
-          }
-          .oa-main {
-            padding: 78px 16px 88px;
-          }
-          .oa-footer {
-            padding: 0 16px 42px;
+            max-width: 320px;
           }
         }
       `}</style>
 
       <div
+        className={inter.className}
         style={{
           minHeight: "100vh",
-          background: "#FAFAFA",
+          background: "var(--oa-surface-subtle)",
           position: "relative",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
           WebkitFontSmoothing: "antialiased",
         }}
       >
@@ -172,27 +202,24 @@ export default function SignInPage() {
               style={{
                 display: "flex",
                 justifyContent: "center",
-                marginBottom: 24,
-                color: "#171717",
+                marginBottom: 20,
+                color: "var(--oa-content-strong)",
               }}
             >
-              <LogoMark size={30} />
+              <LogoMark size={26} />
             </div>
 
             {/* Heading */}
             <h1
               style={{
-                color: "rgb(23, 23, 23)",
-                fontSize: "26px",
+                color: "var(--oa-content-strong)",
+                fontSize: "20px",
                 fontWeight: 600,
-                letterSpacing: "-0.03em",
-                lineHeight: "32px",
+                letterSpacing: "-0.02em",
+                lineHeight: 1.3,
                 textAlign: "center",
-                marginBottom: 8,
+                marginBottom: 6,
                 marginTop: 0,
-                fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
-                textRendering: "optimizeLegibility",
-                WebkitFontSmoothing: "antialiased",
               }}
             >
               Sign in
@@ -201,12 +228,11 @@ export default function SignInPage() {
             {/* Subheading */}
             <p
               style={{
-                color: "rgba(17,24,39,0.62)",
-                fontSize: "14px",
+                color: "var(--oa-content-subtle)",
+                fontSize: "12px",
                 textAlign: "center",
-                lineHeight: 1.55,
-                marginBottom: 28,
-                letterSpacing: "-0.01em",
+                lineHeight: 1.5,
+                marginBottom: 20,
               }}
             >
               Welcome back to On Agency
@@ -226,7 +252,7 @@ export default function SignInPage() {
                 });
               }}
             >
-              <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
                 <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" />
                 <path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" />
                 <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" />
@@ -244,70 +270,41 @@ export default function SignInPage() {
             {/* Form */}
             <form
               onSubmit={handleSubmit}
-              style={{ display: "flex", flexDirection: "column", gap: 14 }}
+              style={{ display: "flex", flexDirection: "column", gap: 12 }}
             >
               {/* Email field */}
-              <div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label
                   htmlFor="email"
                   style={{
-                    display: "block",
-                    color: "rgba(17,24,39,0.7)",
-                    fontSize: "12.5px",
+                    color: "var(--oa-content-subtle)",
+                    fontSize: "12px",
                     fontWeight: 500,
-                    letterSpacing: "-0.01em",
-                    marginBottom: 7,
                   }}
                 >
-                  Email address
+                  Email
                 </label>
                 <input
                   id="email"
                   className="oa-input"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="you@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
                   autoFocus
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    padding: "10px 13px",
-                    background: "#ffffff",
-                    border: "1px solid rgba(17,24,39,0.1)",
-                    borderRadius: 8,
-                    color: "#111827",
-                    fontSize: "14px",
-                    letterSpacing: "-0.01em",
-                    outline: "none",
-                    transition: "border-color 0.15s ease, box-shadow 0.15s ease",
-                    fontFamily: "inherit",
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(59,130,246,0.65)";
-                    e.currentTarget.style.boxShadow =
-                      "0 0 0 3px rgba(59,130,246,0.13)";
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(17,24,39,0.1)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
                 />
               </div>
 
               {/* Password field with toggle */}
-              <div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label
                   htmlFor="password"
                   style={{
-                    display: "block",
-                    color: "rgba(17,24,39,0.7)",
-                    fontSize: "12.5px",
+                    color: "var(--oa-content-subtle)",
+                    fontSize: "12px",
                     fontWeight: 500,
-                    letterSpacing: "-0.01em",
-                    marginBottom: 7,
                   }}
                 >
                   Password
@@ -328,60 +325,37 @@ export default function SignInPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
-                    style={{
-                      display: "block",
-                      width: "100%",
-                      padding: "10px 13px 10px 13px",
-                      paddingRight: "40px",
-                      background: "#ffffff",
-                      border: "1px solid rgba(17,24,39,0.1)",
-                      borderRadius: 8,
-                      color: "#111827",
-                      fontSize: "14px",
-                      outline: "none",
-                      transition: "border-color 0.15s ease, box-shadow 0.15s ease",
-                      fontFamily: "inherit",
-                      boxSizing: "border-box",
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(59,130,246,0.65)";
-                      e.currentTarget.style.boxShadow =
-                        "0 0 0 3px rgba(59,130,246,0.13)";
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(17,24,39,0.1)";
-                      e.currentTarget.style.boxShadow = "none";
-                    }}
+                    style={{ paddingRight: 36 }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     style={{
                       position: "absolute",
-                      right: 12,
+                      right: 8,
                       background: "none",
                       border: "none",
                       cursor: "pointer",
-                      padding: "4px 8px",
+                      padding: "4px 6px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "rgba(17,24,39,0.45)",
+                      color: "var(--oa-content-subtle)",
                       transition: "color 0.2s ease",
                       zIndex: 10,
                       pointerEvents: "auto",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.color = "rgba(17,24,39,0.72)";
+                      e.currentTarget.style.color = "var(--oa-content-strong)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "rgba(17,24,39,0.45)";
+                      e.currentTarget.style.color = "var(--oa-content-subtle)";
                     }}
                   >
                     {showPassword ? (
                       <svg
-                        width="18"
-                        height="18"
+                        width="16"
+                        height="16"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -392,8 +366,8 @@ export default function SignInPage() {
                       </svg>
                     ) : (
                       <svg
-                        width="18"
-                        height="18"
+                        width="16"
+                        height="16"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -412,14 +386,13 @@ export default function SignInPage() {
                 <div
                   role="alert"
                   style={{
-                    padding: "10px 13px",
-                    background: "rgba(239,68,68,0.07)",
-                    border: "1px solid rgba(239,68,68,0.18)",
+                    padding: "8px 10px",
+                    background: "#fef2f2",
+                    border: "1px solid #fecaca",
                     borderRadius: 8,
-                    color: "#fc8181",
-                    fontSize: "13px",
+                    color: "#dc2626",
+                    fontSize: "12px",
                     lineHeight: 1.45,
-                    letterSpacing: "-0.01em",
                   }}
                 >
                   {error}
@@ -434,18 +407,16 @@ export default function SignInPage() {
                 style={{
                   marginTop: 2,
                   width: "100%",
-                  padding: "11px 20px",
-                  background: "#111111",
+                  height: 36,
+                  padding: "0 14px",
                   color: "#ffffff",
-                  border: "none",
+                  border: "1px solid transparent",
                   borderRadius: 8,
                   fontSize: "14px",
-                  fontWeight: 600,
-                  letterSpacing: "-0.02em",
-                  cursor: loading || !isLoaded ? "not-allowed" : "pointer",
-                  opacity: loading || !isLoaded ? 0.6 : 1,
-                  transition: "opacity 0.15s ease, transform 0.1s ease",
+                  fontWeight: 500,
                   fontFamily: "inherit",
+                  cursor: loading || !isLoaded ? "not-allowed" : "pointer",
+                  transition: "background 150ms",
                 }}
               >
                 {loading ? "Signing in…" : "Continue"}
@@ -455,25 +426,7 @@ export default function SignInPage() {
         </main>
 
         <footer className="oa-footer">
-          <span className="oa-footer-link" style={{ cursor: "default" }}>
-            © 2026 On Agency
-          </span>
-          <a
-            className="oa-footer-link"
-            href="https://onagency.ai/terms-of-service"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Terms
-          </a>
-          <a
-            className="oa-footer-link"
-            href="https://onagency.ai/privacy-policy"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Privacy Policy
-          </a>
+          <span className="oa-footer-text">© 2026 On Agency</span>
         </footer>
       </div>
     </>
