@@ -28,6 +28,8 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <head>
+          <meta name="theme-color" content="#fafafa" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
           <script
             dangerouslySetInnerHTML={{
               __html: `
@@ -43,7 +45,7 @@ export default function RootLayout({
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          style={{ background: "var(--bg)", color: "var(--text-primary)", fontFamily: "var(--font-geist-sans, system-ui, sans-serif)" }}
+          style={{ background: "#fafafa", color: "var(--text-primary)", fontFamily: "var(--font-geist-sans, system-ui, sans-serif)" }}
         >
           {children}
         </body>
