@@ -246,7 +246,7 @@ export default function OutboundOverviewPage() {
 
       {/* Charts */}
       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1.2fr) minmax(360px, 0.85fr)", gap: 16, marginBottom: 16 }}>
-        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
             <div>
               <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>
@@ -254,7 +254,7 @@ export default function OutboundOverviewPage() {
               </span>
             </div>
           </div>
-          <div style={{ padding: 20 }}>
+          <div style={{ padding: 20, flex: 1, display: "flex", flexDirection: "column" }}>
             {loading ? (
               <div className="skeleton" style={{ height: 220 }} />
             ) : (

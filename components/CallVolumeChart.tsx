@@ -1,91 +1,162 @@
 "use client";
 
-import { useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
+import { useState, useEffect } from "react";
 import type { CallVolumeData } from "@/lib/types";
+import type { SVGProps } from "react";
+
+interface TooltipPayloadEntry {
+  name: string;
+  value: number;
+  color: string;
+}
+
+function CustomTooltip({ active, payload, label }: {
+  active?: boolean;
+  payload?: TooltipPayloadEntry[];
+  label?: string;
+}) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div
+      style={{
+        background: "var(--bg-1)",
+        border: "1px solid var(--border)",
+        borderRadius: 6,
+        padding: "8px 10px",
+        fontSize: 12,
+        boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
+      }}
+    >
+      <div style={{ color: "var(--ink)", fontWeight: 600, marginBottom: 4 }}>{label}</div>
+      {payload.map((p) => (
+        <div key={p.name} style={{ color: "var(--text-secondary)", display: "flex", gap: 8 }}>
+          <span>{p.name}:</span>
+          <span style={{ color: "var(--text-primary)" }}>{p.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 interface CallVolumeChartProps {
   data: CallVolumeData;
   showOutbound?: boolean;
 }
 
-// Daily call bars in the style of Ledger's "Cash in and out" chart: bars grow from zero,
-// hover or tap a day for the exact number, one quiet footer line with the busiest day.
 export default function CallVolumeChart({ data, showOutbound = true }: CallVolumeChartProps) {
-  const [active, setActive] = useState<number | null>(null);
-  const label = showOutbound ? "Outbound calls" : "Inbound calls";
-  const rows = data.dates.map((date, i) => ({ date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
-  const max = Math.max(1, ...rows.map((r) => r.value));
-  const total = rows.reduce((s, r) => s + r.value, 0);
-  const busiest = rows.reduce((b, r) => (r.value > b.value ? r : b), { date: "", value: 0 });
-  const step = Math.max(1, Math.ceil(rows.length / 8));
-  const dense = rows.length > 14;
+  const [isDarkMode, setIsDarkMode] = useState(
+    () => typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+  );
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 900px)").matches
+  );
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 900px)");
+    const apply = () => setIsMobile(mq.matches);
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+  const gridStroke = isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(13,51,63,0.10)";
+  const axisColor = isDarkMode ? "#c2c0b5" : "#66737a";
+  const barColor = isDarkMode ? "#6da7ec" : "#2f80ff";
+  const barActive = isDarkMode ? "#8dbcf2" : "#0060f2";
+
+  const CustomTick = ({ x, y, payload }: SVGProps<SVGTextElement> & { payload?: { value?: string } }) => {
+    const value = payload?.value ?? "";
+    const [month = "", day = ""] = value.split(" ");
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text x={0} y={16} textAnchor="middle" fill={axisColor} fontSize="11" fontWeight={600}>
+          {month}
+        </text>
+        <text x={0} y={32} textAnchor="middle" fill={axisColor} fontSize="11" fontWeight={400}>
+          {day}
+        </text>
+      </g>
+    );
+  };
+
+  const rawData = data.dates.map((date, i) => ({
+    date,
+    inbound: data.inbound[i] ?? 0,
+    outbound: data.outbound[i] ?? 0,
+  }));
+
+  // Mobile: 7d (≤10 bars) renders as-is. 30/60/90d bucket down to 9 bars — same density as 7d.
+  const chartData = (() => {
+    if (!isMobile || rawData.length <= 10) return rawData;
+    const bucketSize = Math.ceil(rawData.length / 9);
+    const buckets = [];
+    for (let i = 0; i < rawData.length; i += bucketSize) {
+      const slice = rawData.slice(i, i + bucketSize);
+      buckets.push({
+        date: slice[0].date,
+        inbound: slice.reduce((s, r) => s + r.inbound, 0),
+        outbound: slice.reduce((s, r) => s + r.outbound, 0),
+      });
+    }
+    return buckets;
+  })();
+
+  const tickInterval = Math.max(0, Math.floor(chartData.length / 15) - 1);
 
   return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, fontSize: 13, color: "var(--text-secondary)" }}>
-        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 8, height: 8, borderRadius: 999, background: "var(--blue)" }} />
-          {label}
-        </span>
-        <span className="num">
-          <span style={{ color: "var(--ink)", fontWeight: 600 }}>{total}</span> in this period
-        </span>
-      </div>
-
-      <div style={{ display: "flex", alignItems: "flex-end", gap: dense ? 2 : 6, height: 210, borderBottom: "1px solid var(--border)" }} onClick={() => setActive(null)}>
-        {rows.map((r, i) => {
-          const isActive = active === i;
-          const pct = (r.value / max) * 100;
-          return (
-            <div
-              key={r.date + i}
-              onClick={(e) => { e.stopPropagation(); setActive((c) => (c === i ? null : i)); }}
-              onMouseEnter={() => setActive(i)}
-              onMouseLeave={() => setActive((c) => (c === i ? null : c))}
-              style={{
-                position: "relative", flex: 1, height: "100%", display: "flex", alignItems: "flex-end", justifyContent: "center",
-                cursor: "pointer", borderRadius: 6, background: isActive ? "var(--bg-2)" : "transparent", transition: "background 0.12s",
-              }}
-            >
-              {isActive && (
-                <div
-                  style={{
-                    position: "absolute", top: 0, zIndex: 2, whiteSpace: "nowrap", pointerEvents: "none",
-                    left: i >= rows.length - 3 ? "auto" : i <= 2 ? 0 : "50%", right: i >= rows.length - 3 ? 0 : "auto",
-                    transform: i >= rows.length - 3 || i <= 2 ? "none" : "translateX(-50%)",
-                    background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, padding: "6px 10px", fontSize: 12,
-                    boxShadow: "0 4px 14px rgba(0,0,0,0.10)",
-                  }}
-                >
-                  <div style={{ fontWeight: 600, color: "var(--ink)" }}>{r.date}</div>
-                  <div style={{ color: "var(--text-secondary)" }}>{r.value} {r.value === 1 ? "call" : "calls"}</div>
-                </div>
-              )}
-              <div
-                style={{
-                  width: dense ? "62%" : "44%", maxWidth: 22, borderRadius: 4,
-                  background: isActive ? "var(--blue)" : "var(--blue)", opacity: isActive ? 1 : 0.88,
-                  height: `${pct}%`, minHeight: r.value > 0 ? 4 : 0, transition: "opacity 0.12s",
-                }}
-              />
-            </div>
-          );
-        })}
-      </div>
-
-      <div style={{ display: "flex", gap: dense ? 2 : 6, marginTop: 8 }}>
-        {rows.map((r, i) => (
-          <div key={r.date + i} style={{ flex: 1, textAlign: "center", fontSize: 11, color: "var(--text-secondary)", whiteSpace: "nowrap", overflow: "visible" }}>
-            {i % step === 0 ? r.date : ""}
-          </div>
-        ))}
-      </div>
-
-      {busiest.value > 0 && (
-        <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--border)", textAlign: "center", fontSize: 12, color: "var(--text-secondary)" }}>
-          Busiest day: <span style={{ color: "var(--ink)", fontWeight: 500 }}>{busiest.date}</span> · <span className="num" style={{ color: "var(--ink)", fontWeight: 500 }}>{busiest.value}</span> {busiest.value === 1 ? "call" : "calls"}
-        </div>
-      )}
+    <div style={{ position: "relative", flex: 1, minHeight: 226 }}>
+    <div style={{ position: "absolute", inset: 0 }}>
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart
+        data={chartData}
+        barSize={Math.max(8, Math.min(20, 620 / (chartData.length || 1)))}
+        margin={{ top: 10, right: 8, left: 0, bottom: 0 }}
+        barCategoryGap="12%"
+      >
+        <XAxis
+          dataKey="date"
+          tickLine={false}
+          axisLine={false}
+          tick={<CustomTick />}
+          height={52}
+          interval={tickInterval}
+          padding={{ left: 10, right: 10 }}
+        />
+        <YAxis
+          tickLine={false}
+          axisLine={false}
+          tick={{ fill: "#707070", fontSize: 12 }}
+          tickMargin={4}
+          width={40}
+          domain={[0, (dataMax: number) => Math.ceil((dataMax + 1) / 4) * 4]}
+          allowDecimals={false}
+          tickCount={5}
+        />
+        <CartesianGrid vertical={false} stroke={gridStroke} strokeDasharray="0" />
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: isDarkMode ? "rgba(255,255,255,0.04)" : "rgba(13,51,63,0.05)" }} />
+        <Bar
+          dataKey={showOutbound ? "outbound" : "inbound"}
+          name={showOutbound ? "Outbound" : "Inbound"}
+          fill={barColor}
+          radius={[4, 4, 4, 4]}
+          activeBar={{ fill: barActive }}
+        />
+      </BarChart>
+    </ResponsiveContainer>
+    </div>
     </div>
   );
 }

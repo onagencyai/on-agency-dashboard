@@ -40,8 +40,8 @@
   --amber-dim: #fff3d6;
   --orange: #f97316;
   --orange-dim: rgba(249, 115, 22, 0.12);
-  --blue: #5665e3;
-  --blue-dim: #eceefc;
+  --blue: #2f80ff;
+  --blue-dim: #eaf4ff;
   --chart-grid: rgba(30, 30, 41, 0.08);
   --intent-gray: #8c979c;
 
@@ -50,8 +50,8 @@
   --dashboard-sidebar: #fbfcfd;
   --dashboard-border: #edeef2;
   --dashboard-sidebar-shadow: none;
-  --nav-active-bg: #edeef2;
-  --nav-active-text: #1e1e29;
+  --nav-active-bg: #eaf4ff;
+  --nav-active-text: #0060f2;
   --sidebar-divider: #edeef2;
   --intent-cyan: #1aa6c9;
   --nav-text: #535460;
