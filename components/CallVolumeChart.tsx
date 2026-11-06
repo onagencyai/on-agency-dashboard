@@ -48,8 +48,24 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   const [size, setSize] = useState({ w: 600, h: 200 });
   const [hover, setHover] = useState<number | null>(null);
 
-  const rows = data.dates.map((date, i) => ({ date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
+  const daily = data.dates.map((date, i) => ({ date, label: date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
+  // Long ranges (30 days and up) are grouped into weeks, counted back from the latest day, so the line stays calm and readable.
+  const weekly = daily.length >= 28;
+  const rows = weekly
+    ? (() => {
+        const out: { date: string; label: string; value: number }[] = [];
+        for (let end = daily.length; end > 0; end -= 7) {
+          const chunk = daily.slice(Math.max(0, end - 7), end);
+          const first = chunk[0].date, last = chunk[chunk.length - 1].date;
+          out.unshift({ date: chunk.length > 1 ? `${first} – ${last}` : first, label: first, value: chunk.reduce((a, r) => a + r.value, 0) });
+        }
+        return out;
+      })()
+    : daily;
   const n = rows.length;
+  const unit = weekly ? "week" : "day";
+  const [touch, setTouch] = useState(false);
+  useEffect(() => { setTouch(window.matchMedia("(pointer: coarse)").matches); }, []);
   const max = Math.max(1, ...rows.map((r) => r.value));
   const busiest = rows.reduce((b, r) => (r.value > b.value ? r : b), { date: "", value: 0 });
 
@@ -66,17 +82,19 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   const LABEL_H = 46, TOP = 14;
   const base = size.h - LABEL_H;
   const usable = Math.max(10, base - TOP);
-  const pts: Pt[] = rows.map((r, i) => ({ x: n <= 1 ? size.w / 2 : (i / (n - 1)) * size.w, y: base - (r.value / max) * usable }));
+  const PAD = weekly ? 28 : 0;
+  const pts: Pt[] = rows.map((r, i) => ({ x: n <= 1 ? size.w / 2 : PAD + (i / (n - 1)) * (size.w - 2 * PAD), y: base - (r.value / max) * usable }));
 
   // Each day is a short flat step that eases into the next one, which is how Mercury's balance graph reads.
-  const half = n > 1 ? (size.w / (n - 1)) * 0.14 : 0;
+  const half = n > 1 && !weekly ? (size.w / (n - 1)) * 0.14 : 0;
   const stepPts: Pt[] = [];
-  pts.forEach((p, i) => {
+  if (weekly) stepPts.push(...pts);
+  else pts.forEach((p, i) => {
     stepPts.push({ x: i === 0 ? 0 : p.x - half, y: p.y });
     stepPts.push({ x: i === n - 1 ? size.w : p.x + half, y: p.y });
   });
   const line = n > 1 ? monotonePath(stepPts) : "";
-  const area = n > 1 ? `${line}L${size.w},${base}L0,${base}Z` : "";
+  const area = n > 1 ? `${line}L${pts[n - 1].x},${base}L${pts[0].x},${base}Z` : "";
 
   // Five dates exactly the same number of days apart, centered under the graph.
   let labelIdx: number[] = rows.map((_, i) => i);
@@ -92,8 +110,10 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
     setHover(Math.min(n - 1, Math.max(0, Math.round(f * (n - 1)))));
   }
 
-  const hovered = hover !== null ? rows[hover] : null;
-  const prevVal = hover !== null && hover > 0 ? rows[hover - 1].value : null;
+  // On a phone nothing hovers, so the latest period is selected by default and a tap moves it.
+  const active = hover !== null ? hover : touch && n > 0 ? n - 1 : null;
+  const hovered = active !== null ? rows[active] : null;
+  const prevVal = active !== null && active > 0 ? rows[active - 1].value : null;
   const diff = hovered && prevVal !== null ? hovered.value - prevVal : null;
   const upColor = "var(--green-text)";
 
@@ -115,7 +135,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
             diff !== null && diff !== 0 ? (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: diff > 0 ? upColor : "var(--red)" }}>
                 {diff > 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
-                {diff > 0 ? "+" : "−"}{Math.abs(diff)} vs day before
+                {diff > 0 ? "+" : "−"}{Math.abs(diff)} vs {unit} before
               </span>
             ) : null
           ) : summary && (summary.up || summary.down) ? (
@@ -146,15 +166,18 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
           </defs>
           {n > 1 && <path d={area} fill={`url(#g${gid})`} />}
           <path d={line} fill="none" style={{ stroke: "var(--blue)" }} strokeWidth={1.75} strokeLinejoin="round" strokeLinecap="round" />
-          {hover !== null && pts[hover] && (
+          {weekly && rows.map((r, i) => i !== active && (
+            <circle key={i} cx={pts[i].x} cy={pts[i].y} r={3} style={{ fill: "var(--bg-1)", stroke: "var(--blue)" }} strokeWidth={1.5} />
+          ))}
+          {active !== null && pts[active] && (
             <g>
-              <line x1={pts[hover].x} x2={pts[hover].x} y1={pts[hover].y} y2={base} style={{ stroke: "var(--blue)" }} strokeWidth={1} />
-              <circle cx={pts[hover].x} cy={pts[hover].y} r={4.5} style={{ fill: "var(--bg-1)", stroke: "var(--blue)" }} strokeWidth={2} />
+              <line x1={pts[active].x} x2={pts[active].x} y1={pts[active].y} y2={base} style={{ stroke: "var(--blue)" }} strokeWidth={1} />
+              <circle cx={pts[active].x} cy={pts[active].y} r={4.5} style={{ fill: "var(--bg-1)", stroke: "var(--blue)" }} strokeWidth={2} />
             </g>
           )}
           {labelIdx.map((i) => (
             <text key={i} x={Math.min(size.w - 22, Math.max(22, pts[i]?.x ?? 0))} y={size.h - 14} textAnchor="middle" fontSize={12} style={{ fill: "var(--text-secondary)" }}>
-              {rows[i]?.date}
+              {rows[i]?.label}
             </text>
           ))}
         </svg>
