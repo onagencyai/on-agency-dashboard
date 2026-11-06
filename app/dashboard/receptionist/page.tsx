@@ -281,6 +281,7 @@ export default function ReceptionistOverviewPage() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
             <div>
               <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>Call Volume</span>
+              {!loading && (<span className="num" style={{ fontSize: 13, color: "var(--text-secondary)", marginLeft: 10, fontWeight: 400 }}>{inboundOnlyVolume.inbound.reduce((a, b) => a + b, 0)} calls</span>)}
             </div>
           </div>
           <div style={{ padding: 20, flex: 1, display: "flex", flexDirection: "column" }}>

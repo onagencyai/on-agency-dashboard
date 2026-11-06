@@ -143,4 +143,5 @@ export interface LeadRow {
   created_at: string;
   recording_url?: string | null;
   duration_ms?: number | null;
+  call?: CallRow | null;
 }

@@ -186,21 +186,8 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
             </span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            {call.agent_name && <MetaLine label="Agent">{call.agent_name}</MetaLine>}
-            <MetaLine label="Call ID">
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                <span className="num">{call.call_id}</span>
-                <button
-                  onClick={copyId}
-                  aria-label="Copy call ID"
-                  style={{ border: "none", background: "transparent", color: "var(--text-secondary)", cursor: "pointer", padding: 2, display: "flex" }}
-                >
-                  {copied ? <Check size={14} /> : <Copy size={14} />}
-                </button>
-              </span>
-            </MetaLine>
-            <MetaLine label="Phone call">
-              <span className="num">{formatPhoneNumber(call.from_number)} → {formatPhoneNumber(call.to_number)}</span> ({inbound ? "Inbound" : "Outbound"})
+            <MetaLine label={inbound ? "Caller" : "Contact"}>
+              <span className="num">{formatPhoneNumber(inbound ? call.from_number : call.to_number)}</span>
             </MetaLine>
             <MetaLine label="Duration">
               <span className="num">
@@ -255,25 +242,40 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
           {/* Transcript */}
           <SectionTitle>Transcript</SectionTitle>
           {transcriptTurns ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {transcriptTurns.map((turn, i) => (
-                <div key={i}>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 5 }}>{turn.speaker === "agent" ? "Agent" : "Caller"}</div>
-                  <div
-                    style={{
-                      fontSize: 14, lineHeight: 1.55, color: "var(--text-primary)", padding: "10px 14px", borderRadius: 10,
-                      background: turn.speaker === "agent" ? "var(--bg-2)" : "transparent",
-                      border: turn.speaker === "agent" ? "1px solid transparent" : "1px solid var(--border)",
-                    }}
-                  >
-                    {turn.text}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {transcriptTurns.map((turn, i) => {
+                const agent = turn.speaker === "agent";
+                return (
+                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: agent ? "flex-start" : "flex-end" }}>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)", margin: agent ? "0 0 4px 6px" : "0 6px 4px 0" }}>
+                      {agent ? (call.agent_name || "Agent") : "Caller"}
+                    </div>
+                    <div
+                      style={{
+                        maxWidth: "82%", fontSize: 14, lineHeight: 1.5, padding: "9px 14px",
+                        borderRadius: agent ? "16px 16px 16px 4px" : "16px 16px 4px 16px",
+                        background: agent ? "var(--bg-3)" : "var(--blue)",
+                        color: agent ? "var(--text-primary)" : "var(--on-blue)",
+                      }}
+                    >
+                      {turn.text}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p style={{ fontSize: 14, color: "var(--text-secondary)", margin: 0 }}>No transcript available.</p>
           )}
+
+          {/* Call ID, kept quiet for tracking a call down later */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 36, fontSize: 12, color: "var(--text-secondary)", opacity: 0.8 }}>
+            <span>Call ID</span>
+            <span className="num">{call.call_id}</span>
+            <button onClick={copyId} aria-label="Copy call ID" style={{ border: "none", background: "transparent", color: "var(--text-secondary)", cursor: "pointer", padding: 2, display: "flex" }}>
+              {copied ? <Check size={12} /> : <Copy size={12} />}
+            </button>
+          </div>
         </div>
       </div>
     </div>,

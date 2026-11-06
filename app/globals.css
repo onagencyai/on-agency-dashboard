@@ -42,6 +42,7 @@
   --orange-dim: rgba(249, 115, 22, 0.12);
   --blue: #2f80ff;
   --blue-dim: #eaf4ff;
+  --on-blue: #ffffff;
   --chart-grid: rgba(30, 30, 41, 0.08);
   --intent-gray: #8c979c;
 
@@ -83,6 +84,7 @@
   --orange-dim: rgba(249, 115, 22, 0.16);
   --blue: #6da7ec;
   --blue-dim: rgba(42, 120, 214, 0.2);
+  --on-blue: #0a0a0a;
   --chart-grid: rgba(255, 255, 255, 0.08);
   --intent-cyan: #6dc7de;
   --intent-gray: #8a887e;

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import type { CallVolumeData } from "@/lib/types";
 
 interface CallVolumeChartProps {
@@ -44,12 +43,9 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
   const [size, setSize] = useState({ w: 600, h: 200 });
   const [hover, setHover] = useState<number | null>(null);
 
-  const label = showOutbound ? "Outbound calls" : "Calls";
   const rows = data.dates.map((date, i) => ({ date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
   const n = rows.length;
-  const total = rows.reduce((s, r) => s + r.value, 0);
   const max = Math.max(1, ...rows.map((r) => r.value));
-  const busiest = rows.reduce((b, r) => (r.value > b.value ? r : b), { date: "", value: 0 });
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -87,31 +83,8 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
   const diff = hovered && prevVal !== null ? hovered.value - prevVal : null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 240 }}>
-      <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>{label}</div>
-      <div className="num" style={{ fontSize: 34, fontWeight: 600, letterSpacing: "-0.03em", lineHeight: "40px", color: "var(--ink)", marginTop: 2 }}>
-        {hovered ? hovered.value : total}
-      </div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 8, fontSize: 14, color: "var(--text-primary)", minHeight: 22 }}>
-        <span>{hovered ? hovered.date : n > 0 ? `${rows[0].date} – ${rows[n - 1].date}` : ""}</span>
-        <span className="num" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 13, color: diff !== null && diff < 0 ? "var(--red)" : "var(--green-text)" }}>
-          {hovered ? (
-            diff !== null && diff !== 0 ? (
-              <>
-                {diff > 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
-                {diff > 0 ? "+" : "−"}{Math.abs(diff)} vs day before
-              </>
-            ) : null
-          ) : busiest.value > 0 ? (
-            <>
-              <ArrowUpRight size={13} />
-              {busiest.value} on {busiest.date}
-            </>
-          ) : null}
-        </span>
-      </div>
-
-      <div ref={wrapRef} style={{ position: "relative", flex: 1, minHeight: 150, margin: "10px -20px -20px" }}>
+    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 220 }}>
+      <div ref={wrapRef} style={{ position: "relative", flex: 1, minHeight: 150, margin: "0 -20px -20px" }}>
         <svg
           width={size.w}
           height={size.h}
@@ -140,6 +113,27 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
             </text>
           ))}
         </svg>
+        {hovered && hover !== null && pts[hover] && (
+          <div
+            style={{
+              position: "absolute", pointerEvents: "none", zIndex: 2, whiteSpace: "nowrap",
+              left: Math.min(Math.max(pts[hover].x, 70), size.w - 70), top: Math.max(0, pts[hover].y - 62), transform: "translateX(-50%)",
+              background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, padding: "7px 11px",
+              boxShadow: "0 6px 18px rgba(0,0,0,0.12)",
+            }}
+          >
+            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{hovered.date}</div>
+            <div className="num" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--blue)" }} />
+              {hovered.value} {hovered.value === 1 ? "call" : "calls"}
+              {diff !== null && diff !== 0 && (
+                <span style={{ fontSize: 12, fontWeight: 500, color: diff > 0 ? "var(--green-text)" : "var(--red)" }}>
+                  {diff > 0 ? "↗ +" : "↘ −"}{Math.abs(diff)}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

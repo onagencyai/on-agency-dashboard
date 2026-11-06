@@ -252,6 +252,7 @@ export default function OutboundOverviewPage() {
               <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>
                 Outbound Call Volume
               </span>
+              {!loading && (<span className="num" style={{ fontSize: 13, color: "var(--text-secondary)", marginLeft: 10, fontWeight: 400 }}>{outboundVolume.outbound.reduce((a, b) => a + b, 0)} calls</span>)}
             </div>
           </div>
           <div style={{ padding: 20, flex: 1, display: "flex", flexDirection: "column" }}>

@@ -37,7 +37,7 @@ export default function IntentChart({ intents }: IntentChartProps) {
     <div style={{ display: "flex", flexDirection: "column" }}>
       {intents.map((intent, i) => {
         const bar = (
-          <div style={{ flex: 1, height: 8, background: "var(--bg-3)", borderRadius: 999, overflow: "hidden" }}>
+          <div style={{ flex: 1, height: 7, background: "var(--bg-3)", borderRadius: 999, overflow: "hidden" }}>
             <div
               style={{
                 height: "100%",

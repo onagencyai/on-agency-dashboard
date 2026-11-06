@@ -21,18 +21,23 @@ export async function GET() {
   if (error) return NextResponse.json({ error: "Could not load leads" }, { status: 500 });
 
   const callIds = (leads ?? []).map((l) => l.call_id);
-  const calls: Record<string, { recording_url: string | null; duration_ms: number | null }> = {};
+  const calls: Record<string, Record<string, unknown>> = {};
   if (callIds.length > 0) {
     const { data: callRows } = await supabase
       .from("calls")
-      .select("call_id, recording_url, duration_ms")
+      .select("*")
       .eq("client_id", clientId)
       .in("call_id", callIds);
-    for (const c of callRows ?? []) calls[c.call_id] = { recording_url: c.recording_url, duration_ms: c.duration_ms };
+    for (const c of callRows ?? []) calls[c.call_id as string] = c as Record<string, unknown>;
   }
 
   return NextResponse.json({
-    leads: (leads ?? []).map((l) => ({ ...l, recording_url: calls[l.call_id]?.recording_url ?? null, duration_ms: calls[l.call_id]?.duration_ms ?? null })),
+    leads: (leads ?? []).map((l) => ({
+      ...l,
+      recording_url: (calls[l.call_id]?.recording_url as string | null) ?? null,
+      duration_ms: (calls[l.call_id]?.duration_ms as number | null) ?? null,
+      call: calls[l.call_id] ?? null,
+    })),
   });
 }
 
