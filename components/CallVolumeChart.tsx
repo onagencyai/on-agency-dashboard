@@ -38,9 +38,8 @@ function monotonePath(pts: Pt[]): string {
   return d;
 }
 
-// Running-total area graph in the style of Mercury's balance graph: one point per day joined by a smooth,
-// never-overshooting curve (same technique and margins as Mercury), so days without calls stay flat and each
-// busy day is a smooth step up. The row above follows your cursor or finger.
+// Area graph in the style of Mercury's balance graph: one point per day joined by a smooth,
+// never-overshooting curve (same technique and margins as Mercury). The row above follows your cursor or finger.
 export default function CallVolumeChart({ data, showOutbound = true, summary }: CallVolumeChartProps) {
   const gid = useId().replace(/:/g, "");
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -49,9 +48,14 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
 
   const rows = data.dates.map((date, i) => ({ date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
   const n = rows.length;
-  const cum: number[] = [];
-  rows.reduce((acc, r, i) => { cum[i] = acc + r.value; return cum[i]; }, 0);
-  const total = n > 0 ? cum[n - 1] : 0;
+  // Daily calls smoothed with a centered 7-day weighted average (closer days count more), so the line rises and
+  // falls smoothly like Mercury's balance graph instead of jumping 0,3,0,1.
+  const plotted: number[] = rows.map((_, i) => {
+    let sum = 0, wt = 0;
+    for (let k = Math.max(0, i - 3); k <= Math.min(n - 1, i + 3); k++) { const w = 4 - Math.abs(k - i); sum += rows[k].value * w; wt += w; }
+    return sum / wt;
+  });
+  const top = Math.max(1, ...plotted);
   const busiest = rows.reduce((b, r) => (r.value > b.value ? r : b), { date: "", value: 0 });
 
   useEffect(() => {
@@ -67,7 +71,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
   const TOP = 32, BOTTOM = 36;
   const base = size.h - BOTTOM;
   const usable = Math.max(10, base - TOP);
-  const pts: Pt[] = rows.map((_, i) => ({ x: n <= 1 ? size.w / 2 : (i / (n - 1)) * size.w, y: total > 0 ? base - (cum[i] / total) * usable : base }));
+  const pts: Pt[] = rows.map((_, i) => ({ x: n <= 1 ? size.w / 2 : (i / (n - 1)) * size.w, y: base - (plotted[i] / top) * usable }));
   const line = n > 1 ? monotonePath(pts) : "";
   const area = n > 1 ? `${line}L${size.w},${base}L0,${base}Z` : "";
 
@@ -112,7 +116,6 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
                   {diff > 0 ? "+" : "−"}{Math.abs(diff)} vs day before
                 </span>
               )}
-              <span style={{ color: "var(--text-secondary)" }}>{cum[hover]} so far</span>
             </>
           ) : summary && (summary.up || summary.down) ? (
             <>
