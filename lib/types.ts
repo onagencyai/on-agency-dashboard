@@ -87,6 +87,9 @@ export interface ReceptionistStats {
     conversation_count: number;
     filtered_count: number;
     type_counts: Record<string, number>;
+    lead_count: number;
+    callback_count: number;
+    first_time_callers: number;
   };
   previous: {
     total_calls: number;
@@ -99,6 +102,9 @@ export interface ReceptionistStats {
     conversation_count: number;
     filtered_count: number;
     type_counts: Record<string, number>;
+    lead_count: number;
+    callback_count: number;
+    first_time_callers: number;
   };
 }
 

@@ -3,18 +3,15 @@ import { currentUser } from "@clerk/nextjs/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { resolveClientId } from "@/lib/resolve-client-id";
 
-const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;
-
 async function fetchPeriodStats(supabase: ReturnType<typeof createServerSupabaseClient>, clientId: string, from: string, to: string) {
   const { data, error } = await supabase
     .from("calls")
-    .select("duration_ms, user_sentiment, call_status, call_category")
+    .select("duration_ms, user_sentiment, call_status, call_category, from_number")
     .eq("client_id", clientId)
     .eq("direction", "inbound")
     .or("call_status.neq.registered,call_status.is.null")
     .gte("started_at", from)
-    .lte("started_at", to)
-    .gte("started_at", new Date(Date.now() - NINETY_DAYS).toISOString());
+    .lte("started_at", to);
 
   if (error || !data) return null;
 
@@ -37,7 +34,26 @@ async function fetchPeriodStats(supabase: ReturnType<typeof createServerSupabase
   const spam_count = type_counts["spam"] ?? 0;
   const conversation_count = total_calls - filtered_count;
 
-  return { total_calls, avg_duration_seconds, total_duration_ms, positive_count, neutral_count, negative_count, spam_count, conversation_count, filtered_count, type_counts };
+  // Leads = callers who left their details or booked. Callbacks = callers who left a message or asked for a person.
+  const lead_count = (type_counts["lead"] ?? 0) + (type_counts["booked"] ?? 0);
+  const callback_count = (type_counts["message"] ?? 0) + (type_counts["wants_person"] ?? 0);
+
+  // First-time callers = real callers whose number has no earlier call to this client.
+  const numbers = Array.from(new Set(real.map((r) => r.from_number).filter((n): n is string => !!n)));
+  let first_time_callers = numbers.length;
+  if (numbers.length > 0) {
+    const { data: earlier } = await supabase
+      .from("calls")
+      .select("from_number")
+      .eq("client_id", clientId)
+      .eq("direction", "inbound")
+      .lt("started_at", from)
+      .in("from_number", numbers);
+    const seen = new Set((earlier ?? []).map((r) => r.from_number));
+    first_time_callers = numbers.filter((n) => !seen.has(n)).length;
+  }
+
+  return { total_calls, avg_duration_seconds, total_duration_ms, positive_count, neutral_count, negative_count, spam_count, conversation_count, filtered_count, type_counts, lead_count, callback_count, first_time_callers };
 }
 
 export async function GET(req: NextRequest) {
@@ -61,7 +77,7 @@ export async function GET(req: NextRequest) {
     fetchPeriodStats(supabase, clientId, prevFrom, prevTo),
   ]);
 
-  const empty = { total_calls: 0, avg_duration_seconds: 0, total_duration_ms: 0, positive_count: 0, neutral_count: 0, negative_count: 0, spam_count: 0, conversation_count: 0, filtered_count: 0, type_counts: {} as Record<string, number> };
+  const empty = { total_calls: 0, avg_duration_seconds: 0, total_duration_ms: 0, positive_count: 0, neutral_count: 0, negative_count: 0, spam_count: 0, conversation_count: 0, filtered_count: 0, type_counts: {} as Record<string, number>, lead_count: 0, callback_count: 0, first_time_callers: 0 };
 
   return NextResponse.json({ current: current ?? empty, previous: previous ?? empty });
 }

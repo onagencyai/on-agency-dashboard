@@ -5,11 +5,9 @@ import { Calendar, ChevronDown } from "lucide-react";
 import type { TimeRange } from "@/lib/types";
 
 const OPTIONS: { value: TimeRange; label: string }[] = [
-  { value: "today", label: "Today" },
   { value: "7d", label: "Last 7 days" },
   { value: "30d", label: "Last 30 days" },
   { value: "60d", label: "Last 60 days" },
-  { value: "90d", label: "Last 90 days" },
 ];
 
 interface TimeRangeDropdownProps {

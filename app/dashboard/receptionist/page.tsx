@@ -3,14 +3,13 @@ export const dynamic = "force-dynamic";
  
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Download, PhoneOff, PhoneIncoming, Clock3, Star, AudioLines } from "lucide-react";
+import { Download, PhoneOff, PhoneCall, UserCheck, UserPlus, PhoneOutgoing } from "lucide-react";
 import Link from "next/link";
 import type { TimeRange, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange } from "@/lib/dateRange";
-import { formatDuration, formatDurationSeconds, getSentimentColor, formatPhoneNumber, getInboundOutcome } from "@/lib/formatters";
+import { formatDuration, getSentimentColor, formatPhoneNumber, getInboundOutcome } from "@/lib/formatters";
 import TimeRangeDropdown from "@/components/TimeRangeDropdown";
 import MetricCard from "@/components/MetricCard";
-import SentimentBar from "@/components/SentimentBar";
 import CallVolumeChart from "@/components/CallVolumeChart";
 import IntentChart from "@/components/IntentChart";
 import CallDetailModal from "@/components/CallDetailModal";
@@ -47,21 +46,14 @@ function pctDelta(current: number, previous: number, range: TimeRange, isMs = fa
   return { value: `${Math.abs(pct).toFixed(1)}% ${label}`, direction: sign };
 }
  
-function sentimentScore(pos: number, neu: number, neg: number): string {
-  const total = pos + neu + neg;
-  if (!total) return "—";
-  const score = (pos * 5 + neu * 3 + neg * 1) / total;
-  return score.toFixed(1);
+function countDelta(current: number, previous: number, range: TimeRange, neutral = false, short = false): { value: string; direction: "up" | "down" | "neutral" } {
+  const diff = current - previous;
+  const label = periodLabel(range, short);
+  if (diff === 0) return { value: `No change ${label}`, direction: "neutral" };
+  const dir = neutral ? "neutral" : diff > 0 ? "up" : "down";
+  return { value: `${diff > 0 ? "+" : "−"}${Math.abs(diff)} ${label}`, direction: dir };
 }
 
-function formatTalkTime(ms: number): string {
-  if (!ms) return "0m";
-  const totalSec = Math.floor(ms / 1000);
-  const hours = Math.floor(totalSec / 3600);
-  const mins = Math.floor((totalSec % 3600) / 60);
-  if (hours > 0) return `${hours}h ${mins}m`;
-  return `${mins}m`;
-}
  
 function getCallOutcome(call: CallRow): { label: string; color: string; bg: string } {
   const typed = getInboundOutcome(call);
@@ -144,8 +136,9 @@ export default function ReceptionistOverviewPage() {
   } as const;
  
   const totalCallsDelta = cur && prev ? pctDelta(cur.total_calls, prev.total_calls, timeRange, false, undefined, isMobile) : undefined;
-  const avgDurationDelta = cur && prev ? pctDelta(cur.avg_duration_seconds * 1000, prev.avg_duration_seconds * 1000, timeRange, true, undefined, isMobile) : undefined;
-  const talkTimeDelta = cur && prev ? pctDelta(cur.total_duration_ms, prev.total_duration_ms, timeRange, false, formatTalkTime, isMobile) : undefined;
+ 
+  const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const rangeLabel = `${MONTH_SHORT[from.getMonth()]} ${from.getDate()} – ${MONTH_SHORT[to.getMonth()]} ${to.getDate()}`;
  
   const inboundOnlyVolume: CallVolumeData = volume
     ? { dates: volume.dates, inbound: volume.inbound, outbound: volume.dates.map(() => 0) }
@@ -233,44 +226,32 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Total Calls"
               value={cur?.total_calls ?? 0}
-              icon={<PhoneIncoming size={12} />}
+              icon={<PhoneCall size={12} />}
               delta={totalCallsDelta}
             />
           </div>
           <div style={metricCardShell}>
             <MetricCard
-              label="Avg Duration"
-              value={formatDurationSeconds(cur?.avg_duration_seconds)}
-              icon={<Clock3 size={12} />}
-              delta={avgDurationDelta}
+              label="Leads Captured"
+              value={cur?.lead_count ?? 0}
+              icon={<UserCheck size={12} />}
+              delta={cur && prev ? countDelta(cur.lead_count, prev.lead_count, timeRange, false, isMobile) : undefined}
             />
           </div>
           <div style={metricCardShell}>
             <MetricCard
-              label="Sentiment Score"
-              icon={<Star size={12} />}
-              value={
-                cur && (cur.positive_count + cur.neutral_count + cur.negative_count) > 0
-                  ? sentimentScore(cur.positive_count, cur.neutral_count, cur.negative_count)
-                  : "—"
-              }
-              valueSuffix={cur && (cur.positive_count + cur.neutral_count + cur.negative_count) > 0 ? "/5" : undefined}
-            >
-              {cur && (
-                <SentimentBar
-                  positive={cur.positive_count}
-                  neutral={cur.neutral_count}
-                  negative={cur.negative_count}
-                />
-              )}
-            </MetricCard>
+              label="Callbacks Requested"
+              value={cur?.callback_count ?? 0}
+              icon={<PhoneOutgoing size={12} />}
+              delta={cur && prev ? countDelta(cur.callback_count, prev.callback_count, timeRange, true, isMobile) : undefined}
+            />
           </div>
           <div style={metricCardShell}>
             <MetricCard
-              label="Total Talk Time"
-              value={formatTalkTime(cur?.total_duration_ms ?? 0)}
-              icon={<AudioLines size={12} />}
-              delta={talkTimeDelta}
+              label="First-Time Callers"
+              value={cur?.first_time_callers ?? 0}
+              icon={<UserPlus size={12} />}
+              delta={cur && prev ? countDelta(cur.first_time_callers, prev.first_time_callers, timeRange, false, isMobile) : undefined}
             />
           </div>
         </div>
@@ -287,7 +268,7 @@ export default function ReceptionistOverviewPage() {
             {loading || !volume ? (
               <div className="skeleton" style={{ height: 220 }} />
             ) : (
-              <CallVolumeChart data={inboundOnlyVolume} showOutbound={false} summary={cur ? { up: `${cur.conversation_count} real calls`, down: `${cur.filtered_count} spam or silent` } : undefined} />
+              <CallVolumeChart data={inboundOnlyVolume} showOutbound={false} rangeLabel={rangeLabel} summary={cur ? { up: `${cur.conversation_count} real calls`, down: `${cur.filtered_count} spam or silent` } : undefined} />
             )}
           </div>
         </div>

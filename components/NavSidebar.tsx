@@ -24,49 +24,31 @@ interface NavItem {
   icon: React.ElementType | "overview";
 }
 
-interface NavSection {
-  heading: string;
-  items: NavItem[];
-}
-
-function buildNavSections(services: ServiceType[]): NavSection[] {
-  const sections: NavSection[] = [];
+function buildNavItems(services: ServiceType[]): (NavItem & { gapBefore?: boolean })[] {
+  const items: (NavItem & { gapBefore?: boolean })[] = [];
+  const both = services.includes("receptionist") && services.includes("outbound");
 
   if (services.includes("receptionist")) {
-    sections.push({
-      heading: "AI RECEPTIONIST",
-      items: [
-        { label: "Overview", href: "/dashboard/receptionist", icon: "overview" },
-        { label: "Call History", href: "/dashboard/receptionist-call-history", icon: Phone },
-        { label: "Leads", href: "/dashboard/leads", icon: Users },
-      ],
-    });
+    items.push(
+      { label: "Overview", href: "/dashboard/receptionist", icon: "overview" },
+      { label: "Call History", href: "/dashboard/receptionist-call-history", icon: Phone },
+      { label: "Leads", href: "/dashboard/leads", icon: Users },
+    );
   }
 
   if (services.includes("outbound")) {
-    sections.push({
-      heading: "AI OUTBOUND CALLER",
-      items: [
-        { label: "Overview", href: "/dashboard/outbound", icon: BarChart2 },
-        { label: "Call History", href: "/dashboard/outbound-call-history", icon: PhoneOutgoing },
-      ],
-    });
+    items.push(
+      { label: both ? "Outbound Overview" : "Overview", href: "/dashboard/outbound", icon: BarChart2 },
+      { label: both ? "Outbound Calls" : "Call History", href: "/dashboard/outbound-call-history", icon: PhoneOutgoing },
+    );
   }
 
-  sections.push({
-    heading: "ACCOUNT",
-    items: [
-      { label: "Updates", href: "/dashboard/updates", icon: PenLine },
-      { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
-    ],
-  });
-
-  sections.push({
-    heading: "CONFIGURATION",
-    items: [{ label: "Settings", href: "/dashboard/settings", icon: Settings }],
-  });
-
-  return sections;
+  items.push(
+    { label: "Updates", href: "/dashboard/updates", icon: PenLine },
+    { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
+    { label: "Settings", href: "/dashboard/settings", icon: Settings, gapBefore: true },
+  );
+  return items;
 }
 
 interface NavSidebarProps {
@@ -79,7 +61,7 @@ interface NavSidebarProps {
 export default function NavSidebar({ services, mobileOpen = false, onClose }: NavSidebarProps) {
   const pathname = usePathname();
   const { signOut } = useClerk();
-  const sections = buildNavSections(services);
+  const navItems = buildNavItems(services);
 
   const isActive = (href: string) => {
     if (href === "/dashboard/receptionist") return pathname === "/dashboard/receptionist" || pathname === "/dashboard";
@@ -118,26 +100,9 @@ export default function NavSidebar({ services, mobileOpen = false, onClose }: Na
           minHeight: 0,
         }}
       >
-        {sections.map((section) => (
-          <div key={section.heading} style={{ paddingTop: 12, paddingBottom: 8 }}>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: "0.04em",
-                textTransform: "uppercase",
-                color: "var(--text-secondary)",
-                padding: "0 10px",
-                marginBottom: 4,
-                userSelect: "none",
-              }}
-            >
-              {section.heading}
-            </div>
-            {section.items.map((item) => {
-              const active = isActive(item.href);
-              return <NavLink key={item.href} item={item} active={active} onNavigate={onClose} />;
-            })}
+        {navItems.map((item) => (
+          <div key={item.href} style={{ marginTop: item.gapBefore ? 16 : 0 }}>
+            <NavLink item={item} active={isActive(item.href)} onNavigate={onClose} />
           </div>
         ))}
       </nav>

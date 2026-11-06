@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
 
   // Desktop: match 30d bar density for longer ranges.
   // 60d → every 2 days (~31 bars), 90d → every 3 days (~31 bars).
-  const bucketSize = days.length > 65 ? 3 : days.length > 35 ? 2 : 1;
+  const bucketSize = 1;
   const finalDays: string[] = [];
   const finalInbound: number[] = [];
   const finalOutbound: number[] = [];

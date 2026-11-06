@@ -9,6 +9,8 @@ interface CallVolumeChartProps {
   showOutbound?: boolean;
   /** Optional totals shown top right, like Mercury's money in / money out. */
   summary?: { up?: string; down?: string };
+  /** Plain range under the title, for example "Oct 7 – Nov 6". */
+  rangeLabel?: string;
 }
 
 type Pt = { x: number; y: number };
@@ -40,28 +42,15 @@ function monotonePath(pts: Pt[]): string {
 
 // Area chart in the style of Mercury's balance graph. The header row above it follows your cursor or finger:
 // it shows the day, that day's calls, and the change against the day before.
-export default function CallVolumeChart({ data, showOutbound = true, summary }: CallVolumeChartProps) {
+export default function CallVolumeChart({ data, showOutbound = true, summary, rangeLabel }: CallVolumeChartProps) {
   const gid = useId().replace(/:/g, "");
   const wrapRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 600, h: 200 });
   const [hover, setHover] = useState<number | null>(null);
 
-  const daily = data.dates.map((date, i) => ({ date, label: date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
-  // Long ranges (30 days and up) are grouped into weeks, counted back from the latest day, so the line stays calm and readable.
-  const weekly = daily.length >= 28;
-  const rows = weekly
-    ? (() => {
-        const out: { date: string; label: string; value: number }[] = [];
-        for (let end = daily.length; end > 0; end -= 7) {
-          const chunk = daily.slice(Math.max(0, end - 7), end);
-          const first = chunk[0].date, last = chunk[chunk.length - 1].date;
-          out.unshift({ date: chunk.length > 1 ? `${first} – ${last}` : first, label: first, value: chunk.reduce((a, r) => a + r.value, 0) });
-        }
-        return out;
-      })()
-    : daily;
+  const rows = data.dates.map((date, i) => ({ date, label: date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
   const n = rows.length;
-  const unit = weekly ? "week" : "day";
+  const unit = "day";
   const [touch, setTouch] = useState(false);
   useEffect(() => { setTouch(window.matchMedia("(pointer: coarse)").matches); }, []);
   const max = Math.max(1, ...rows.map((r) => r.value));
@@ -83,10 +72,9 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
   const pts: Pt[] = rows.map((r, i) => ({ x: n <= 1 ? size.w / 2 : (i / (n - 1)) * size.w, y: base - (r.value / max) * usable }));
 
   // Each day is a short flat step that eases into the next one, which is how Mercury's balance graph reads.
-  const half = n > 1 && !weekly ? (size.w / (n - 1)) * 0.14 : 0;
+  const half = n > 1 ? (size.w / (n - 1)) * 0.14 : 0;
   const stepPts: Pt[] = [];
-  if (weekly) stepPts.push(...pts);
-  else pts.forEach((p, i) => {
+  pts.forEach((p, i) => {
     stepPts.push({ x: i === 0 ? 0 : p.x - half, y: p.y });
     stepPts.push({ x: i === n - 1 ? size.w : p.x + half, y: p.y });
   });
@@ -124,7 +112,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
               <span style={{ fontWeight: 600, color: "var(--ink)" }}>{hovered.value} {hovered.value === 1 ? "call" : "calls"}</span>
             </>
           ) : n > 0 ? (
-            `${rows[0].date} – ${rows[n - 1].date}`
+            rangeLabel ?? `${rows[0].date} – ${rows[n - 1].date}`
           ) : null}
         </span>
         <span className="num" style={{ display: "inline-flex", alignItems: "center", gap: 14, fontSize: 13 }}>
@@ -163,9 +151,6 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
           </defs>
           {n > 1 && <path d={area} fill={`url(#g${gid})`} />}
           <path d={line} fill="none" style={{ stroke: "var(--blue)" }} strokeWidth={1.75} strokeLinejoin="round" strokeLinecap="round" />
-          {weekly && rows.map((r, i) => i !== active && (
-            <circle key={i} cx={pts[i].x} cy={pts[i].y} r={3} style={{ fill: "var(--bg-1)", stroke: "var(--blue)" }} strokeWidth={1.5} />
-          ))}
           {active !== null && pts[active] && (
             <g>
               <line x1={pts[active].x} x2={pts[active].x} y1={pts[active].y} y2={base} style={{ stroke: "var(--blue)" }} strokeWidth={1} />
@@ -173,7 +158,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
             </g>
           )}
           {labelIdx.map((i) => (
-            <text key={i} x={pts[i]?.x ?? 0} y={size.h - 14} textAnchor="middle" fontSize={12} style={{ fill: "var(--text-secondary)" }}>
+            <text key={i} x={Math.min(size.w - 22, Math.max(22, (pts[i]?.x ?? 0)))} y={size.h - 14} textAnchor="middle" fontSize={12} style={{ fill: "var(--text-secondary)" }}>
               {rows[i]?.label}
             </text>
           ))}
