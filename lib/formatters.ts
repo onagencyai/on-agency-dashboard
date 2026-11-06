@@ -139,7 +139,7 @@ export function safePct(numerator: number, denominator: number): string {
 type OutcomeStyle = { label: string; color: string; bg: string };
 const GREEN: Pick<OutcomeStyle, "color" | "bg"> = { color: "var(--green)", bg: "var(--green-dim)" };
 const BLUE: Pick<OutcomeStyle, "color" | "bg"> = { color: "var(--blue)", bg: "var(--blue-dim)" };
-const RED: Pick<OutcomeStyle, "color" | "bg"> = { color: "var(--red)", bg: "var(--red-dim)" };
+const AMBER: Pick<OutcomeStyle, "color" | "bg"> = { color: "var(--amber)", bg: "var(--amber-dim)" };
 const GRAY: Pick<OutcomeStyle, "color" | "bg"> = { color: "var(--text-secondary)", bg: "var(--bg-3)" };
 const ORANGE: Pick<OutcomeStyle, "color" | "bg"> = { color: "var(--orange)", bg: "var(--orange-dim)" };
 
@@ -152,8 +152,8 @@ export function getInboundOutcome(call: Pick<CallRow, "call_category">): Outcome
     case "info": return { label: "Team notified", ...GREEN };
     case "question": return { label: "Question answered", ...GREEN };
     case "transferred": return { label: "Transferred", ...BLUE };
-    case "wants_person": return { label: "Asked for someone", ...RED };
-    case "support": return { label: "Needs follow-up", ...RED };
+    case "wants_person": return { label: "Asked for someone", ...AMBER };
+    case "support": return { label: "Needs follow-up", ...AMBER };
     case "no_conversation": return { label: "No one spoke", ...GRAY };
     case "wrong_number": return { label: "Wrong number", ...GRAY };
     case "spam": return { label: "Spam", ...ORANGE };
