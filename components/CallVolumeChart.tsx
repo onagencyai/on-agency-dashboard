@@ -48,14 +48,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
 
   const rows = data.dates.map((date, i) => ({ date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
   const n = rows.length;
-  // Daily calls smoothed with a centered 7-day weighted average (closer days count more), so the line rises and
-  // falls smoothly like Mercury's balance graph instead of jumping 0,3,0,1.
-  const plotted: number[] = rows.map((_, i) => {
-    let sum = 0, wt = 0;
-    for (let k = Math.max(0, i - 3); k <= Math.min(n - 1, i + 3); k++) { const w = 4 - Math.abs(k - i); sum += rows[k].value * w; wt += w; }
-    return sum / wt;
-  });
-  const top = Math.max(1, ...plotted);
+  const top = Math.max(1, ...rows.map((r) => r.value));
   const busiest = rows.reduce((b, r) => (r.value > b.value ? r : b), { date: "", value: 0 });
 
   useEffect(() => {
@@ -71,8 +64,15 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
   const TOP = 32, BOTTOM = 36;
   const base = size.h - BOTTOM;
   const usable = Math.max(10, base - TOP);
-  const pts: Pt[] = rows.map((_, i) => ({ x: n <= 1 ? size.w / 2 : (i / (n - 1)) * size.w, y: base - (plotted[i] / top) * usable }));
-  const line = n > 1 ? monotonePath(pts) : "";
+  const pts: Pt[] = rows.map((r, i) => ({ x: n <= 1 ? size.w / 2 : (i / (n - 1)) * size.w, y: base - (r.value / top) * usable }));
+  // Each day is a flat step that eases into the next one, which is how Mercury's balance graph reads.
+  const half = n > 1 ? (size.w / (n - 1)) * 0.3 : 0;
+  const stepPts: Pt[] = [];
+  pts.forEach((p, i) => {
+    stepPts.push({ x: i === 0 ? 0 : p.x - half, y: p.y });
+    stepPts.push({ x: i === n - 1 ? size.w : p.x + half, y: p.y });
+  });
+  const line = n > 1 ? monotonePath(stepPts) : "";
   const area = n > 1 ? `${line}L${size.w},${base}L0,${base}Z` : "";
 
   // Five dates exactly the same number of days apart, centered under the graph.
