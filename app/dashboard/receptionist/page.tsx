@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
  
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Download, PhoneOff } from "lucide-react";
+import { Download, PhoneOff, PhoneIncoming, Clock3, Star, AudioLines } from "lucide-react";
 import Link from "next/link";
 import type { TimeRange, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange } from "@/lib/dateRange";
@@ -233,7 +233,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Total Calls"
               value={cur?.total_calls ?? 0}
-              icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 10V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><path d="M1 10h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>}
+              icon={<PhoneIncoming size={12} />}
               delta={totalCallsDelta}
             />
           </div>
@@ -241,14 +241,14 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Avg Duration"
               value={formatDurationSeconds(cur?.avg_duration_seconds)}
-              icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.2"/><path d="M6 4v2.5l1.5 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>}
+              icon={<Clock3 size={12} />}
               delta={avgDurationDelta}
             />
           </div>
           <div style={metricCardShell}>
             <MetricCard
               label="Sentiment Score"
-              icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5l1.45 2.94 3.25.47-2.35 2.29.55 3.24L6 8.92 3.1 10.44l.55-3.24L1.3 4.91l3.25-.47L6 1.5z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round"/></svg>}
+              icon={<Star size={12} />}
               value={
                 cur && (cur.positive_count + cur.neutral_count + cur.negative_count) > 0
                   ? sentimentScore(cur.positive_count, cur.neutral_count, cur.negative_count)
@@ -269,7 +269,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Total Talk Time"
               value={formatTalkTime(cur?.total_duration_ms ?? 0)}
-              icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h2M3 4v4M5 2v8M7 3v6M9 4v4M11 6h0" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>}
+              icon={<AudioLines size={12} />}
               delta={talkTimeDelta}
             />
           </div>
@@ -278,7 +278,7 @@ export default function ReceptionistOverviewPage() {
  
       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1fr) minmax(420px, 0.9fr)", gap: 16, marginBottom: 16 }}>
         <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px 0" }}>
             <div>
               <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>Call Volume</span>
             </div>
@@ -293,7 +293,7 @@ export default function ReceptionistOverviewPage() {
         </div>
  
         <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
-          <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
+          <div style={{ padding: "16px 20px 0" }}>
             <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>Call Intent</span>
           </div>
           <div style={{ padding: 20 }}>
