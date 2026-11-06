@@ -243,7 +243,7 @@ export default function ReceptionistOverviewPage() {
               label="Callbacks Requested"
               value={cur?.callback_count ?? 0}
               icon={<PhoneOutgoing size={12} />}
-              delta={cur && prev ? countDelta(cur.callback_count, prev.callback_count, timeRange, true, isMobile) : undefined}
+              delta={cur && prev ? countDelta(cur.callback_count, prev.callback_count, timeRange, false, isMobile) : undefined}
             />
           </div>
           <div style={metricCardShell}>

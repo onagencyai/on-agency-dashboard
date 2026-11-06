@@ -46,7 +46,7 @@ function buildNavItems(services: ServiceType[]): (NavItem & { gapBefore?: boolea
   items.push(
     { label: "Updates", href: "/dashboard/updates", icon: PenLine },
     { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
-    { label: "Settings", href: "/dashboard/settings", icon: Settings, gapBefore: true },
+    { label: "Settings", href: "/dashboard/settings", icon: Settings },
   );
   return items;
 }
@@ -101,7 +101,7 @@ export default function NavSidebar({ services, mobileOpen = false, onClose }: Na
         }}
       >
         {navItems.map((item) => (
-          <div key={item.href} style={{ marginTop: item.gapBefore ? 16 : 0 }}>
+          <div key={item.href} style={{ marginTop: 0 }}>
             <NavLink item={item} active={isActive(item.href)} onNavigate={onClose} />
           </div>
         ))}

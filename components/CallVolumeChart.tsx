@@ -48,11 +48,8 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   const [size, setSize] = useState({ w: 600, h: 200 });
   const [hover, setHover] = useState<number | null>(null);
 
-  const rows = data.dates.map((date, i) => ({ date, label: date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
+  const rows = data.dates.map((date, i) => ({ date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
   const n = rows.length;
-  const unit = "day";
-  const [touch, setTouch] = useState(false);
-  useEffect(() => { setTouch(window.matchMedia("(pointer: coarse)").matches); }, []);
   const max = Math.max(1, ...rows.map((r) => r.value));
   const busiest = rows.reduce((b, r) => (r.value > b.value ? r : b), { date: "", value: 0 });
 
@@ -95,10 +92,8 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
     setHover(Math.min(n - 1, Math.max(0, Math.round(f * (n - 1)))));
   }
 
-  // On a phone nothing hovers, so the latest period is selected by default and a tap moves it.
-  const active = hover !== null ? hover : touch && n > 0 ? n - 1 : null;
-  const hovered = active !== null ? rows[active] : null;
-  const prevVal = active !== null && active > 0 ? rows[active - 1].value : null;
+  const hovered = hover !== null ? rows[hover] : null;
+  const prevVal = hover !== null && hover > 0 ? rows[hover - 1].value : null;
   const diff = hovered && prevVal !== null ? hovered.value - prevVal : null;
   const upColor = "var(--green-text)";
 
@@ -120,7 +115,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
             diff !== null && diff !== 0 ? (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: diff > 0 ? upColor : "var(--red)" }}>
                 {diff > 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
-                {diff > 0 ? "+" : "−"}{Math.abs(diff)} vs {unit} before
+                {diff > 0 ? "+" : "−"}{Math.abs(diff)} vs day before
               </span>
             ) : null
           ) : summary && (summary.up || summary.down) ? (
@@ -151,15 +146,15 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
           </defs>
           {n > 1 && <path d={area} fill={`url(#g${gid})`} />}
           <path d={line} fill="none" style={{ stroke: "var(--blue)" }} strokeWidth={1.75} strokeLinejoin="round" strokeLinecap="round" />
-          {active !== null && pts[active] && (
+          {hover !== null && pts[hover] && (
             <g>
-              <line x1={pts[active].x} x2={pts[active].x} y1={pts[active].y} y2={base} style={{ stroke: "var(--blue)" }} strokeWidth={1} />
-              <circle cx={pts[active].x} cy={pts[active].y} r={4.5} style={{ fill: "var(--bg-1)", stroke: "var(--blue)" }} strokeWidth={2} />
+              <line x1={pts[hover].x} x2={pts[hover].x} y1={pts[hover].y} y2={base} style={{ stroke: "var(--blue)" }} strokeWidth={1} />
+              <circle cx={pts[hover].x} cy={pts[hover].y} r={4.5} style={{ fill: "var(--bg-1)", stroke: "var(--blue)" }} strokeWidth={2} />
             </g>
           )}
           {labelIdx.map((i) => (
-            <text key={i} x={Math.min(size.w - 22, Math.max(22, (pts[i]?.x ?? 0)))} y={size.h - 14} textAnchor="middle" fontSize={12} style={{ fill: "var(--text-secondary)" }}>
-              {rows[i]?.label}
+            <text key={i} x={Math.min(size.w - 22, Math.max(22, pts[i]?.x ?? 0))} y={size.h - 14} textAnchor="middle" fontSize={12} style={{ fill: "var(--text-secondary)" }}>
+              {rows[i]?.date}
             </text>
           ))}
         </svg>
