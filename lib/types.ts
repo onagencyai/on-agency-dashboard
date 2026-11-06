@@ -1,3 +1,8 @@
+export type CallType =
+  | "lead" | "booked" | "message" | "info" | "transferred" | "question"
+  | "wants_person" | "support" | "vendor" | "wrong_number" | "spam"
+  | "no_conversation" | "other";
+
 export interface CallRow {
   id: string;
   client_id: string;
@@ -18,6 +23,9 @@ export interface CallRow {
   call_successful: boolean | null;
   in_voicemail: boolean | null;
   custom_analysis_data: Record<string, unknown> | null;
+  call_category: CallType | null;
+  tools_used: string[] | null;
+  caller_words: number | null;
   started_at: string | null;
   ended_at: string | null;
   created_at: string | null;
@@ -76,6 +84,9 @@ export interface ReceptionistStats {
     neutral_count: number;
     negative_count: number;
     spam_count: number;
+    conversation_count: number;
+    filtered_count: number;
+    type_counts: Record<string, number>;
   };
   previous: {
     total_calls: number;
@@ -85,6 +96,9 @@ export interface ReceptionistStats {
     neutral_count: number;
     negative_count: number;
     spam_count: number;
+    conversation_count: number;
+    filtered_count: number;
+    type_counts: Record<string, number>;
   };
 }
 

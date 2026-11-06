@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import type { CallRow } from "@/lib/types";
-import { formatDuration } from "@/lib/formatters";
+import { formatDuration, getTypedOutcome } from "@/lib/formatters";
 
 interface TranscriptTurn {
   speaker: "agent" | "caller";
@@ -43,6 +43,8 @@ function parseTranscript(transcript: string): TranscriptTurn[] {
 }
 
 function getOutcomeLabel(call: CallRow): { label: string; color: string; bg: string } {
+  const typed = getTypedOutcome(call);
+  if (typed) return typed;
   if (call.in_voicemail) return { label: "Voicemail", color: "var(--text-secondary)", bg: "var(--bg-3)" };
   if (call.disconnection_reason === "call_transfer") return { label: "Transferred", color: "var(--blue)", bg: "var(--blue-dim)" };
   if (call.call_successful === true) return { label: "Resolved", color: "var(--green)", bg: "var(--green-dim)" };

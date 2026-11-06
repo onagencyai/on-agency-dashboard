@@ -8,7 +8,7 @@ const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;
 async function fetchPeriodStats(supabase: ReturnType<typeof createServerSupabaseClient>, clientId: string, from: string, to: string) {
   const { data, error } = await supabase
     .from("calls")
-    .select("duration_ms, user_sentiment, call_status")
+    .select("duration_ms, user_sentiment, call_status, call_category")
     .eq("client_id", clientId)
     .eq("direction", "inbound")
     .or("call_status.neq.registered,call_status.is.null")
@@ -21,12 +21,23 @@ async function fetchPeriodStats(supabase: ReturnType<typeof createServerSupabase
   const total_calls = data.length;
   const total_duration_ms = data.reduce((sum, r) => sum + (r.duration_ms ?? 0), 0);
   const avg_duration_seconds = total_calls > 0 ? total_duration_ms / total_calls / 1000 : 0;
-  const positive_count = data.filter((r) => r.user_sentiment === "Positive").length;
-  const neutral_count = data.filter((r) => r.user_sentiment === "Neutral").length;
-  const negative_count = data.filter((r) => r.user_sentiment === "Negative").length;
-  const spam_count = data.filter((r) => r.user_sentiment === "Spam").length;
+  // Sentiment only counts real conversations. Spam, silent, wrong-number and sales-pitch calls never feed it.
+  const FILTERED = new Set(["spam", "no_conversation", "vendor", "wrong_number"]);
+  const real = data.filter((r) => !(r.call_category && FILTERED.has(r.call_category)));
+  const positive_count = real.filter((r) => r.user_sentiment === "Positive").length;
+  const neutral_count = real.filter((r) => r.user_sentiment === "Neutral").length;
+  const negative_count = real.filter((r) => r.user_sentiment === "Negative").length;
 
-  return { total_calls, avg_duration_seconds, total_duration_ms, positive_count, neutral_count, negative_count, spam_count };
+  const type_counts: Record<string, number> = {};
+  for (const r of data) {
+    const key = r.call_category ?? (r.user_sentiment === "Spam" ? "spam" : "other");
+    type_counts[key] = (type_counts[key] ?? 0) + 1;
+  }
+  const filtered_count = Object.entries(type_counts).filter(([k]) => FILTERED.has(k)).reduce((s, [, n]) => s + n, 0);
+  const spam_count = type_counts["spam"] ?? 0;
+  const conversation_count = total_calls - filtered_count;
+
+  return { total_calls, avg_duration_seconds, total_duration_ms, positive_count, neutral_count, negative_count, spam_count, conversation_count, filtered_count, type_counts };
 }
 
 export async function GET(req: NextRequest) {
@@ -50,7 +61,7 @@ export async function GET(req: NextRequest) {
     fetchPeriodStats(supabase, clientId, prevFrom, prevTo),
   ]);
 
-  const empty = { total_calls: 0, avg_duration_seconds: 0, total_duration_ms: 0, positive_count: 0, neutral_count: 0, negative_count: 0, spam_count: 0 };
+  const empty = { total_calls: 0, avg_duration_seconds: 0, total_duration_ms: 0, positive_count: 0, neutral_count: 0, negative_count: 0, spam_count: 0, conversation_count: 0, filtered_count: 0, type_counts: {} as Record<string, number> };
 
   return NextResponse.json({ current: current ?? empty, previous: previous ?? empty });
 }

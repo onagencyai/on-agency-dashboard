@@ -190,6 +190,9 @@ async function handleN8nAnalyzedCall(req: NextRequest, body: Record<string, unkn
         call_successful: (body.call_successful as boolean) ?? null,
         in_voicemail: (body.in_voicemail as boolean) ?? null,
         custom_analysis_data: customAnalysisData ?? null,
+        call_category: (body.call_category as string) ?? null,
+        tools_used: Array.isArray(body.tools_used) ? (body.tools_used as string[]) : [],
+        caller_words: typeof body.caller_words === "number" ? body.caller_words : null,
         raw_payload: body,
       },
       { onConflict: "call_id" }

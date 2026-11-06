@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Search, Download, PhoneOff, ChevronLeft, ChevronRight } from "lucide-react";
 import type { CallRow } from "@/lib/types";
-import { formatDuration, getSentimentColor } from "@/lib/formatters";
+import { formatDuration, getSentimentColor, getTypedOutcome } from "@/lib/formatters";
 import CallRangePicker, { defaultRangeValue } from "@/components/CallRangePicker";
 import type { RangeValue } from "@/components/CallRangePicker";
 import CallDetailModal from "@/components/CallDetailModal";
@@ -23,6 +23,8 @@ const TABS: { value: OutcomeTab; label: string }[] = [
 ];
 
 function getCallOutcome(call: CallRow): { label: string; color: string; bg: string } {
+  const typed = getTypedOutcome(call);
+  if (typed) return typed;
   if (call.in_voicemail) return { label: "Voicemail", color: "var(--text-secondary)", bg: "var(--bg-3)" };
   if (call.disconnection_reason === "call_transfer") return { label: "Transferred", color: "var(--blue)", bg: "var(--blue-dim)" };
   if (call.call_successful === true) return { label: "Resolved", color: "var(--green)", bg: "var(--green-dim)" };

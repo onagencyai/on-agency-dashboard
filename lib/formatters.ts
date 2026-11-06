@@ -1,4 +1,4 @@
-import type { CallRow, BadgeProps } from "./types";
+import type { CallRow, BadgeProps, CallType } from "./types";
 
 export function formatDuration(ms: number | null | undefined): string {
   if (!ms || ms === 0) return "—";
@@ -58,7 +58,48 @@ export function formatFullDate(date: string | Date | null | undefined): string {
   return `${month} ${day}, ${year} at ${displayHours}:${displayMinutes} ${ampm}`;
 }
 
-export function getResultBadgeProps(call: Pick<CallRow, "disconnection_reason" | "call_successful" | "in_voicemail">): BadgeProps {
+/** Plain-language label and badge style for each kind of call. */
+export const CALL_TYPE_INFO: Record<CallType, { label: string; variant: BadgeProps["variant"] }> = {
+  lead: { label: "Lead captured", variant: "success" },
+  booked: { label: "Appointment booked", variant: "success" },
+  message: { label: "Message taken", variant: "info" },
+  info: { label: "Team notified", variant: "info" },
+  transferred: { label: "Transferred", variant: "info" },
+  question: { label: "Question answered", variant: "neutral" },
+  wants_person: { label: "Asked for someone", variant: "neutral" },
+  support: { label: "Support request", variant: "info" },
+  vendor: { label: "Sales pitch", variant: "spam" },
+  wrong_number: { label: "Wrong number", variant: "neutral" },
+  spam: { label: "Spam", variant: "spam" },
+  no_conversation: { label: "No conversation", variant: "neutral" },
+  other: { label: "Other", variant: "neutral" },
+};
+
+const VARIANT_COLORS: Record<BadgeProps["variant"], { color: string; bg: string }> = {
+  success: { color: "var(--green)", bg: "var(--green-dim)" },
+  failed: { color: "var(--red)", bg: "var(--red-dim)" },
+  missed: { color: "var(--red)", bg: "var(--red-dim)" },
+  voicemail: { color: "var(--amber)", bg: "var(--amber-dim)" },
+  info: { color: "var(--blue)", bg: "var(--blue-dim)" },
+  neutral: { color: "var(--text-secondary)", bg: "var(--bg-3)" },
+  spam: { color: "var(--orange)", bg: "var(--orange-dim)" },
+};
+
+/** Outcome pill style for the call tables, driven by the call category. Null when the call has no category yet. */
+export function getTypedOutcome(call: Pick<CallRow, "call_category">): { label: string; color: string; bg: string } | null {
+  if (!call.call_category || !CALL_TYPE_INFO[call.call_category]) return null;
+  const info = CALL_TYPE_INFO[call.call_category];
+  return { label: info.label, ...VARIANT_COLORS[info.variant] };
+}
+
+/** Call types that are not real conversations with a customer. */
+export const FILTERED_CALL_TYPES: CallType[] = ["spam", "no_conversation", "vendor", "wrong_number"];
+
+export function getResultBadgeProps(call: Pick<CallRow, "disconnection_reason" | "call_successful" | "in_voicemail"> & { call_category?: CallType | null }): BadgeProps {
+  if (call.call_category && CALL_TYPE_INFO[call.call_category]) {
+    const info = CALL_TYPE_INFO[call.call_category];
+    return { variant: info.variant, label: info.label };
+  }
   if (call.in_voicemail) {
     return { variant: "voicemail", label: "Voicemail" };
   }

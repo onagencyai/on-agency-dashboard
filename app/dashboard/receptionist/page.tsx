@@ -7,10 +7,10 @@ import { Download, PhoneOff } from "lucide-react";
 import Link from "next/link";
 import type { TimeRange, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange } from "@/lib/dateRange";
-import { formatDuration, formatDurationSeconds, getSentimentColor } from "@/lib/formatters";
+import { formatDuration, formatDurationSeconds, getSentimentColor, getTypedOutcome } from "@/lib/formatters";
 import TimeRangeDropdown from "@/components/TimeRangeDropdown";
 import MetricCard from "@/components/MetricCard";
-import SentimentBar from "@/components/SentimentBar";
+import OutcomeBar from "@/components/OutcomeBar";
 import CallVolumeChart from "@/components/CallVolumeChart";
 import IntentChart from "@/components/IntentChart";
 import CallDetailModal from "@/components/CallDetailModal";
@@ -40,13 +40,6 @@ function pctDelta(current: number, previous: number, range: TimeRange, isMs = fa
   return { value: `${Math.abs(pct).toFixed(1)}% ${label}`, direction: sign };
 }
  
-function sentimentScore(pos: number, neu: number, neg: number): string {
-  const total = pos + neu + neg;
-  if (!total) return "—";
-  const score = (pos * 5 + neu * 3 + neg * 1) / total;
-  return score.toFixed(1);
-}
-
 function formatTalkTime(ms: number): string {
   if (!ms) return "0m";
   const totalSec = Math.floor(ms / 1000);
@@ -57,6 +50,8 @@ function formatTalkTime(ms: number): string {
 }
  
 function getCallOutcome(call: CallRow): { label: string; color: string; bg: string } {
+  const typed = getTypedOutcome(call);
+  if (typed) return typed;
   if (call.in_voicemail) return { label: "Voicemail", color: "var(--text-secondary)", bg: "var(--bg-3)" };
   if (call.disconnection_reason === "call_transfer") return { label: "Transferred", color: "var(--blue)", bg: "var(--blue-dim)" };
   if (call.call_successful === true) return { label: "Resolved", color: "var(--green)", bg: "var(--green-dim)" };
@@ -136,6 +131,7 @@ export default function ReceptionistOverviewPage() {
  
   const totalCallsDelta = cur && prev ? pctDelta(cur.total_calls, prev.total_calls, timeRange) : undefined;
   const avgDurationDelta = cur && prev ? pctDelta(cur.avg_duration_seconds * 1000, prev.avg_duration_seconds * 1000, timeRange, true) : undefined;
+  const convDelta = cur && prev ? pctDelta(cur.conversation_count, prev.conversation_count, timeRange) : undefined;
   const talkTimeDelta = cur && prev ? pctDelta(cur.total_duration_ms, prev.total_duration_ms, timeRange) : undefined;
  
   const inboundOnlyVolume: CallVolumeData = volume
@@ -238,21 +234,20 @@ export default function ReceptionistOverviewPage() {
           </div>
           <div style={metricCardShell}>
             <MetricCard
-              label="Sentiment Score"
-              icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5l1.45 2.94 3.25.47-2.35 2.29.55 3.24L6 8.92 3.1 10.44l.55-3.24L1.3 4.91l3.25-.47L6 1.5z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round"/></svg>}
-              value={
-                cur && (cur.positive_count + cur.neutral_count + cur.negative_count) > 0
-                  ? sentimentScore(cur.positive_count, cur.neutral_count, cur.negative_count)
-                  : "—"
-              }
-              valueSuffix={cur && (cur.positive_count + cur.neutral_count + cur.negative_count) > 0 ? "/5" : undefined}
+              label="Real Conversations"
+              icon={<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5.5L3 10V8H3a1 1 0 0 1-1-1V3Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/></svg>}
+              value={cur?.conversation_count ?? 0}
+              delta={convDelta}
             >
               {cur && (
-                <SentimentBar
-                  positive={cur.positive_count}
-                  neutral={cur.neutral_count}
-                  negative={cur.negative_count}
-                />
+                <>
+                  <OutcomeBar counts={cur.type_counts ?? {}} />
+                  <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 6 }}>
+                    {cur.filtered_count > 0
+                      ? `${cur.filtered_count} spam, silent or wrong-number ${cur.filtered_count === 1 ? "call" : "calls"} not counted`
+                      : "All calls were real conversations"}
+                  </div>
+                </>
               )}
             </MetricCard>
           </div>
