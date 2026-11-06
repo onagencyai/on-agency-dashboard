@@ -35,11 +35,7 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
       style={{
         background: "var(--bg-1)",
         padding: "14px 18px",
-        transition: "background 0.15s",
-        cursor: "default",
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-2)")}
-      onMouseLeave={(e) => (e.currentTarget.style.background = "var(--bg-1)")}
     >
       <div
         style={{
