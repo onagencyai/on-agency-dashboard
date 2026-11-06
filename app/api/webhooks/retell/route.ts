@@ -34,32 +34,37 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const body = await req.json() as Record<string, unknown>;
     const event = body.event as string | undefined;
 
+    let ok = true;
     if (event === "call_ended") {
-      await handleCallEnded(req, body);
+      ok = await handleCallEnded(req, body);
     } else if (event === "call_analyzed") {
-      await handleCallAnalyzed(body);
+      ok = await handleCallAnalyzed(body);
     } else if (body.call_id && body.client_id) {
       // Handle n8n-formatted AI-analyzed payload
-      await handleN8nAnalyzedCall(req, body);
+      ok = await handleN8nAnalyzedCall(req, body);
     }
+    // A failed database write must not look like success: the sender (Retell or n8n)
+    // retries and the n8n error alert fires, instead of the call silently disappearing.
+    if (!ok) return NextResponse.json({ received: false, error: "write failed" }, { status: 500 });
   } catch (err) {
     console.error("[retell webhook] unhandled error:", err);
+    return NextResponse.json({ received: false, error: "unhandled error" }, { status: 500 });
   }
 
   return NextResponse.json({ received: true }, { status: 200 });
 }
 
-async function handleCallEnded(req: NextRequest, body: Record<string, unknown>): Promise<void> {
+async function handleCallEnded(req: NextRequest, body: Record<string, unknown>): Promise<boolean> {
   try {
     const call = body.call as Record<string, unknown> | undefined;
-    if (!call) return;
+    if (!call) return true;
 
     const url = new URL(req.url);
     const clientId = url.searchParams.get("client_id");
 
     if (!clientId) {
       console.error("[retell webhook] missing client_id in query params");
-      return;
+      return false;
     }
 
     const startTs = call.start_timestamp;
@@ -93,21 +98,23 @@ async function handleCallEnded(req: NextRequest, body: Record<string, unknown>):
     } else {
       console.log("[retell webhook] call_ended success for call_id:", call.call_id);
     }
+    return !error;
   } catch (err) {
     console.error("[retell webhook] handleCallEnded error:", err);
+    return false;
   }
 }
 
-async function handleCallAnalyzed(body: Record<string, unknown>): Promise<void> {
+async function handleCallAnalyzed(body: Record<string, unknown>): Promise<boolean> {
   try {
     const call = body.call as Record<string, unknown> | undefined;
-    if (!call) return;
+    if (!call) return true;
 
     const callId = call.call_id as string | undefined;
-    if (!callId) return;
+    if (!callId) return true;
 
     const analysis = call.call_analysis as Record<string, unknown> | undefined;
-    if (!analysis) return;
+    if (!analysis) return true;
 
     const supabase = createServerSupabaseClient();
     const { error } = await supabase
@@ -126,19 +133,21 @@ async function handleCallAnalyzed(body: Record<string, unknown>): Promise<void> 
     } else {
       console.log("[retell webhook] call_analyzed success for call_id:", callId);
     }
+    return !error;
   } catch (err) {
     console.error("[retell webhook] handleCallAnalyzed error:", err);
+    return false;
   }
 }
 
-async function handleN8nAnalyzedCall(req: NextRequest, body: Record<string, unknown>): Promise<void> {
+async function handleN8nAnalyzedCall(req: NextRequest, body: Record<string, unknown>): Promise<boolean> {
   try {
     const callId = body.call_id as string | undefined;
     const clientId = (new URL(req.url)).searchParams.get("client_id") ?? (body.client_id as string) ?? null;
 
     if (!callId || !clientId) {
       console.error("[retell webhook] missing call_id or client_id in n8n payload");
-      return;
+      return false;
     }
 
     const startTs = body.started_at;
@@ -191,7 +200,9 @@ async function handleN8nAnalyzedCall(req: NextRequest, body: Record<string, unkn
     } else {
       console.log("[retell webhook] n8n analyzed call success for call_id:", callId);
     }
+    return !error;
   } catch (err) {
     console.error("[retell webhook] handleN8nAnalyzedCall error:", err);
+    return false;
   }
 }
