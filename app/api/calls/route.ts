@@ -43,10 +43,18 @@ export async function GET(req: NextRequest) {
     query = query.not("transcript", "is", null).neq("transcript", "");
   }
 
-  if (outcome === "resolved") {
+  if (outcome === "leads") {
+    query = query.in("call_category", ["lead", "booked"]);
+  } else if (outcome === "messages") {
+    query = query.in("call_category", ["message", "info", "wants_person", "support"]);
+  } else if (outcome === "questions") {
+    query = query.in("call_category", ["question", "other", "wrong_number"]);
+  } else if (outcome === "spam") {
+    query = query.in("call_category", ["spam", "no_conversation", "vendor"]);
+  } else if (outcome === "resolved") {
     query = query.eq("call_successful", true).eq("in_voicemail", false);
   } else if (outcome === "transferred") {
-    query = query.eq("disconnection_reason", "call_transfer");
+    query = query.or("call_category.eq.transferred,disconnection_reason.eq.call_transfer");
   } else if (outcome === "voicemail") {
     query = query.eq("in_voicemail", true);
   } else if (outcome === "dropped") {

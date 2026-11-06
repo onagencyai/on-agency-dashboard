@@ -1,9 +1,9 @@
 "use client";
 export const dynamic = "force-dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Phone as PhoneIcon, Users } from "lucide-react";
-import type { LeadRow, LeadStatus } from "@/lib/types";
-import { formatFullDate, formatPhoneNumber } from "@/lib/formatters";
+import type { LeadRow } from "@/lib/types";
+import { formatPhoneNumber } from "@/lib/formatters";
 import Badge from "@/components/Badge";
 import EmptyState from "@/components/EmptyState";
 
@@ -14,25 +14,42 @@ const KIND_LABEL: Record<LeadRow["kind"], { label: string; variant: "success" | 
   info: { label: "For your info", variant: "neutral" },
 };
 
-const STATUS_LABEL: Record<LeadStatus, string> = { new: "New", contacted: "Contacted", closed: "Closed" };
-const TABS: { value: "all" | LeadStatus; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "new", label: "New" },
-  { value: "contacted", label: "Contacted" },
-  { value: "closed", label: "Closed" },
-];
+const COLUMNS = "minmax(200px, 1.3fr) minmax(220px, 2fr) 170px 180px";
 
 function telHref(phone: string | null): string | null {
   const d = (phone ?? "").replace(/\D/g, "");
   return d.length >= 10 ? `tel:+${d.length === 10 ? "1" + d : d}` : null;
 }
 
+// "2026-06-01T16:00:00-05:00" -> "Jun 1, 4:00 PM"
+function prettyDates(text: string | null): string {
+  if (!text) return "";
+  return text.replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?(?:[+-]\d{2}:\d{2}|Z)?/g, (m) => {
+    const d = new Date(m);
+    return Number.isNaN(d.getTime())
+      ? m
+      : d.toLocaleString("en-US", { timeZone: "America/Chicago", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  });
+}
+
+function shortDate(iso: string): string {
+  return new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+}
+
 export default function LeadsPage() {
   const [leads, setLeads] = useState<LeadRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
-  const [tab, setTab] = useState<"all" | LeadStatus>("all");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 900px)");
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,123 +68,78 @@ export default function LeadsPage() {
     return () => { cancelled = true; };
   }, []);
 
-  async function setStatus(id: string, status: LeadStatus) {
-    const before = leads;
-    setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
-    const res = await fetch("/api/leads", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status }),
-    }).catch(() => null);
-    if (!res || !res.ok) setLeads(before);
-  }
-
-  const counts = useMemo(() => {
-    const c: Record<string, number> = { all: leads.length, new: 0, contacted: 0, closed: 0 };
-    for (const l of leads) c[l.status] += 1;
-    return c;
-  }, [leads]);
-  const shown = tab === "all" ? leads : leads.filter((l) => l.status === tab);
+  const th: React.CSSProperties = { fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-secondary)" };
 
   return (
-    <div style={{ padding: "24px 32px 32px" }}>
+    <div style={{ padding: isMobile ? "18px 12px 20px" : "24px 32px 32px" }}>
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Leads</div>
-        <div style={{ fontSize: 14, color: "var(--text-secondary)", marginTop: 4 }}>
-          People who called and left their details. Tap a row to hear the call.
-        </div>
-      </div>
-
-      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-        {TABS.map((t) => {
-          const active = tab === t.value;
-          return (
-            <button
-              key={t.value}
-              onClick={() => setTab(t.value)}
-              style={{
-                padding: "7px 14px", borderRadius: 20, fontSize: 14, fontWeight: 500, cursor: "pointer",
-                border: "1px solid var(--border)",
-                background: active ? "var(--accent)" : "var(--bg-1)",
-                color: active ? "var(--bg)" : "var(--text-secondary)",
-              }}
-            >
-              {t.label} <span style={{ opacity: 0.7 }}>{counts[t.value] ?? 0}</span>
-            </button>
-          );
-        })}
+        <div style={{ fontSize: isMobile ? 22 : 25, lineHeight: isMobile ? "28px" : "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Leads</div>
+        <div style={{ fontSize: 14, color: "var(--text-secondary)", marginTop: 4 }}>People who called and left their details.</div>
       </div>
 
       {loading ? (
         <div className="skeleton" style={{ height: 220, borderRadius: 8 }} />
       ) : failed ? (
         <EmptyState icon={Users} primary="We couldn't load your leads" secondary="Please refresh the page. If it keeps happening, let us know." />
-      ) : shown.length === 0 ? (
-        <EmptyState
-          icon={Users}
-          primary={leads.length === 0 ? "No leads yet" : "Nothing here"}
-          secondary={leads.length === 0 ? "When someone calls and leaves their details, they will show up here." : "No leads match this filter."}
-        />
+      ) : leads.length === 0 ? (
+        <EmptyState icon={Users} primary="No leads yet" secondary="When someone calls and leaves their details, they will show up here." />
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {shown.map((l) => {
+        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+          {!isMobile && (
+            <div style={{ display: "grid", gridTemplateColumns: COLUMNS, gap: 16, padding: "10px 20px", borderBottom: "1px solid var(--border)" }}>
+              <span style={th}>Name</span>
+              <span style={th}>Request</span>
+              <span style={th}>Phone</span>
+              <span style={th}>Received</span>
+            </div>
+          )}
+
+          {leads.map((l, i) => {
             const open = openId === l.id;
             const kind = KIND_LABEL[l.kind];
             const phone = l.phone ?? l.caller_id;
             const href = telHref(phone);
+            const request = [l.company, prettyDates(l.summary)].filter(Boolean).join(" · ") || "No details given";
             return (
-              <div key={l.id} style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+              <div key={l.id} style={{ borderBottom: i < leads.length - 1 ? "1px solid var(--border)" : "none" }}>
                 <div
                   onClick={() => setOpenId(open ? null : l.id)}
-                  style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 18px", cursor: "pointer", flexWrap: "wrap" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-2)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  style={{
+                    display: isMobile ? "flex" : "grid", flexDirection: "column", gridTemplateColumns: COLUMNS, gap: isMobile ? 6 : 16,
+                    alignItems: isMobile ? "flex-start" : "center", padding: isMobile ? "14px 16px" : "14px 20px", cursor: "pointer", transition: "background 0.1s",
+                  }}
                 >
-                  <div style={{ flex: "1 1 220px", minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)" }}>{l.name ?? "Unknown caller"}</span>
-                      <Badge variant={kind.variant} label={kind.label} />
-                    </div>
-                    <div style={{ fontSize: 14, color: "var(--text-secondary)", marginTop: 3 }}>
-                      {[l.company, l.summary].filter(Boolean).join(" · ") || "No details given"}
-                    </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)", marginBottom: 6 }}>{l.name ?? "Unknown caller"}</div>
+                    <Badge variant={kind.variant} label={kind.label} />
                   </div>
-                  <div style={{ flex: "0 0 auto", fontSize: 14, color: "var(--text-secondary)", minWidth: 140 }}>
-                    {formatFullDate(l.created_at)}
-                  </div>
-                  <div style={{ flex: "0 0 auto" }} onClick={(e) => e.stopPropagation()}>
+                  <div style={{ fontSize: 14, color: "var(--text-primary)", lineHeight: 1.45, minWidth: 0 }}>{request}</div>
+                  <div onClick={(e) => e.stopPropagation()}>
                     {href ? (
-                      <a href={href} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 500, color: "var(--text-primary)", textDecoration: "none" }}>
+                      <a href={href} className="num" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 500, color: "var(--text-primary)", textDecoration: "none" }}>
                         <PhoneIcon size={14} /> {formatPhoneNumber(phone)}
                       </a>
                     ) : (
-                      <span style={{ fontSize: 14, color: "var(--text-tertiary)" }}>No number</span>
+                      <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>No number</span>
                     )}
                   </div>
-                  <div style={{ flex: "0 0 auto" }} onClick={(e) => e.stopPropagation()}>
-                    <select
-                      value={l.status}
-                      onChange={(e) => void setStatus(l.id, e.target.value as LeadStatus)}
-                      aria-label="Lead status"
-                      style={{ fontSize: 14, padding: "6px 10px", borderRadius: 8, border: "1px solid var(--border-hover)", background: "var(--bg-1)", color: "var(--text-primary)", cursor: "pointer" }}
-                    >
-                      {(Object.keys(STATUS_LABEL) as LeadStatus[]).map((s) => (
-                        <option key={s} value={s}>{STATUS_LABEL[s]}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <div className="num" style={{ fontSize: 14, color: "var(--text-secondary)" }}>{shortDate(l.created_at)}</div>
                 </div>
 
                 {open && (
-                  <div style={{ borderTop: "1px solid var(--border)", padding: "16px 18px", display: "grid", gap: 14, background: "var(--bg-2)" }}>
+                  <div style={{ padding: isMobile ? "4px 16px 18px" : "4px 20px 20px", display: "grid", gap: 14 }}>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
-                      <Detail label="Phone they gave" value={l.phone ? formatPhoneNumber(l.phone) : null} />
+                      <Detail label="Number they gave" value={l.phone ? formatPhoneNumber(l.phone) : null} />
                       <Detail label="Number they called from" value={l.caller_id ? formatPhoneNumber(l.caller_id) : null} />
                       <Detail label="Email" value={l.email} />
                       <Detail label="Location" value={l.location} />
                     </div>
-                    <Detail label="Details" value={l.details} />
+                    <Detail label="Details" value={prettyDates(l.details) || null} />
                     {l.recording_url ? (
                       <div>
-                        <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 6 }}>Call recording</div>
+                        <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>Call recording</div>
                         <audio controls preload="none" src={l.recording_url} style={{ width: "100%" }} />
                       </div>
                     ) : null}
@@ -186,8 +158,8 @@ function Detail({ label, value }: { label: string; value: string | null | undefi
   if (!value) return null;
   return (
     <div>
-      <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: 14, color: "var(--text-primary)", lineHeight: 1.5 }}>{value}</div>
+      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 14, color: "var(--text-primary)", lineHeight: 1.5, whiteSpace: "pre-line" }}>{value}</div>
     </div>
   );
 }

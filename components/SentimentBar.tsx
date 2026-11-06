@@ -22,7 +22,7 @@ export default function SentimentBar({ positive, neutral, negative }: SentimentB
         <div style={{ flex: posW, background: "var(--green)", height: "100%" }} />
       )}
       {neuW > 0 && (
-        <div style={{ flex: neuW, background: "var(--amber)", height: "100%" }} />
+        <div style={{ flex: neuW, background: "var(--amber-fill)", height: "100%" }} />
       )}
       {negW > 0 && (
         <div style={{ flex: negW, background: "var(--red)", height: "100%" }} />

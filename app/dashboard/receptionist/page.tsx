@@ -7,7 +7,7 @@ import { Download, PhoneOff } from "lucide-react";
 import Link from "next/link";
 import type { TimeRange, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange } from "@/lib/dateRange";
-import { formatDuration, formatDurationSeconds, getSentimentColor, formatPhoneNumber } from "@/lib/formatters";
+import { formatDuration, formatDurationSeconds, getSentimentColor, formatPhoneNumber, getInboundOutcome } from "@/lib/formatters";
 import TimeRangeDropdown from "@/components/TimeRangeDropdown";
 import MetricCard from "@/components/MetricCard";
 import SentimentBar from "@/components/SentimentBar";
@@ -25,8 +25,13 @@ function periodLabel(range: TimeRange): string {
   }
 }
 
-function pctDelta(current: number, previous: number, range: TimeRange, isMs = false): { value: string; direction: "up" | "down" | "neutral" } {
-  if (!previous || previous === 0) return { value: "—", direction: "neutral" };
+function pctDelta(current: number, previous: number, range: TimeRange, isMs = false, fmt?: (n: number) => string): { value: string; direction: "up" | "down" | "neutral" } {
+  if (!previous || previous === 0) {
+    // Nothing to compare against: show what we gained instead of a dash.
+    if (!current) return { value: "—", direction: "neutral" };
+    const shown = isMs ? `${Math.floor(current / 60000)}:${Math.floor((current % 60000) / 1000).toString().padStart(2, "0")}` : (fmt ? fmt(current) : String(current));
+    return { value: `+${shown} ${periodLabel(range)}`, direction: "up" };
+  }
   const pct = ((current - previous) / previous) * 100;
   const label = periodLabel(range);
   if (isMs) {
@@ -57,10 +62,12 @@ function formatTalkTime(ms: number): string {
 }
  
 function getCallOutcome(call: CallRow): { label: string; color: string; bg: string } {
+  const typed = getInboundOutcome(call);
+  if (typed) return typed;
   if (call.in_voicemail) return { label: "Voicemail", color: "var(--text-secondary)", bg: "var(--bg-3)" };
   if (call.disconnection_reason === "call_transfer") return { label: "Transferred", color: "var(--blue)", bg: "var(--blue-dim)" };
   if (call.call_successful === true) return { label: "Resolved", color: "var(--green)", bg: "var(--green-dim)" };
-  if (call.call_successful === false) return { label: "Dropped", color: "var(--red)", bg: "var(--red-dim)" };
+  if (call.call_successful === false) return { label: "Not resolved", color: "var(--red)", bg: "var(--red-dim)" };
   return { label: "Ended", color: "var(--text-secondary)", bg: "var(--bg-3)" };
 }
  
@@ -134,9 +141,9 @@ export default function ReceptionistOverviewPage() {
     background: "var(--bg-1)",
   } as const;
  
-  const totalCallsDelta = cur && prev && prev.total_calls >= 5 ? pctDelta(cur.total_calls, prev.total_calls, timeRange) : undefined;
-  const avgDurationDelta = cur && prev && prev.total_calls >= 5 ? pctDelta(cur.avg_duration_seconds * 1000, prev.avg_duration_seconds * 1000, timeRange, true) : undefined;
-  const talkTimeDelta = cur && prev && prev.total_calls >= 5 ? pctDelta(cur.total_duration_ms, prev.total_duration_ms, timeRange) : undefined;
+  const totalCallsDelta = cur && prev ? pctDelta(cur.total_calls, prev.total_calls, timeRange) : undefined;
+  const avgDurationDelta = cur && prev ? pctDelta(cur.avg_duration_seconds * 1000, prev.avg_duration_seconds * 1000, timeRange, true) : undefined;
+  const talkTimeDelta = cur && prev ? pctDelta(cur.total_duration_ms, prev.total_duration_ms, timeRange, false, formatTalkTime) : undefined;
  
   const inboundOnlyVolume: CallVolumeData = volume
     ? { dates: volume.dates, inbound: volume.inbound, outbound: volume.dates.map(() => 0) }

@@ -28,20 +28,23 @@
   --text-secondary: #66737a;
   --text-tertiary: #66737a;
   --ink: #0d333f;
-  --accent: #0d333f;
-  --accent-dim: rgba(13, 51, 63, 0.06);
+  --accent: #0a0a0a;
+  --accent-dim: rgba(10, 10, 10, 0.05);
   --green: #138a3d;
   --green-text: #0d6b31;
   --green-dim: #e7f5ec;
   --red: #c1352b;
   --red-dim: #fdecea;
-  --amber: #b25a00;
+  --amber: #c77700;
+  --amber-fill: #f2a93a;
   --amber-dim: #fff3d6;
   --orange: #f97316;
   --orange-dim: rgba(249, 115, 22, 0.12);
   --blue: #2f80ff;
   --blue-dim: #eaf4ff;
   --chart-grid: rgba(13, 51, 63, 0.10);
+  --intent-indigo: #4255a4;
+  --intent-gray: #8c979c;
 
   --dashboard-shell: #ffffff;
   --dashboard-panel: #ffffff;
@@ -73,12 +76,15 @@
   --red: #f2685c;
   --red-dim: #2c1618;
   --amber: #f2a93a;
+  --amber-fill: #f2a93a;
   --amber-dim: #2b2410;
   --orange: #f97316;
   --orange-dim: rgba(249, 115, 22, 0.16);
   --blue: #6da7ec;
   --blue-dim: rgba(42, 120, 214, 0.2);
   --chart-grid: rgba(255, 255, 255, 0.08);
+  --intent-indigo: #8b9de3;
+  --intent-gray: #8a887e;
 
   --dashboard-shell: #0a0a0a;
   --dashboard-panel: #0a0a0a;

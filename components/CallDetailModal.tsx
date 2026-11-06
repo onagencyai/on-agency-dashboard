@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import type { CallRow } from "@/lib/types";
-import { formatDuration } from "@/lib/formatters";
+import { formatDuration, getInboundOutcome } from "@/lib/formatters";
 
 interface TranscriptTurn {
   speaker: "agent" | "caller";
@@ -43,10 +43,12 @@ function parseTranscript(transcript: string): TranscriptTurn[] {
 }
 
 function getOutcomeLabel(call: CallRow): { label: string; color: string; bg: string } {
+  const typed = getInboundOutcome(call);
+  if (typed) return typed;
   if (call.in_voicemail) return { label: "Voicemail", color: "var(--text-secondary)", bg: "var(--bg-3)" };
   if (call.disconnection_reason === "call_transfer") return { label: "Transferred", color: "var(--blue)", bg: "var(--blue-dim)" };
   if (call.call_successful === true) return { label: "Resolved", color: "var(--green)", bg: "var(--green-dim)" };
-  if (call.call_successful === false) return { label: "Dropped", color: "var(--red)", bg: "var(--red-dim)" };
+  if (call.call_successful === false) return { label: "Not resolved", color: "var(--red)", bg: "var(--red-dim)" };
   if (call.disconnection_reason === "dial_no_answer") return { label: "No Answer", color: "var(--amber)", bg: "var(--amber-dim)" };
   return { label: "Ended", color: "var(--text-secondary)", bg: "var(--bg-3)" };
 }

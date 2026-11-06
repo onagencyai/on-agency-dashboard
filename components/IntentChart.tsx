@@ -4,6 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import type { IntentData } from "@/lib/types";
 
 
+const INTENT_COLORS: Record<string, string> = {
+  "General Information": "var(--blue)",
+  "Pricing Information": "var(--intent-indigo)",
+  "Appointments & Scheduling": "var(--green)",
+  "Complaints & Cancellations": "var(--red)",
+  "Customer Support Requests": "var(--amber-fill)",
+  "Other": "var(--intent-gray)",
+};
+
 interface IntentChartProps {
   intents: IntentData[];
 }
@@ -55,7 +64,7 @@ export default function IntentChart({ intents }: IntentChartProps) {
               style={{
                 height: "100%",
                 width: animated ? `${intent.percentage}%` : "0%",
-                background: "var(--blue)",
+                background: INTENT_COLORS[intent.label] ?? "var(--intent-gray)",
                 borderRadius: 999,
                 transition: "width 0.6s ease",
               }}

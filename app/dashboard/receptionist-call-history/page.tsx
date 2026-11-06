@@ -5,28 +5,31 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Search, Download, PhoneOff, ChevronLeft, ChevronRight } from "lucide-react";
 import type { CallRow } from "@/lib/types";
-import { formatDuration, getSentimentColor, formatPhoneNumber } from "@/lib/formatters";
+import { formatDuration, getSentimentColor, formatPhoneNumber, getInboundOutcome } from "@/lib/formatters";
 import CallRangePicker, { defaultRangeValue } from "@/components/CallRangePicker";
 import type { RangeValue } from "@/components/CallRangePicker";
 import CallDetailModal from "@/components/CallDetailModal";
 
 const PAGE_SIZE = 25;
 
-type OutcomeTab = "all" | "resolved" | "transferred" | "voicemail" | "dropped";
+type OutcomeTab = "all" | "leads" | "messages" | "questions" | "transferred" | "spam";
 
 const TABS: { value: OutcomeTab; label: string }[] = [
   { value: "all", label: "All" },
-  { value: "resolved", label: "Resolved" },
+  { value: "leads", label: "Leads & bookings" },
+  { value: "messages", label: "Messages & requests" },
+  { value: "questions", label: "Questions & other" },
   { value: "transferred", label: "Transferred" },
-  { value: "voicemail", label: "Voicemail" },
-  { value: "dropped", label: "Dropped" },
+  { value: "spam", label: "Spam & silent" },
 ];
 
 function getCallOutcome(call: CallRow): { label: string; color: string; bg: string } {
+  const typed = getInboundOutcome(call);
+  if (typed) return typed;
   if (call.in_voicemail) return { label: "Voicemail", color: "var(--text-secondary)", bg: "var(--bg-3)" };
   if (call.disconnection_reason === "call_transfer") return { label: "Transferred", color: "var(--blue)", bg: "var(--blue-dim)" };
   if (call.call_successful === true) return { label: "Resolved", color: "var(--green)", bg: "var(--green-dim)" };
-  if (call.call_successful === false) return { label: "Dropped", color: "var(--red)", bg: "var(--red-dim)" };
+  if (call.call_successful === false) return { label: "Not resolved", color: "var(--red)", bg: "var(--red-dim)" };
   return { label: "Ended", color: "var(--text-secondary)", bg: "var(--bg-3)" };
 }
 

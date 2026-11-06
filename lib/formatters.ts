@@ -135,3 +135,30 @@ export function safePct(numerator: number, denominator: number): string {
   if (!denominator || denominator === 0) return "0%";
   return `${Math.round((numerator / denominator) * 100)}%`;
 }
+
+type OutcomeStyle = { label: string; color: string; bg: string };
+const GREEN: Pick<OutcomeStyle, "color" | "bg"> = { color: "var(--green)", bg: "var(--green-dim)" };
+const BLUE: Pick<OutcomeStyle, "color" | "bg"> = { color: "var(--blue)", bg: "var(--blue-dim)" };
+const RED: Pick<OutcomeStyle, "color" | "bg"> = { color: "var(--red)", bg: "var(--red-dim)" };
+const GRAY: Pick<OutcomeStyle, "color" | "bg"> = { color: "var(--text-secondary)", bg: "var(--bg-3)" };
+const ORANGE: Pick<OutcomeStyle, "color" | "bg"> = { color: "var(--orange)", bg: "var(--orange-dim)" };
+
+/** Plain-language outcome for an inbound call, from what actually happened. Null if the call has no category yet. */
+export function getInboundOutcome(call: Pick<CallRow, "call_category">): OutcomeStyle | null {
+  switch (call.call_category) {
+    case "lead": return { label: "Lead captured", ...GREEN };
+    case "booked": return { label: "Appointment booked", ...GREEN };
+    case "message": return { label: "Message taken", ...GREEN };
+    case "info": return { label: "Team notified", ...GREEN };
+    case "question": return { label: "Question answered", ...GREEN };
+    case "transferred": return { label: "Transferred", ...BLUE };
+    case "wants_person": return { label: "Asked for someone", ...RED };
+    case "support": return { label: "Needs follow-up", ...RED };
+    case "no_conversation": return { label: "No one spoke", ...GRAY };
+    case "wrong_number": return { label: "Wrong number", ...GRAY };
+    case "spam": return { label: "Spam", ...ORANGE };
+    case "vendor": return { label: "Sales call", ...ORANGE };
+    case "other": return { label: "Other", ...GRAY };
+    default: return null;
+  }
+}
