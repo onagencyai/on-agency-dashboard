@@ -43,6 +43,8 @@
   --blue: #2f80ff;
   --blue-dim: #eaf4ff;
   --on-blue: #ffffff;
+  --bubble-agent: #f4f3f9;
+  --bubble-user: #e9eefe;
   --chart-grid: rgba(30, 30, 41, 0.08);
   --intent-gray: #8c979c;
 
@@ -85,6 +87,8 @@
   --blue: #6da7ec;
   --blue-dim: rgba(42, 120, 214, 0.2);
   --on-blue: #0a0a0a;
+  --bubble-agent: rgba(255, 255, 255, 0.07);
+  --bubble-user: rgba(42, 120, 214, 0.24);
   --chart-grid: rgba(255, 255, 255, 0.08);
   --intent-cyan: #6dc7de;
   --intent-gray: #8a887e;

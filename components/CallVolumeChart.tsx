@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import type { CallVolumeData } from "@/lib/types";
 
 interface CallVolumeChartProps {
   data: CallVolumeData;
   showOutbound?: boolean;
+  /** Optional totals shown top right, like Mercury's money in / money out. */
+  summary?: { up?: string; down?: string };
 }
 
 type Pt = { x: number; y: number };
@@ -35,9 +38,9 @@ function monotonePath(pts: Pt[]): string {
   return d;
 }
 
-// Area chart in the style of Mercury's balance graph: the big number is the total for the period,
-// and moving across the chart (mouse or finger) shows that day's calls instead.
-export default function CallVolumeChart({ data, showOutbound = true }: CallVolumeChartProps) {
+// Area chart in the style of Mercury's balance graph. The header row above it follows your cursor or finger:
+// it shows the day, that day's calls, and the change against the day before.
+export default function CallVolumeChart({ data, showOutbound = true, summary }: CallVolumeChartProps) {
   const gid = useId().replace(/:/g, "");
   const wrapRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 600, h: 200 });
@@ -46,6 +49,7 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
   const rows = data.dates.map((date, i) => ({ date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
   const n = rows.length;
   const max = Math.max(1, ...rows.map((r) => r.value));
+  const busiest = rows.reduce((b, r) => (r.value > b.value ? r : b), { date: "", value: 0 });
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -56,11 +60,13 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
     return () => ro.disconnect();
   }, []);
 
-  const LABEL_H = 30, TOP = 14;
+  // Room under the graph so the dates never crowd the line.
+  const LABEL_H = 46, TOP = 14;
   const base = size.h - LABEL_H;
   const usable = Math.max(10, base - TOP);
-  // Each day is a short flat step that eases into the next one, which is how Mercury's balance graph reads.
   const pts: Pt[] = rows.map((r, i) => ({ x: n <= 1 ? size.w / 2 : (i / (n - 1)) * size.w, y: base - (r.value / max) * usable }));
+
+  // Each day is a short flat step that eases into the next one, which is how Mercury's balance graph reads.
   const half = n > 1 ? (size.w / (n - 1)) * 0.14 : 0;
   const stepPts: Pt[] = [];
   pts.forEach((p, i) => {
@@ -70,7 +76,13 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
   const line = n > 1 ? monotonePath(stepPts) : "";
   const area = n > 1 ? `${line}L${size.w},${base}L0,${base}Z` : "";
 
-  const labelIdx = n >= 5 ? [0.1, 0.3, 0.5, 0.7, 0.9].map((f) => Math.round(f * (n - 1))) : rows.map((_, i) => i);
+  // Five dates exactly the same number of days apart, centered under the graph.
+  let labelIdx: number[] = rows.map((_, i) => i);
+  if (n >= 6) {
+    const step = Math.max(1, Math.floor((n - 1) / 5));
+    const start = Math.round(((n - 1) - 4 * step) / 2);
+    labelIdx = [0, 1, 2, 3, 4].map((k) => start + k * step);
+  }
 
   function onMove(e: React.PointerEvent<SVGSVGElement>) {
     const r = e.currentTarget.getBoundingClientRect();
@@ -81,10 +93,41 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
   const hovered = hover !== null ? rows[hover] : null;
   const prevVal = hover !== null && hover > 0 ? rows[hover - 1].value : null;
   const diff = hovered && prevVal !== null ? hovered.value - prevVal : null;
+  const upColor = "var(--green-text)";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 220 }}>
-      <div ref={wrapRef} style={{ position: "relative", flex: 1, minHeight: 150, margin: "0 -20px -20px" }}>
+    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 210 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", minHeight: 24 }}>
+        <span className="num" style={{ fontSize: 14, color: "var(--text-primary)" }}>
+          {hovered ? (
+            <>
+              {hovered.date} <span style={{ color: "var(--text-secondary)" }}>·</span>{" "}
+              <span style={{ fontWeight: 600, color: "var(--ink)" }}>{hovered.value} {hovered.value === 1 ? "call" : "calls"}</span>
+            </>
+          ) : n > 0 ? (
+            `${rows[0].date} – ${rows[n - 1].date}`
+          ) : null}
+        </span>
+        <span className="num" style={{ display: "inline-flex", alignItems: "center", gap: 14, fontSize: 13 }}>
+          {hovered ? (
+            diff !== null && diff !== 0 ? (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: diff > 0 ? upColor : "var(--red)" }}>
+                {diff > 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
+                {diff > 0 ? "+" : "−"}{Math.abs(diff)} vs day before
+              </span>
+            ) : null
+          ) : summary && (summary.up || summary.down) ? (
+            <>
+              {summary.up && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: upColor }}><ArrowUpRight size={13} />{summary.up}</span>}
+              {summary.down && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--red)" }}><ArrowDownRight size={13} />{summary.down}</span>}
+            </>
+          ) : busiest.value > 0 ? (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: upColor }}><ArrowUpRight size={13} />{busiest.value} on {busiest.date}</span>
+          ) : null}
+        </span>
+      </div>
+
+      <div ref={wrapRef} style={{ position: "relative", flex: 1, minHeight: 150, margin: "6px -20px -20px" }}>
         <svg
           width={size.w}
           height={size.h}
@@ -108,32 +151,11 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
             </g>
           )}
           {labelIdx.map((i) => (
-            <text key={i} x={pts[i]?.x ?? 0} y={size.h - 9} textAnchor="middle" fontSize={12} style={{ fill: "var(--text-secondary)" }}>
+            <text key={i} x={pts[i]?.x ?? 0} y={size.h - 14} textAnchor="middle" fontSize={12} style={{ fill: "var(--text-secondary)" }}>
               {rows[i]?.date}
             </text>
           ))}
         </svg>
-        {hovered && hover !== null && pts[hover] && (
-          <div
-            style={{
-              position: "absolute", pointerEvents: "none", zIndex: 2, whiteSpace: "nowrap",
-              left: Math.min(Math.max(pts[hover].x, 70), size.w - 70), top: Math.max(0, pts[hover].y - 62), transform: "translateX(-50%)",
-              background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, padding: "7px 11px",
-              boxShadow: "0 6px 18px rgba(0,0,0,0.12)",
-            }}
-          >
-            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{hovered.date}</div>
-            <div className="num" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>
-              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--blue)" }} />
-              {hovered.value} {hovered.value === 1 ? "call" : "calls"}
-              {diff !== null && diff !== 0 && (
-                <span style={{ fontSize: 12, fontWeight: 500, color: diff > 0 ? "var(--green-text)" : "var(--red)" }}>
-                  {diff > 0 ? "↗ +" : "↘ −"}{Math.abs(diff)}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

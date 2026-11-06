@@ -252,7 +252,6 @@ export default function OutboundOverviewPage() {
               <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>
                 Outbound Call Volume
               </span>
-              {!loading && (<span className="num" style={{ fontSize: 13, color: "var(--text-secondary)", marginLeft: 10, fontWeight: 400 }}>{outboundVolume.outbound.reduce((a, b) => a + b, 0)} calls</span>)}
             </div>
           </div>
           <div style={{ padding: 20, flex: 1, display: "flex", flexDirection: "column" }}>
@@ -327,7 +326,7 @@ export default function OutboundOverviewPage() {
                       onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent-dim)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
-                      <td style={{ padding: "11px 16px", fontSize: 12, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-primary)", fontWeight: 500 }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-primary)", fontWeight: 400, fontVariantNumeric: "normal" }}>
                         {(call.call_id ?? call.id ?? "").slice(0, 8)}
                       </td>
                       <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>

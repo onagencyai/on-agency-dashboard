@@ -188,7 +188,7 @@ export default function OutboundCallHistoryPage() {
                       onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent-dim)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
-                      <td style={{ padding: "11px 16px", fontSize: 12, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-primary)", fontWeight: 500 }}>{(call.call_id ?? call.id ?? "").slice(0, 8)}</td>
+                      <td style={{ padding: "11px 16px", fontSize: 13, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-primary)", fontWeight: 400, fontVariantNumeric: "normal" }}>{(call.call_id ?? call.id ?? "").slice(0, 8)}</td>
                       <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
                         {call.started_at ? new Date(call.started_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"}
                       </td>

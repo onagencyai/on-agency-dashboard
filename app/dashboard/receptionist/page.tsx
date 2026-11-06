@@ -87,6 +87,26 @@ export default function ReceptionistOverviewPage() {
   const [stats, setStats] = useState<ReceptionistStats | null>(null);
   const [volume, setVolume] = useState<CallVolumeData | null>(null);
   const [intents, setIntents] = useState<IntentData[]>([]);
+  const [clientId, setClientId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/client-info", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { client_id?: unknown } | null) => { if (d && typeof d.client_id === "string") setClientId(d.client_id); })
+      .catch(() => {});
+  }, []);
+
+  // TEMPORARY: lets the owner see every Call Intent color at once. Only the On Agency account sees it,
+  // and only while real data has fewer than six intents. Remove once the colors are approved.
+  const PREVIEW_INTENTS: IntentData[] = [
+    { label: "General Information", count: 24, percentage: 24 },
+    { label: "Pricing Information", count: 22, percentage: 22 },
+    { label: "Appointments & Scheduling", count: 20, percentage: 20 },
+    { label: "Complaints & Cancellations", count: 8, percentage: 8 },
+    { label: "Customer Support Requests", count: 14, percentage: 14 },
+    { label: "Other", count: 12, percentage: 12 },
+  ];
+  const colorPreview = clientId === "on-agency" && intents.filter((i) => i.percentage > 0).length < 6;
   const [calls, setCalls] = useState<CallRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCall, setSelectedCall] = useState<CallRow | null>(null);
@@ -281,21 +301,20 @@ export default function ReceptionistOverviewPage() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
             <div>
               <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>Call Volume</span>
-              {!loading && (<span className="num" style={{ fontSize: 13, color: "var(--text-secondary)", marginLeft: 10, fontWeight: 400 }}>{inboundOnlyVolume.inbound.reduce((a, b) => a + b, 0)} calls</span>)}
             </div>
           </div>
           <div style={{ padding: 20, flex: 1, display: "flex", flexDirection: "column" }}>
             {loading || !volume ? (
               <div className="skeleton" style={{ height: 220 }} />
             ) : (
-              <CallVolumeChart data={inboundOnlyVolume} showOutbound={false} />
+              <CallVolumeChart data={inboundOnlyVolume} showOutbound={false} summary={cur ? { up: `${cur.conversation_count} real calls`, down: `${cur.filtered_count} spam or silent` } : undefined} />
             )}
           </div>
         </div>
  
         <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
           <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
-            <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>Call Intent</span>
+            <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>Call Intent</span>{colorPreview && <span style={{ fontSize: 12, color: "var(--text-secondary)", marginLeft: 10, fontWeight: 400 }}>Color preview</span>}
           </div>
           <div style={{ padding: 20 }}>
             {loading ? (
@@ -305,7 +324,7 @@ export default function ReceptionistOverviewPage() {
                 ))}
               </div>
             ) : (
-              <IntentChart intents={intents} />
+              <IntentChart intents={colorPreview ? PREVIEW_INTENTS : intents} />
             )}
           </div>
         </div>
@@ -354,7 +373,7 @@ export default function ReceptionistOverviewPage() {
                 {calls.map((call) => {
                   const outcome = getCallOutcome(call);
                   const intent = getCallIntent(call);
-                  const sentiment = call.user_sentiment;
+                  const sentiment = call.user_sentiment ?? (call.call_category === "spam" ? "Spam" : null);
                   const sentColor = getSentimentColor(sentiment);
                   return (
                     <tr
@@ -364,7 +383,7 @@ export default function ReceptionistOverviewPage() {
                       onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent-dim)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
-                      <td style={{ padding: "11px 16px", fontSize: 12, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-primary)", fontWeight: 500, whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-primary)", fontWeight: 400, fontVariantNumeric: "normal", whiteSpace: "nowrap" }}>
                         {(call.call_id ?? call.id ?? "").slice(0, 8)}
                       </td>
                       <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>

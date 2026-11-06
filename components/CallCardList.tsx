@@ -40,10 +40,10 @@ export default function CallCardList({ calls, getOutcome, getIntent, onSelect }:
               <span>{when}</span>
               <span>·</span>
               <span>{formatDuration(call.duration_ms)}</span>
-              {call.user_sentiment && (
+              {(call.user_sentiment || call.call_category === "spam") && (
                 <>
                   <span>·</span>
-                  <span style={{ color: getSentimentColor(call.user_sentiment) }}>{call.user_sentiment}</span>
+                  <span style={{ color: getSentimentColor(call.user_sentiment ?? "Spam") }}>{call.user_sentiment ?? "Spam"}</span>
                 </>
               )}
             </div>

@@ -9,6 +9,7 @@ import { formatPhoneNumber, getInboundOutcome } from "@/lib/formatters";
 interface TranscriptTurn {
   speaker: "agent" | "caller";
   text: string;
+  time?: number;
 }
 
 function parseTranscript(transcript: string): TranscriptTurn[] {
@@ -16,9 +17,10 @@ function parseTranscript(transcript: string): TranscriptTurn[] {
   try {
     const parsed = JSON.parse(transcript);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed.map((turn: { role?: string; content?: string }) => ({
+      return parsed.map((turn: { role?: string; content?: string; words?: { start?: number }[] }) => ({
         speaker: turn.role === "agent" || turn.role === "assistant" ? "agent" : "caller",
         text: turn.content || "",
+        time: typeof turn.words?.[0]?.start === "number" ? turn.words[0].start : undefined,
       }));
     }
   } catch {
@@ -78,6 +80,12 @@ function humanDuration(ms: number | null): string {
   if (h > 0) return `${h}h ${m}m`;
   if (m > 0) return `${m}m ${sec}s`;
   return `${sec}s`;
+}
+
+function clockSeconds(sec?: number): string {
+  if (sec === undefined) return "";
+  const t = Math.max(0, Math.round(sec));
+  return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
 }
 
 function clock(iso: string | null): string {
@@ -195,6 +203,14 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
                 {start && end ? ` (${clock(call.started_at)} – ${clock(end)})` : ""}
               </span>
             </MetaLine>
+            <MetaLine label="Call ID">
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <span>{call.call_id}</span>
+                <button onClick={copyId} aria-label="Copy call ID" style={{ border: "none", background: "transparent", color: "var(--text-secondary)", cursor: "pointer", padding: 2, display: "flex" }}>
+                  {copied ? <Check size={14} /> : <Copy size={14} />}
+                </button>
+              </span>
+            </MetaLine>
           </div>
 
           {/* Recording */}
@@ -224,7 +240,7 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
           <SectionTitle>Call analysis</SectionTitle>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <AnalysisRow icon={<CheckCircle2 size={16} />} label="Outcome" value={outcome.label} dot={outcome.color} />
-            <AnalysisRow icon={<Smile size={16} />} label="Caller mood" value={call.user_sentiment ?? "Not rated"} dot={sentimentDot} />
+            <AnalysisRow icon={<Smile size={16} />} label="Caller mood" value={call.user_sentiment ?? (call.call_category === "spam" ? "Spam" : "Not rated")} dot={call.call_category === "spam" && !call.user_sentiment ? "var(--orange)" : sentimentDot} />
             {intent && <AnalysisRow icon={<MessageSquare size={16} />} label="Intent" value={intent} />}
             <AnalysisRow icon={<PhoneOff size={16} />} label="How it ended" value={call.disconnection_reason ? (HANGUP[call.disconnection_reason] ?? call.disconnection_reason.replace(/_/g, " ")) : "—"} />
           </div>
@@ -245,17 +261,16 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {transcriptTurns.map((turn, i) => {
                 const agent = turn.speaker === "agent";
+                const t = clockSeconds(turn.time);
                 return (
-                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: agent ? "flex-start" : "flex-end" }}>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)", margin: agent ? "0 0 4px 6px" : "0 6px 4px 0" }}>
-                      {agent ? (call.agent_name || "Agent") : "Caller"}
+                  <div key={i}>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>
+                      {agent ? (call.agent_name || "Agent") : "Caller"}{t ? ` · ${t}` : ""}
                     </div>
                     <div
                       style={{
-                        maxWidth: "82%", fontSize: 14, lineHeight: 1.5, padding: "9px 14px",
-                        borderRadius: agent ? "16px 16px 16px 4px" : "16px 16px 4px 16px",
-                        background: agent ? "var(--bg-3)" : "var(--blue)",
-                        color: agent ? "var(--text-primary)" : "var(--on-blue)",
+                        fontSize: 14, lineHeight: 1.55, padding: "10px 14px", borderRadius: 10, color: "var(--text-primary)",
+                        background: agent ? "var(--bubble-agent)" : "var(--bubble-user)",
                       }}
                     >
                       {turn.text}
@@ -267,15 +282,6 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
           ) : (
             <p style={{ fontSize: 14, color: "var(--text-secondary)", margin: 0 }}>No transcript available.</p>
           )}
-
-          {/* Call ID, kept quiet for tracking a call down later */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 36, fontSize: 12, color: "var(--text-secondary)", opacity: 0.8 }}>
-            <span>Call ID</span>
-            <span className="num">{call.call_id}</span>
-            <button onClick={copyId} aria-label="Copy call ID" style={{ border: "none", background: "transparent", color: "var(--text-secondary)", cursor: "pointer", padding: 2, display: "flex" }}>
-              {copied ? <Check size={12} /> : <Copy size={12} />}
-            </button>
-          </div>
         </div>
       </div>
     </div>,

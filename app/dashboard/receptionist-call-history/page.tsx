@@ -229,7 +229,7 @@ export default function CallHistoryPage() {
                 {calls.map((call) => {
                   const outcome = getCallOutcome(call);
                   const intent = getCallIntent(call);
-                  const sentiment = call.user_sentiment;
+                  const sentiment = call.user_sentiment ?? (call.call_category === "spam" ? "Spam" : null);
                   const sentColor = getSentimentColor(sentiment);
                   return (
                     <tr
@@ -239,7 +239,7 @@ export default function CallHistoryPage() {
                       onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent-dim)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
-                      <td style={{ padding: "11px 16px", fontSize: 12, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-primary)", fontWeight: 500 }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-primary)", fontWeight: 400, fontVariantNumeric: "normal" }}>
                         {(call.call_id ?? call.id ?? "").slice(0, 8)}
                       </td>
                       <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
