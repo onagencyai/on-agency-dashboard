@@ -16,17 +16,17 @@
   --blue-bg: var(--blue-dim);
   --gray-badge-bg: var(--bg-3);
   --bg: #ffffff;
-  --bg-1: #f9f9f9;
-  --bg-2: #f3f3f3;
-  --bg-3: #eeeeee;
-  --bg-4: #e0e0e0;
-  --border: rgba(0,0,0,0.08);
-  --border-hover: rgba(0,0,0,0.15);
-  --text-primary: #111111;
-  --text-secondary: #555555;
-  --text-tertiary: #767676;
-  --accent: #000000;
-  --accent-dim: rgba(0,0,0,0.05);
+  --bg-1: #ffffff;
+  --bg-2: #f1f3f3;
+  --bg-3: #e9eded;
+  --bg-4: #dde3e2;
+  --border: rgba(13,51,63,0.10);
+  --border-hover: rgba(13,51,63,0.20);
+  --text-primary: #1f2933;
+  --text-secondary: #52606a;
+  --text-tertiary: #66717a;
+  --accent: #0d333f;
+  --accent-dim: rgba(13,51,63,0.06);
   --green: #22c55e;
   --green-dim: rgba(34,197,94,0.12);
   --red: #ef4444;
@@ -39,10 +39,11 @@
   --blue-dim: rgba(59,130,246,0.12);
   --chart-grid: rgba(17, 24, 39, 0.10);
 
-  --dashboard-shell: #f3f4f6;
+  --dashboard-shell: #eef1f1;
   --dashboard-panel: #ffffff;
-  --dashboard-border: rgba(15, 23, 42, 0.08);
-  --dashboard-sidebar-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --dashboard-main: #f4f6f6;
+  --dashboard-border: rgba(13, 51, 63, 0.10);
+  --dashboard-sidebar-shadow: 0 1px 2px rgba(13, 51, 63, 0.06);
   --nav-active-bg: #eaf4ff;
   --nav-active-text: #0060f2;
   --sidebar-divider: rgba(15, 23, 42, 0.12);
@@ -51,16 +52,16 @@
 /* ── Dark mode ── */
 .dark {
   --bg: #0a0a0a;
-  --bg-1: #111111;
-  --bg-2: #161616;
-  --bg-3: #1c1c1c;
-  --bg-4: #222222;
-  --border: rgba(255,255,255,0.08);
-  --border-hover: rgba(255,255,255,0.15);
-  --text-primary: #ededed;
-  --text-secondary: #9a9a9a;
-  --text-tertiary: #8a8a8a;
-  --accent: #ffffff;
+  --bg-1: #171716;
+  --bg-2: #1d1d1c;
+  --bg-3: #242423;
+  --bg-4: #2b2b2a;
+  --border: rgba(255,255,255,0.10);
+  --border-hover: rgba(255,255,255,0.18);
+  --text-primary: #ece9e1;
+  --text-secondary: #b4b2a7;
+  --text-tertiary: #8c8a80;
+  --accent: #f5f4f0;
   --accent-dim: rgba(255,255,255,0.06);
   --green: #22c55e;
   --green-dim: rgba(34,197,94,0.12);
@@ -74,9 +75,10 @@
   --blue-dim: rgba(59,130,246,0.12);
   --chart-grid: rgba(255, 255, 255, 0.08);
 
-  --dashboard-shell: #0a0a0a;
-  --dashboard-panel: #111111;
-  --dashboard-border: rgba(255, 255, 255, 0.08);
+  --dashboard-shell: #050505;
+  --dashboard-panel: #0f0f0e;
+  --dashboard-main: #0a0a0a;
+  --dashboard-border: rgba(255, 255, 255, 0.10);
   --dashboard-sidebar-shadow: none;
   --nav-active-bg: rgba(28, 89, 248, 0.24);
   --nav-active-text: #89adff;
@@ -157,7 +159,7 @@ body {
   flex: 1;
   min-width: 0;
   height: calc(100dvh - 32px);
-  background: var(--dashboard-panel);
+  background: var(--dashboard-main);
   border: 1px solid var(--dashboard-border);
   border-radius: 16px;
   display: flex;
