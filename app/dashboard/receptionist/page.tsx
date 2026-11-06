@@ -3,7 +3,8 @@ export const dynamic = "force-dynamic";
  
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Download, PhoneOff, PhoneCall, UserCheck, UserPlus, PhoneOutgoing } from "lucide-react";
+import { Download, PhoneOff } from "lucide-react";
+import { Headset, AddressBook, PhoneCall, HandWaving } from "@phosphor-icons/react";
 import Link from "next/link";
 import type { TimeRange, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange } from "@/lib/dateRange";
@@ -226,7 +227,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Total Calls"
               value={cur?.total_calls ?? 0}
-              icon={<PhoneCall size={12} />}
+              icon={<Headset size={16} weight="duotone" />}
               delta={totalCallsDelta}
             />
           </div>
@@ -234,7 +235,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Leads Captured"
               value={cur?.lead_count ?? 0}
-              icon={<UserCheck size={12} />}
+              icon={<AddressBook size={16} weight="duotone" />}
               delta={cur && prev ? countDelta(cur.lead_count, prev.lead_count, timeRange, false, isMobile) : undefined}
             />
           </div>
@@ -242,7 +243,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Callbacks Requested"
               value={cur?.callback_count ?? 0}
-              icon={<PhoneOutgoing size={12} />}
+              icon={<PhoneCall size={16} weight="duotone" />}
               delta={cur && prev ? countDelta(cur.callback_count, prev.callback_count, timeRange, false, isMobile) : undefined}
             />
           </div>
@@ -250,7 +251,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="First-Time Callers"
               value={cur?.first_time_callers ?? 0}
-              icon={<UserPlus size={12} />}
+              icon={<HandWaving size={16} weight="duotone" />}
               delta={cur && prev ? countDelta(cur.first_time_callers, prev.first_time_callers, timeRange, false, isMobile) : undefined}
             />
           </div>
