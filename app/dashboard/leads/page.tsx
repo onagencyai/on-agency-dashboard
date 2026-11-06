@@ -139,8 +139,8 @@ export default function LeadsPage() {
                     <Detail label="Details" value={prettyDates(l.details) || null} />
                     {l.recording_url ? (
                       <div>
-                        <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>Call recording</div>
-                        <audio controls preload="none" src={l.recording_url} style={{ width: "100%" }} />
+                        <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>Listen to the call</div>
+                        <audio controls preload="none" src={l.recording_url} style={{ width: "100%", maxWidth: 380, height: 40 }} />
                       </div>
                     ) : null}
                   </div>
