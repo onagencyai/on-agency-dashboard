@@ -42,7 +42,7 @@ export default async function BillingPage() {
         }}
       >
         <CreditCard size={20} style={{ color: "var(--text-secondary)" }} />
-        <div style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginTop: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", marginTop: 12 }}>
           Current Plan
         </div>
 
@@ -50,13 +50,13 @@ export default async function BillingPage() {
           <InfoItem label="Billing Period" value={billingPeriod} />
           <InfoItem label="Next Charge" value={nextCharge} />
           <div>
-            <div style={{ fontSize: 12, letterSpacing: "0", color: "var(--text-tertiary)", marginBottom: 4 }}>
+            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-tertiary)", marginBottom: 4 }}>
               Status
             </div>
             <span
               style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
-                fontSize: 13, fontWeight: 500, fontFamily: "var(--font-body), system-ui, sans-serif",
+                fontSize: 12, fontWeight: 500, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
                 color: "var(--green)", background: "var(--green-dim)",
                 padding: "3px 10px", borderRadius: 20,
               }}
@@ -78,7 +78,7 @@ export default async function BillingPage() {
       >
         <MessageCircle size={16} style={{ color: "var(--text-tertiary)", marginTop: 2, flexShrink: 0 }} />
         <div>
-          <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.7 }}>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7 }}>
             To add services, update your plan, or make any billing changes, reach out to us directly.{" "}
             <a
               href="mailto:contact@onagency.ai?subject=Billing Inquiry"
@@ -96,7 +96,7 @@ export default async function BillingPage() {
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div style={{ fontSize: 12, letterSpacing: "0", color: "var(--text-tertiary)", marginBottom: 4 }}>
+      <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-tertiary)", marginBottom: 4 }}>
         {label}
       </div>
       <div style={{ fontSize: 15, fontWeight: 500, color: "var(--text-primary)" }}>{value}</div>

@@ -11,8 +11,8 @@ export default function StatCard({ label, value, subtext }: StatCardProps) {
       style={{ minHeight: 104 }}
     >
       <span
-        className="text-[13px] font-medium text-[var(--text-secondary)]"
-        style={{ letterSpacing: "0" }}
+        className="text-[12px] font-medium uppercase tracking-[0.06em] text-[var(--text-secondary)]"
+        style={{ letterSpacing: "0.06em" }}
       >
         {label}
       </span>
@@ -20,7 +20,7 @@ export default function StatCard({ label, value, subtext }: StatCardProps) {
         {value}
       </span>
       {subtext && (
-        <span className="text-[13px] text-[var(--text-tertiary)]">{subtext}</span>
+        <span className="text-[12px] text-[var(--text-tertiary)]">{subtext}</span>
       )}
     </div>
   );

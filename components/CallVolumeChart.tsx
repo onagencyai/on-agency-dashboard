@@ -32,7 +32,7 @@ function CustomTooltip({ active, payload, label }: {
         border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: 8,
         padding: 10,
-        fontSize: 13,
+        fontSize: 12,
       }}
     >
       <div style={{ color: "#ededed", fontWeight: 500, marginBottom: 6 }}>{label}</div>
@@ -132,7 +132,7 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
         <YAxis
           tickLine={false}
           axisLine={false}
-          tick={{ fill: "#707070", fontSize: 12 }}
+          tick={{ fill: "#707070", fontSize: 11 }}
           tickMargin={4}
           width={40}
           domain={[0, (dataMax: number) => Math.ceil((dataMax + 1) / 4) * 4]}

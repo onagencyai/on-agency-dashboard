@@ -3,10 +3,10 @@ import { currentUser } from "@clerk/nextjs/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { resolveClientId } from "@/lib/resolve-client-id";
 
-// Allow only digits, +, -, spaces, and parentheses — the characters that can
-// appear in a phone number. Anything else is stripped before the ILIKE query.
-function sanitizePhoneSearch(raw: string): string {
-  return raw.replace(/[^0-9+\-() ]/g, "").slice(0, 30);
+// Keep letters, digits and a few separators. Characters that have meaning inside a
+// PostgREST filter (commas, parentheses, quotes, % and backslashes) are stripped.
+function sanitizeSearch(raw: string): string {
+  return raw.replace(/[^A-Za-z0-9\u00C0-\u00FF+\- ]/g, "").trim().slice(0, 40);
 }
 
 export async function GET(req: NextRequest) {
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const to = searchParams.get("to") ?? new Date().toISOString();
   const direction = searchParams.get("direction");
   const outcome = searchParams.get("outcome");
-  const search = sanitizePhoneSearch(searchParams.get("search") ?? "");
+  const search = sanitizeSearch(searchParams.get("search") ?? "");
   const hasTranscript = searchParams.get("hasTranscript") === "true";
   const page = parseInt(searchParams.get("page") ?? "1");
   const limit = parseInt(searchParams.get("limit") ?? "25");
@@ -54,7 +54,11 @@ export async function GET(req: NextRequest) {
   }
 
   if (search) {
-    query = query.or(`from_number.ilike.%${search}%,to_number.ilike.%${search}%`);
+    const digits = search.replace(/\D/g, "");
+    const clauses = [`call_summary.ilike.%${search}%`, `from_number.ilike.%${search}%`, `to_number.ilike.%${search}%`];
+    // "(832) 863-9699" should still find +18328639699
+    if (digits.length >= 3 && digits !== search) clauses.push(`from_number.ilike.%${digits}%`);
+    query = query.or(clauses.join(","));
   }
 
   const { data, error, count } = await query;

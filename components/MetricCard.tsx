@@ -54,10 +54,10 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
         )}
         <span
           style={{
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: 500,
             letterSpacing: "0.03em",
-            textTransform: "none",
+            textTransform: "uppercase",
             color: "var(--text-tertiary)",
           }}
         >
@@ -85,7 +85,7 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
           {value}
         </span>
         {valueSuffix && (
-          <span style={{ fontSize: 14, fontWeight: 400, color: "var(--text-tertiary)" }}>
+          <span style={{ fontSize: 13, fontWeight: 400, color: "var(--text-tertiary)" }}>
             {valueSuffix}
           </span>
         )}
@@ -96,8 +96,8 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
       {safeDelta && (
         <div
           style={{
-            fontSize: 12,
-            fontFamily: "var(--font-body), system-ui, sans-serif",
+            fontSize: 11,
+            fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
             color: deltaColor,
             marginTop: children ? 6 : 0,
           }}

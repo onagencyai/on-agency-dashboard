@@ -122,10 +122,10 @@ export default function NavSidebar({ services, mobileOpen = false, onClose }: Na
           <div key={section.heading} style={{ paddingTop: 12, paddingBottom: 8 }}>
             <div
               style={{
-                fontSize: 12,
+                fontSize: 10,
                 fontWeight: 500,
-                letterSpacing: "0",
-                textTransform: "none",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
                 color: "var(--text-tertiary)",
                 padding: "0 8px",
                 marginBottom: 4,
@@ -161,7 +161,7 @@ function NavLink({ item, active, onNavigate }: { item: NavItem; active: boolean;
         gap: 10,
         padding: "8px 10px",
         borderRadius: 10,
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: active ? 500 : 400,
         color: active ? "var(--nav-active-text)" : "var(--text-secondary)",
         background: active ? "var(--nav-active-bg)" : "transparent",
@@ -210,7 +210,7 @@ function LogoutButton({ onSignOut }: { onSignOut: () => void }) {
         padding: "7px 8px",
         borderRadius: 8,
         color: "var(--text-secondary)",
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: 400,
         width: "100%",
         background: "transparent",

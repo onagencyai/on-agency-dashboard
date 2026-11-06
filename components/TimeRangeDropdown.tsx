@@ -46,7 +46,7 @@ export default function TimeRangeDropdown({ value, onChange }: TimeRangeDropdown
           color: "var(--text-secondary)",
           padding: "6px 12px",
           borderRadius: 8,
-          fontSize: 13,
+          fontSize: 12,
           cursor: "pointer",
           transition: "all 0.15s",
           whiteSpace: "nowrap",
@@ -95,7 +95,7 @@ export default function TimeRangeDropdown({ value, onChange }: TimeRangeDropdown
                 background: opt.value === value ? "var(--accent-dim)" : "transparent",
                 border: "none",
                 color: opt.value === value ? "var(--text-primary)" : "var(--text-secondary)",
-                fontSize: 14,
+                fontSize: 13,
                 cursor: "pointer",
                 transition: "all 0.1s",
               }}

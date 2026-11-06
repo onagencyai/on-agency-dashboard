@@ -41,7 +41,7 @@ export default function IntentChart({ intents }: IntentChartProps) {
           <span
             style={{
               flex: "0 0 160px",
-              fontSize: 13,
+              fontSize: 12,
               color: "var(--text-secondary)",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -72,8 +72,8 @@ export default function IntentChart({ intents }: IntentChartProps) {
           <span
             style={{
               width: 36,
-              fontSize: 12,
-              fontFamily: "var(--font-body), system-ui, sans-serif",
+              fontSize: 11,
+              fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
               color: "var(--text-tertiary)",
               textAlign: "right",
               flexShrink: 0,

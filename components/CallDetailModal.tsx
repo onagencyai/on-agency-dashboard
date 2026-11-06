@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import type { CallRow } from "@/lib/types";
-import { formatDuration, getTypedOutcome } from "@/lib/formatters";
+import { formatDuration } from "@/lib/formatters";
 
 interface TranscriptTurn {
   speaker: "agent" | "caller";
@@ -43,8 +43,6 @@ function parseTranscript(transcript: string): TranscriptTurn[] {
 }
 
 function getOutcomeLabel(call: CallRow): { label: string; color: string; bg: string } {
-  const typed = getTypedOutcome(call);
-  if (typed) return typed;
   if (call.in_voicemail) return { label: "Voicemail", color: "var(--text-secondary)", bg: "var(--bg-3)" };
   if (call.disconnection_reason === "call_transfer") return { label: "Transferred", color: "var(--blue)", bg: "var(--blue-dim)" };
   if (call.call_successful === true) return { label: "Resolved", color: "var(--green)", bg: "var(--green-dim)" };
@@ -68,13 +66,13 @@ function Tag({ label, value }: { label: string; value: string }) {
         display: "inline-flex",
         alignItems: "center",
         gap: 4,
-        fontSize: 12,
+        fontSize: 10,
         background: "var(--bg-3)",
         border: "1px solid var(--border)",
         color: "var(--text-tertiary)",
         padding: "2px 6px",
         borderRadius: 4,
-        fontFamily: "var(--font-body), system-ui, sans-serif",
+        fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
       }}
     >
       <span style={{ color: "var(--text-secondary)" }}>{label}:</span> {value}
@@ -135,7 +133,7 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
               <div style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 4 }}>
                 {call.from_number ?? "Unknown"}
               </div>
-              <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                 {call.started_at ? new Date(call.started_at).toLocaleString() : "—"}
                 {call.duration_ms ? ` · ${formatDuration(call.duration_ms)}` : ""}
               </div>
@@ -157,9 +155,9 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             <span
               style={{
-                fontSize: 12, background: outcome.bg, color: outcome.color,
+                fontSize: 10, background: outcome.bg, color: outcome.color,
                 padding: "2px 8px", borderRadius: 20, fontWeight: 500,
-                fontFamily: "var(--font-body), system-ui, sans-serif",
+                fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
               }}
             >
               {outcome.label}
@@ -167,8 +165,8 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
             {call.user_sentiment && (
               <span
                 style={{
-                  fontSize: 12, padding: "2px 8px", borderRadius: 20, fontWeight: 500,
-                  fontFamily: "var(--font-body), system-ui, sans-serif",
+                  fontSize: 10, padding: "2px 8px", borderRadius: 20, fontWeight: 500,
+                  fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
                   color: call.user_sentiment === "Positive" ? "var(--green)" : call.user_sentiment === "Negative" ? "var(--red)" : "var(--amber)",
                   background: call.user_sentiment === "Positive" ? "var(--green-dim)" : call.user_sentiment === "Negative" ? "var(--red-dim)" : "var(--amber-dim)",
                 }}
@@ -193,7 +191,7 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
           <div>
             <div
               style={{
-                fontSize: 12, fontWeight: 500, letterSpacing: "0",
+                fontSize: 10, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase",
                 color: "var(--text-tertiary)", marginBottom: 12,
               }}
             >
@@ -205,21 +203,21 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
                   <div key={i}>
                     <div
                       style={{
-                        fontSize: 12, fontWeight: 500, letterSpacing: "0.04em",
+                        fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em",
                         color: turn.speaker === "agent" ? "var(--blue)" : "var(--text-tertiary)",
                         marginBottom: 4,
                       }}
                     >
                       {turn.speaker === "agent" ? "Agent" : "Caller"}
                     </div>
-                    <div style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.55 }}>
+                    <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.55 }}>
                       {turn.text}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p style={{ fontSize: 14, color: "var(--text-secondary)" }}>No transcript available.</p>
+              <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>No transcript available.</p>
             )}
           </div>
         </div>

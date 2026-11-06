@@ -14,7 +14,7 @@ export default function TopCallReasons({ data }: TopCallReasonsProps) {
     <section>
       <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[10px] overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--border)]">
-          <h2 className="text-[14px] font-medium text-[var(--text-secondary)]">
+          <h2 className="text-[13px] font-medium uppercase tracking-[0.08em] text-[var(--text-secondary)]">
             Top call reasons
           </h2>
         </div>
@@ -39,7 +39,7 @@ export default function TopCallReasons({ data }: TopCallReasonsProps) {
                   type="category"
                   dataKey="reason"
                   width={180}
-                  tick={{ fill: "var(--text-secondary)", fontSize: 14 }}
+                  tick={{ fill: "var(--text-secondary)", fontSize: 13 }}
                   axisLine={false}
                   tickLine={false}
                 />
@@ -49,12 +49,12 @@ export default function TopCallReasons({ data }: TopCallReasonsProps) {
                     background: "var(--bg-card)",
                     border: "1px solid var(--border)",
                     borderRadius: 8,
-                    fontSize: 13,
+                    fontSize: 12,
                     color: "var(--text-primary)",
                   }}
                   formatter={(value) => [`${String(value)}%`, "Share"]}
                 />
-                <Bar dataKey="percentage" radius={[0, 4, 4, 0]} label={{ position: "right", fill: "var(--text-tertiary)", fontSize: 13, formatter: (v: unknown) => `${String(v ?? "")}%` }}>
+                <Bar dataKey="percentage" radius={[0, 4, 4, 0]} label={{ position: "right", fill: "var(--text-tertiary)", fontSize: 12, formatter: (v: unknown) => `${String(v ?? "")}%` }}>
                   {data.map((_, index) => (
                     <Cell key={index} fill="var(--blue)" fillOpacity={0.7} />
                   ))}
