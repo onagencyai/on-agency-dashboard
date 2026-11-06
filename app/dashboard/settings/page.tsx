@@ -28,40 +28,40 @@ export default function SettingsPage() {
   }, []);
 
   return (
-    <div style={{ padding: 28 }}>
+    <div style={{ padding: "24px 32px 32px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+        <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>
           Settings
         </span>
       </div>
 
       <div
         style={{
-          background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden",
+          background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden",
           maxWidth: 520,
         }}
       >
         {/* Panel header */}
         <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)" }}>
-          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>Account</span>
+          <span style={{ fontSize: 16, fontWeight: 600, color: "var(--ink)" }}>Account</span>
         </div>
 
         {/* Fields */}
         <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Business Name */}
           <div>
-            <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-tertiary)", marginBottom: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 500, color: "var(--text-tertiary)", marginBottom: 6 }}>
               Business Name
             </div>
-            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>{businessName}</div>
+            <div style={{ fontSize: 14, color: "var(--text-secondary)" }}>{businessName}</div>
           </div>
 
           {/* Email */}
           <div>
-            <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-tertiary)", marginBottom: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 500, color: "var(--text-tertiary)", marginBottom: 6 }}>
               Email
             </div>
-            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>{email}</div>
+            <div style={{ fontSize: 14, color: "var(--text-secondary)" }}>{email}</div>
           </div>
         </div>
 
@@ -71,7 +71,7 @@ export default function SettingsPage() {
             onClick={() => signOut({ redirectUrl: "/sign-in" })}
             style={{
               display: "flex", alignItems: "center", gap: 8,
-              color: "var(--red)", fontSize: 13, fontWeight: 400,
+              color: "var(--red)", fontSize: 14, fontWeight: 400,
               cursor: "pointer", background: "none", border: "none", padding: 0,
               transition: "opacity 0.15s",
             }}

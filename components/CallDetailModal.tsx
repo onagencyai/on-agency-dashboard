@@ -66,7 +66,7 @@ function Tag({ label, value }: { label: string; value: string }) {
         display: "inline-flex",
         alignItems: "center",
         gap: 4,
-        fontSize: 10,
+        fontSize: 11,
         background: "var(--bg-3)",
         border: "1px solid var(--border)",
         color: "var(--text-tertiary)",
@@ -133,7 +133,7 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
               <div style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", marginBottom: 4 }}>
                 {call.from_number ?? "Unknown"}
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
                 {call.started_at ? new Date(call.started_at).toLocaleString() : "—"}
                 {call.duration_ms ? ` · ${formatDuration(call.duration_ms)}` : ""}
               </div>
@@ -155,7 +155,7 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             <span
               style={{
-                fontSize: 10, background: outcome.bg, color: outcome.color,
+                fontSize: 11, background: outcome.bg, color: outcome.color,
                 padding: "2px 8px", borderRadius: 20, fontWeight: 500,
                 fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
               }}
@@ -165,7 +165,7 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
             {call.user_sentiment && (
               <span
                 style={{
-                  fontSize: 10, padding: "2px 8px", borderRadius: 20, fontWeight: 500,
+                  fontSize: 11, padding: "2px 8px", borderRadius: 20, fontWeight: 500,
                   fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
                   color: call.user_sentiment === "Positive" ? "var(--green)" : call.user_sentiment === "Negative" ? "var(--red)" : "var(--amber)",
                   background: call.user_sentiment === "Positive" ? "var(--green-dim)" : call.user_sentiment === "Negative" ? "var(--red-dim)" : "var(--amber-dim)",
@@ -191,7 +191,7 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
           <div>
             <div
               style={{
-                fontSize: 10, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase",
+                fontSize: 11, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase",
                 color: "var(--text-tertiary)", marginBottom: 12,
               }}
             >
@@ -203,21 +203,21 @@ function ModalContent({ call, onClose }: { call: CallRow; onClose: () => void })
                   <div key={i}>
                     <div
                       style={{
-                        fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em",
+                        fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em",
                         color: turn.speaker === "agent" ? "var(--blue)" : "var(--text-tertiary)",
                         marginBottom: 4,
                       }}
                     >
                       {turn.speaker === "agent" ? "Agent" : "Caller"}
                     </div>
-                    <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.55 }}>
+                    <div style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.55 }}>
                       {turn.text}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>No transcript available.</p>
+              <p style={{ fontSize: 14, color: "var(--text-secondary)" }}>No transcript available.</p>
             )}
           </div>
         </div>

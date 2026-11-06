@@ -11,7 +11,7 @@ export default function EmptyState({ icon: Icon, primary, secondary }: EmptyStat
     <div className="flex flex-col items-center justify-center py-12 gap-2">
       <Icon size={20} className="text-[var(--text-tertiary)]" />
       <p className="text-[14px] text-[var(--text-secondary)]">{primary}</p>
-      <p className="text-[13px] text-[var(--text-tertiary)]">{secondary}</p>
+      <p className="text-[14px] text-[var(--text-tertiary)]">{secondary}</p>
     </div>
   );
 }

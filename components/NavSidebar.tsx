@@ -98,7 +98,7 @@ export default function NavSidebar({ services, mobileOpen = false, onClose }: Na
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "0 12px 0 20px",
+          padding: "0 15px 0 22px",
           flexShrink: 0,
         }}
       >
@@ -114,7 +114,7 @@ export default function NavSidebar({ services, mobileOpen = false, onClose }: Na
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "4px 12px 8px",
+          padding: "4px 15px 8px",
           minHeight: 0,
         }}
       >
@@ -122,12 +122,12 @@ export default function NavSidebar({ services, mobileOpen = false, onClose }: Na
           <div key={section.heading} style={{ paddingTop: 12, paddingBottom: 8 }}>
             <div
               style={{
-                fontSize: 10,
-                fontWeight: 500,
-                letterSpacing: "0.08em",
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                color: "var(--text-tertiary)",
-                padding: "0 8px",
+                color: "var(--text-secondary)",
+                padding: "0 10px",
                 marginBottom: 4,
                 userSelect: "none",
               }}
@@ -142,7 +142,7 @@ export default function NavSidebar({ services, mobileOpen = false, onClose }: Na
         ))}
       </nav>
 
-      <div style={{ flexShrink: 0, padding: "12px 12px 14px" }}>
+      <div style={{ flexShrink: 0, padding: "12px 15px 14px" }}>
         <LogoutButton onSignOut={() => signOut({ redirectUrl: "/sign-in" })} />
       </div>
     </aside>
@@ -160,8 +160,8 @@ function NavLink({ item, active, onNavigate }: { item: NavItem; active: boolean;
         alignItems: "center",
         gap: 10,
         padding: "8px 10px",
-        borderRadius: 10,
-        fontSize: 13,
+        borderRadius: 7,
+        fontSize: 14,
         fontWeight: active ? 500 : 400,
         color: active ? "var(--nav-active-text)" : "var(--text-secondary)",
         background: active ? "var(--nav-active-bg)" : "transparent",
@@ -190,7 +190,8 @@ function NavLink({ item, active, onNavigate }: { item: NavItem; active: boolean;
         LucideIcon && (
           <LucideIcon
             size={16}
-            style={{ opacity: active ? 1 : 0.65, flexShrink: 0, transition: "opacity 0.15s" }}
+            strokeWidth={2}
+            style={{ opacity: active ? 1 : 0.9, flexShrink: 0, transition: "opacity 0.15s" }}
           />
         )
       )}
@@ -207,10 +208,10 @@ function LogoutButton({ onSignOut }: { onSignOut: () => void }) {
         display: "flex",
         alignItems: "center",
         gap: 8,
-        padding: "7px 8px",
-        borderRadius: 8,
+        padding: "8px 10px",
+        borderRadius: 7,
         color: "var(--text-secondary)",
-        fontSize: 13,
+        fontSize: 14,
         fontWeight: 400,
         width: "100%",
         background: "transparent",
@@ -228,7 +229,7 @@ function LogoutButton({ onSignOut }: { onSignOut: () => void }) {
         e.currentTarget.style.background = "transparent";
       }}
     >
-      <LogOut size={16} style={{ opacity: 0.7 }} />
+      <LogOut size={16} strokeWidth={2} style={{ opacity: 0.9 }} />
       Log out
     </button>
   );

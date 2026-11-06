@@ -3,14 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { IntentData } from "@/lib/types";
 
-const INTENT_COLORS: Record<string, string> = {
-  "General Information": "rgba(237,237,237,0.5)",
-  "Pricing Information": "rgba(59,130,246,0.5)",
-  "Appointments & Scheduling": "rgba(34,197,94,0.6)",
-  "Complaints & Cancellations": "rgba(239,68,68,0.5)",
-  "Customer Support Requests": "rgba(245,158,11,0.6)",
-  "Other": "var(--text-tertiary)",
-};
 
 interface IntentChartProps {
   intents: IntentData[];
@@ -40,9 +32,9 @@ export default function IntentChart({ intents }: IntentChartProps) {
         >
           <span
             style={{
-              flex: "0 0 160px",
-              fontSize: 12,
-              color: "var(--text-secondary)",
+              flex: "0 0 190px",
+              fontSize: 13,
+              color: "var(--text-primary)",
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -53,9 +45,9 @@ export default function IntentChart({ intents }: IntentChartProps) {
           <div
             style={{
               flex: 1,
-              height: 4,
-              background: "var(--bg-3)",
-              borderRadius: 2,
+              height: 8,
+              background: "var(--bg-2)",
+              borderRadius: 999,
               overflow: "hidden",
             }}
           >
@@ -63,18 +55,18 @@ export default function IntentChart({ intents }: IntentChartProps) {
               style={{
                 height: "100%",
                 width: animated ? `${intent.percentage}%` : "0%",
-                background: INTENT_COLORS[intent.label] ?? "var(--text-tertiary)",
-                borderRadius: 2,
+                background: "var(--blue)",
+                borderRadius: 999,
                 transition: "width 0.6s ease",
               }}
             />
           </div>
           <span
             style={{
-              width: 36,
-              fontSize: 11,
+              width: 40,
+              fontSize: 13,
               fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
-              color: "var(--text-tertiary)",
+              color: "var(--text-secondary)",
               textAlign: "right",
               flexShrink: 0,
             }}

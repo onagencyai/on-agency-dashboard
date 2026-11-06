@@ -106,13 +106,13 @@ function DrawerContent({ call, onClose }: { call: CallRow; onClose: () => void }
             </button>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[12px] text-[var(--text-secondary)]">
+            <span className="text-[13px] text-[var(--text-secondary)]">
               {formatFullDate(call.started_at)}
             </span>
             {call.duration_ms !== null && call.duration_ms > 0 && (
               <>
                 <span className="text-[var(--text-tertiary)]">·</span>
-                <span className="text-[12px] text-[var(--text-secondary)]">
+                <span className="text-[13px] text-[var(--text-secondary)]">
                   {formatDuration(call.duration_ms)}
                 </span>
               </>
@@ -127,7 +127,7 @@ function DrawerContent({ call, onClose }: { call: CallRow; onClose: () => void }
           {/* Summary */}
           {call.call_summary && (
             <section>
-              <h3 className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--text-secondary)] mb-3">
+              <h3 className="text-[13px] font-medium uppercase tracking-[0.08em] text-[var(--text-secondary)] mb-3">
                 Summary
               </h3>
               <div className="bg-[var(--bg-subtle)] rounded-[8px] p-4">
@@ -140,7 +140,7 @@ function DrawerContent({ call, onClose }: { call: CallRow; onClose: () => void }
 
           {/* Transcript */}
           <section>
-            <h3 className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--text-secondary)] mb-3">
+            <h3 className="text-[13px] font-medium uppercase tracking-[0.08em] text-[var(--text-secondary)] mb-3">
               Transcript
             </h3>
             {transcriptTurns ? (
@@ -151,7 +151,7 @@ function DrawerContent({ call, onClose }: { call: CallRow; onClose: () => void }
                     className={`flex flex-col gap-1 ${turn.speaker === "caller" ? "items-end" : "items-start"}`}
                   >
                     <span
-                      className={`text-[11px] uppercase font-medium tracking-wide ${
+                      className={`text-[12px] uppercase font-medium tracking-wide ${
                         turn.speaker === "agent"
                           ? "text-[var(--blue)]"
                           : "text-[var(--text-secondary)]"
@@ -172,7 +172,7 @@ function DrawerContent({ call, onClose }: { call: CallRow; onClose: () => void }
                 ))}
               </div>
             ) : (
-              <p className="text-[13px] text-[var(--text-secondary)]">
+              <p className="text-[14px] text-[var(--text-secondary)]">
                 No transcript available for this call.
               </p>
             )}
@@ -181,7 +181,7 @@ function DrawerContent({ call, onClose }: { call: CallRow; onClose: () => void }
           {/* Recording */}
           {call.recording_url && (
             <section>
-              <h3 className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--text-secondary)] mb-3">
+              <h3 className="text-[13px] font-medium uppercase tracking-[0.08em] text-[var(--text-secondary)] mb-3">
                 Recording
               </h3>
               <audio
@@ -195,7 +195,7 @@ function DrawerContent({ call, onClose }: { call: CallRow; onClose: () => void }
 
           {/* Details */}
           <section>
-            <h3 className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--text-secondary)] mb-3">
+            <h3 className="text-[13px] font-medium uppercase tracking-[0.08em] text-[var(--text-secondary)] mb-3">
               Details
             </h3>
             <div className="grid grid-cols-2 gap-x-4 gap-y-3">
@@ -206,8 +206,8 @@ function DrawerContent({ call, onClose }: { call: CallRow; onClose: () => void }
                 { label: "Agent", value: call.agent_name || call.agent_id || "—" },
               ].map(({ label, value }) => (
                 <div key={label}>
-                  <div className="text-[12px] text-[var(--text-secondary)] mb-0.5">{label}</div>
-                  <div className="text-[13px] text-[var(--text-primary)]">{value}</div>
+                  <div className="text-[13px] text-[var(--text-secondary)] mb-0.5">{label}</div>
+                  <div className="text-[14px] text-[var(--text-primary)]">{value}</div>
                 </div>
               ))}
             </div>

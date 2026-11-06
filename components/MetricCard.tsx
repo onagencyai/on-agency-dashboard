@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 interface DeltaProps {
   value: string;
@@ -14,91 +15,34 @@ interface MetricCardProps {
   children?: ReactNode;
 }
 
+// Stat card in Ledger's style: small caps label, large number, one line of context.
 export default function MetricCard({ label, value, valueSuffix, icon, delta, children }: MetricCardProps) {
-  const safeDelta: DeltaProps | undefined = delta;
-
   const deltaColor =
-    safeDelta?.direction === "up"
-      ? "var(--green)"
-      : safeDelta?.direction === "down"
-      ? "var(--red)"
-      : "var(--text-tertiary)";
-
-  const arrow = safeDelta?.direction === "up"
-    ? "↑"
-    : safeDelta?.direction === "down"
-    ? "↓"
-    : "·";
+    delta?.direction === "up" ? "var(--green-text)" : delta?.direction === "down" ? "var(--red)" : "var(--text-secondary)";
 
   return (
-    <div
-      style={{
-        background: "var(--bg-1)",
-        padding: "14px 18px",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          marginBottom: 6,
-        }}
-      >
-        {icon && (
-          <span style={{ color: "var(--text-tertiary)", display: "flex" }}>{icon}</span>
-        )}
-        <span
-          style={{
-            fontSize: 11,
-            fontWeight: 500,
-            letterSpacing: "0.03em",
-            textTransform: "uppercase",
-            color: "var(--text-tertiary)",
-          }}
-        >
+    <div style={{ background: "var(--bg-1)", padding: "18px 20px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+        {icon && <span style={{ color: "var(--text-secondary)", display: "flex" }}>{icon}</span>}
+        <span style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.025em", textTransform: "uppercase", color: "var(--text-secondary)" }}>
           {label}
         </span>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "baseline",
-          gap: 4,
-          marginBottom: children ? 8 : 6,
-        }}
-      >
-        <span
-          style={{
-            fontSize: 26,
-            fontWeight: 600,
-            letterSpacing: "-0.04em",
-            color: "var(--text-primary)",
-            lineHeight: 1,
-          }}
-        >
+      <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: children || delta ? 10 : 0 }}>
+        <span className="num" style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: "30px" }}>
           {value}
         </span>
-        {valueSuffix && (
-          <span style={{ fontSize: 13, fontWeight: 400, color: "var(--text-tertiary)" }}>
-            {valueSuffix}
-          </span>
-        )}
+        {valueSuffix && <span style={{ fontSize: 14, fontWeight: 400, color: "var(--text-secondary)" }}>{valueSuffix}</span>}
       </div>
 
       {children}
 
-      {safeDelta && (
-        <div
-          style={{
-            fontSize: 11,
-            fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
-            color: deltaColor,
-            marginTop: children ? 6 : 0,
-          }}
-        >
-          {arrow} {safeDelta.value}
+      {delta && (
+        <div className="num" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, color: deltaColor, marginTop: children ? 8 : 0 }}>
+          {delta.direction === "up" && <ArrowUpRight size={13} />}
+          {delta.direction === "down" && <ArrowDownRight size={13} />}
+          {delta.value}
         </div>
       )}
     </div>

@@ -63,12 +63,12 @@ function TranscriptCard({ call }: { call: CallRow }) {
         aria-expanded={expanded}
       >
         <div className="flex items-center justify-between gap-3 mb-1.5">
-          <span className="text-[13px] text-[var(--text-secondary)]">
+          <span className="text-[14px] text-[var(--text-secondary)]">
             {formatFullDate(call.started_at)}
           </span>
           <div className="flex items-center gap-2">
             <Badge {...getSentimentBadgeProps(call.user_sentiment)} />
-            <span className="text-[12px] text-[var(--text-tertiary)]">
+            <span className="text-[13px] text-[var(--text-tertiary)]">
               {formatDuration(call.duration_ms)}
             </span>
             <ChevronDown
@@ -77,11 +77,11 @@ function TranscriptCard({ call }: { call: CallRow }) {
             />
           </div>
         </div>
-        <div className="text-[13px] text-[var(--text-secondary)] mb-1.5">
+        <div className="text-[14px] text-[var(--text-secondary)] mb-1.5">
           {formatPhoneNumber(call.from_number)}
         </div>
         {!expanded && (
-          <p className="text-[13px] text-[var(--text-secondary)] line-clamp-2">
+          <p className="text-[14px] text-[var(--text-secondary)] line-clamp-2">
             {preview}
             {(call.transcript?.length ?? 0) > 140 && "…"}
           </p>
@@ -101,7 +101,7 @@ function TranscriptCard({ call }: { call: CallRow }) {
                   className={`flex flex-col gap-1 ${turn.speaker === "caller" ? "items-end" : "items-start"}`}
                 >
                   <span
-                    className={`text-[11px] uppercase font-medium tracking-wide ${
+                    className={`text-[12px] uppercase font-medium tracking-wide ${
                       turn.speaker === "agent" ? "text-[var(--blue)]" : "text-[var(--text-secondary)]"
                     }`}
                   >
@@ -120,7 +120,7 @@ function TranscriptCard({ call }: { call: CallRow }) {
               ))}
             </div>
           ) : (
-            <p className="text-[13px] text-[var(--text-secondary)]">No transcript content.</p>
+            <p className="text-[14px] text-[var(--text-secondary)]">No transcript content.</p>
           )}
         </div>
       </div>
@@ -196,12 +196,12 @@ export default function TranscriptsPage() {
           placeholder="Search transcripts..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-8 pr-3 py-1.5 bg-[var(--bg-card)] border border-[var(--border)] rounded-[7px] text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--blue)] transition-colors"
+          className="w-full pl-8 pr-3 py-1.5 bg-[var(--bg-card)] border border-[var(--border)] rounded-[7px] text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--blue)] transition-colors"
         />
       </div>
 
       {error ? (
-        <div className="flex items-center gap-2 text-[13px] text-[var(--text-secondary)]">
+        <div className="flex items-center gap-2 text-[14px] text-[var(--text-secondary)]">
           <AlertCircle size={16} className="text-[var(--red)] shrink-0" />
           Could not load data. Try refreshing the page.
         </div>

@@ -129,25 +129,25 @@ export default function ReceptionistOverviewPage() {
   const prev = stats?.previous;
   const metricCardShell = {
     border: "1px solid var(--border)",
-    borderRadius: 12,
+    borderRadius: 8,
     overflow: "hidden",
     background: "var(--bg-1)",
   } as const;
  
-  const totalCallsDelta = cur && prev ? pctDelta(cur.total_calls, prev.total_calls, timeRange) : undefined;
-  const avgDurationDelta = cur && prev ? pctDelta(cur.avg_duration_seconds * 1000, prev.avg_duration_seconds * 1000, timeRange, true) : undefined;
-  const talkTimeDelta = cur && prev ? pctDelta(cur.total_duration_ms, prev.total_duration_ms, timeRange) : undefined;
+  const totalCallsDelta = cur && prev && prev.total_calls >= 5 ? pctDelta(cur.total_calls, prev.total_calls, timeRange) : undefined;
+  const avgDurationDelta = cur && prev && prev.total_calls >= 5 ? pctDelta(cur.avg_duration_seconds * 1000, prev.avg_duration_seconds * 1000, timeRange, true) : undefined;
+  const talkTimeDelta = cur && prev && prev.total_calls >= 5 ? pctDelta(cur.total_duration_ms, prev.total_duration_ms, timeRange) : undefined;
  
   const inboundOnlyVolume: CallVolumeData = volume
     ? { dates: volume.dates, inbound: volume.inbound, outbound: volume.dates.map(() => 0) }
     : { dates: [], inbound: [], outbound: [] };
  
   return (
-    <div style={{ padding: isMobile ? "18px 12px 20px" : "28px 24px 24px" }}>
+    <div style={{ padding: isMobile ? "18px 12px 20px" : "24px 32px 32px" }}>
       {isMobile ? (
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-            <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+            <span style={{ fontSize: 22, lineHeight: "28px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>
               Overview
             </span>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -156,7 +156,7 @@ export default function ReceptionistOverviewPage() {
                 onClick={handleExport}
                 style={{
                   background: "var(--accent)", color: "var(--bg)", border: "none",
-                  padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+                  height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500,
                   cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6,
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
@@ -170,7 +170,7 @@ export default function ReceptionistOverviewPage() {
         </div>
       ) : (
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-          <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+          <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>
             Overview
           </span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
@@ -179,7 +179,7 @@ export default function ReceptionistOverviewPage() {
               onClick={handleExport}
               style={{
                 background: "var(--accent)", color: "var(--bg)", border: "none",
-                padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+                height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500,
                 cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6,
               }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
@@ -268,11 +268,11 @@ export default function ReceptionistOverviewPage() {
       )}
  
       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1.2fr) minmax(360px, 0.85fr)", gap: 16, marginBottom: 16 }}>
-        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
             <div>
-              <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>Call Volume</span>
-              <span style={{ fontSize: 11, color: "var(--text-tertiary)", marginLeft: 8 }}>Daily</span>
+              <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>Call Volume</span>
+              <span style={{ fontSize: 12, color: "var(--text-tertiary)", marginLeft: 8 }}>Daily</span>
             </div>
           </div>
           <div style={{ padding: 20 }}>
@@ -284,10 +284,10 @@ export default function ReceptionistOverviewPage() {
           </div>
         </div>
  
-        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
           <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
-            <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>Call Intent</span>
-            <span style={{ fontSize: 11, color: "var(--text-tertiary)", marginLeft: 8 }}>By volume</span>
+            <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>Call Intent</span>
+            <span style={{ fontSize: 12, color: "var(--text-tertiary)", marginLeft: 8 }}>By volume</span>
           </div>
           <div style={{ padding: 20 }}>
             {loading ? (
@@ -303,15 +303,15 @@ export default function ReceptionistOverviewPage() {
         </div>
       </div>
  
-      <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+      <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid var(--border)", gap: 10 }}>
-          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>Recent Calls</span>
+          <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)" }}>Recent Calls</span>
           {calls.length > 0 && (
-            <span style={{ fontSize: 11, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-tertiary)", background: "var(--bg-3)", padding: "1px 6px", borderRadius: 4 }}>
+            <span style={{ fontSize: 12, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-tertiary)", background: "var(--bg-3)", padding: "1px 6px", borderRadius: 4 }}>
               {calls.length}
             </span>
           )}
-          <Link href="/dashboard/receptionist-call-history" style={{ marginLeft: "auto", fontSize: 12, color: "var(--blue)", textDecoration: "none" }}>
+          <Link href="/dashboard/receptionist-call-history" style={{ marginLeft: "auto", fontSize: 13, color: "var(--blue)", textDecoration: "none" }}>
             View all →
           </Link>
         </div>
@@ -325,16 +325,16 @@ export default function ReceptionistOverviewPage() {
         ) : calls.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 20px" }}>
             <PhoneOff size={24} style={{ color: "var(--text-tertiary)", marginBottom: 10 }} />
-            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 4 }}>No calls recorded yet</div>
-            <div style={{ fontSize: 12, color: "var(--text-tertiary)" }}>Call data will appear here automatically.</div>
+            <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 4 }}>No calls recorded yet</div>
+            <div style={{ fontSize: 13, color: "var(--text-tertiary)" }}>Call data will appear here automatically.</div>
           </div>
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ background: "var(--bg-2)" }}>
+                <tr style={{ background: "var(--bg-1)" }}>
                   {["Call ID","Date & Time","From","Duration","Outcome","Sentiment","Intent",""].map((h) => (
-                    <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 10, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text-tertiary)", borderBottom: "1px solid var(--border)", whiteSpace: "nowrap" }}>
+                    <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-secondary)", borderBottom: "1px solid var(--border)", whiteSpace: "nowrap" }}>
                       {h}
                     </th>
                   ))}
@@ -354,32 +354,32 @@ export default function ReceptionistOverviewPage() {
                       onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent-dim)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
-                      <td style={{ padding: "11px 16px", fontSize: 11, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-primary)", fontWeight: 500, whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "11px 16px", fontSize: 12, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-primary)", fontWeight: 500, whiteSpace: "nowrap" }}>
                         {(call.call_id ?? call.id ?? "").slice(0, 8)}
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
                         {call.started_at ? new Date(call.started_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"}
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
                         {formatPhoneNumber(call.from_number)}
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
                         {formatDuration(call.duration_ms)}
                       </td>
                       <td style={{ padding: "11px 16px" }}>
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", borderRadius: 20, fontSize: 10, fontWeight: 500, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: outcome.color, background: outcome.bg }}>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 500, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: outcome.color, background: outcome.bg }}>
                           <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
                           {outcome.label}
                         </span>
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: sentColor }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, color: sentColor }}>
                         {sentiment ?? "—"}
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)", maxWidth: 160 }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", maxWidth: 160 }}>
                         <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{intent}</span>
                       </td>
                       <td style={{ padding: "11px 16px" }}>
-                        <button onClick={(e) => { e.stopPropagation(); setSelectedCall(call); }} style={{ fontSize: 11, color: "var(--blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                        <button onClick={(e) => { e.stopPropagation(); setSelectedCall(call); }} style={{ fontSize: 12, color: "var(--blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
                           View →
                         </button>
                       </td>

@@ -28,18 +28,19 @@ function CustomTooltip({ active, payload, label }: {
   return (
     <div
       style={{
-        background: "#1c1c1c",
-        border: "1px solid rgba(255,255,255,0.08)",
-        borderRadius: 8,
-        padding: 10,
+        background: "var(--bg-1)",
+        border: "1px solid var(--border)",
+        borderRadius: 6,
+        padding: "8px 10px",
         fontSize: 12,
+        boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
       }}
     >
-      <div style={{ color: "#ededed", fontWeight: 500, marginBottom: 6 }}>{label}</div>
+      <div style={{ color: "var(--ink)", fontWeight: 600, marginBottom: 4 }}>{label}</div>
       {payload.map((p) => (
-        <div key={p.name} style={{ color: "#888", display: "flex", gap: 8 }}>
+        <div key={p.name} style={{ color: "var(--text-secondary)", display: "flex", gap: 8 }}>
           <span>{p.name}:</span>
-          <span style={{ color: "#ededed" }}>{p.value}</span>
+          <span style={{ color: "var(--text-primary)" }}>{p.value}</span>
         </div>
       ))}
     </div>
@@ -71,17 +72,20 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
   }, []);
-  const gridStroke = isDarkMode ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.14)";
+  const gridStroke = isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(13,51,63,0.10)";
+  const axisColor = isDarkMode ? "#c2c0b5" : "#66737a";
+  const barColor = isDarkMode ? "#6da7ec" : "#2f80ff";
+  const barActive = isDarkMode ? "#8dbcf2" : "#0060f2";
 
   const CustomTick = ({ x, y, payload }: SVGProps<SVGTextElement> & { payload?: { value?: string } }) => {
     const value = payload?.value ?? "";
     const [month = "", day = ""] = value.split(" ");
     return (
       <g transform={`translate(${x},${y})`}>
-        <text x={0} y={16} textAnchor="middle" fill="#8b8b8b" fontSize="11" fontWeight={600}>
+        <text x={0} y={16} textAnchor="middle" fill={axisColor} fontSize="11" fontWeight={600}>
           {month}
         </text>
-        <text x={0} y={32} textAnchor="middle" fill="#b2b2b2" fontSize="11" fontWeight={500}>
+        <text x={0} y={32} textAnchor="middle" fill={axisColor} fontSize="11" fontWeight={400}>
           {day}
         </text>
       </g>
@@ -132,7 +136,7 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
         <YAxis
           tickLine={false}
           axisLine={false}
-          tick={{ fill: "#707070", fontSize: 11 }}
+          tick={{ fill: "#707070", fontSize: 12 }}
           tickMargin={4}
           width={40}
           domain={[0, (dataMax: number) => Math.ceil((dataMax + 1) / 4) * 4]}
@@ -140,13 +144,13 @@ export default function CallVolumeChart({ data, showOutbound = true }: CallVolum
           tickCount={5}
         />
         <CartesianGrid vertical={false} stroke={gridStroke} strokeDasharray="0" />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: isDarkMode ? "rgba(255,255,255,0.04)" : "rgba(13,51,63,0.05)" }} />
         <Bar
           dataKey={showOutbound ? "outbound" : "inbound"}
           name={showOutbound ? "Outbound" : "Inbound"}
-          fill="#4f7ff7"
-          radius={[8, 8, 8, 8]}
-          activeBar={{ fill: "#6b95ff", stroke: "rgba(79,127,247,0.2)", strokeWidth: 1 }}
+          fill={barColor}
+          radius={[4, 4, 4, 4]}
+          activeBar={{ fill: barActive }}
         />
       </BarChart>
     </ResponsiveContainer>

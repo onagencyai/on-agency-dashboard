@@ -22,7 +22,7 @@ export default function CallsTableClient({ calls }: CallsTableClientProps) {
               {["Time", "Number", "Duration", "Result", "Sentiment"].map((h) => (
                 <th
                   key={h}
-                  className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--text-tertiary)]"
+                  className="px-5 py-3 text-left text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--text-tertiary)]"
                 >
                   {h}
                 </th>
@@ -36,13 +36,13 @@ export default function CallsTableClient({ calls }: CallsTableClientProps) {
                 onClick={() => setSelectedCall(call)}
                 className="border-b border-[var(--border)] last:border-0 cursor-pointer hover:bg-[var(--bg-subtle)] transition-colors"
               >
-                <td className="px-5 py-[13px] text-[13px] text-[var(--text-secondary)] whitespace-nowrap">
+                <td className="px-5 py-[13px] text-[14px] text-[var(--text-secondary)] whitespace-nowrap">
                   {formatRelativeTime(call.started_at)}
                 </td>
-                <td className="px-5 py-[13px] text-[13px] text-[var(--text-primary)] whitespace-nowrap">
+                <td className="px-5 py-[13px] text-[14px] text-[var(--text-primary)] whitespace-nowrap">
                   {formatPhoneNumber(call.from_number)}
                 </td>
-                <td className="px-5 py-[13px] text-[13px] text-[var(--text-secondary)] whitespace-nowrap">
+                <td className="px-5 py-[13px] text-[14px] text-[var(--text-secondary)] whitespace-nowrap">
                   {formatDuration(call.duration_ms)}
                 </td>
                 <td className="px-5 py-[13px]">

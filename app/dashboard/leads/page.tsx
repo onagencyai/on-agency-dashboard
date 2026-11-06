@@ -70,9 +70,9 @@ export default function LeadsPage() {
   const shown = tab === "all" ? leads : leads.filter((l) => l.status === tab);
 
   return (
-    <div style={{ padding: "28px 24px 24px" }}>
+    <div style={{ padding: "24px 32px 32px" }}>
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>Leads</div>
+        <div style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Leads</div>
         <div style={{ fontSize: 14, color: "var(--text-secondary)", marginTop: 4 }}>
           People who called and left their details. Tap a row to hear the call.
         </div>
@@ -99,7 +99,7 @@ export default function LeadsPage() {
       </div>
 
       {loading ? (
-        <div className="skeleton" style={{ height: 220, borderRadius: 12 }} />
+        <div className="skeleton" style={{ height: 220, borderRadius: 8 }} />
       ) : failed ? (
         <EmptyState icon={Users} primary="We couldn't load your leads" secondary="Please refresh the page. If it keeps happening, let us know." />
       ) : shown.length === 0 ? (
@@ -116,7 +116,7 @@ export default function LeadsPage() {
             const phone = l.phone ?? l.caller_id;
             const href = telHref(phone);
             return (
-              <div key={l.id} style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+              <div key={l.id} style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
                 <div
                   onClick={() => setOpenId(open ? null : l.id)}
                   style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 18px", cursor: "pointer", flexWrap: "wrap" }}
@@ -167,7 +167,7 @@ export default function LeadsPage() {
                     <Detail label="Details" value={l.details} />
                     {l.recording_url ? (
                       <div>
-                        <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>Call recording</div>
+                        <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 6 }}>Call recording</div>
                         <audio controls preload="none" src={l.recording_url} style={{ width: "100%" }} />
                       </div>
                     ) : null}
@@ -186,7 +186,7 @@ function Detail({ label, value }: { label: string; value: string | null | undefi
   if (!value) return null;
   return (
     <div>
-      <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 2 }}>{label}</div>
       <div style={{ fontSize: 14, color: "var(--text-primary)", lineHeight: 1.5 }}>{value}</div>
     </div>
   );
