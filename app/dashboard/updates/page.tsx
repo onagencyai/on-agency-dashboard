@@ -29,31 +29,31 @@ export default function UpdatesPage() {
         {/* Panel header */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "16px 24px", borderBottom: "1px solid var(--border)" }}>
           <PenLine size={20} style={{ color: "var(--text-secondary)" }} />
-          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)" }}>
+          <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)" }}>
             Request a change to your AI
           </span>
         </div>
 
         {/* Panel body */}
         <div style={{ padding: 28 }}>
-          <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, maxWidth: 560, marginBottom: 24 }}>
+          <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.7, maxWidth: 560, marginBottom: 24 }}>
             Want to update your AI agent? We handle all changes for you — just send us a message.
           </p>
 
-          <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text-tertiary)", marginBottom: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 500, letterSpacing: "0", color: "var(--text-tertiary)", marginBottom: 12 }}>
             What you can request
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 0 }}>
             {UPDATE_ITEMS.map((item) => (
               <div key={item} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <CheckCircle2 size={14} style={{ color: "var(--green)", flexShrink: 0 }} />
-                <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{item}</span>
+                <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>{item}</span>
               </div>
             ))}
           </div>
 
           <div style={{ borderTop: "1px solid var(--border)", marginTop: 24, paddingTop: 24 }}>
-            <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text-tertiary)", marginBottom: 12 }}>
+            <div style={{ fontSize: 13, fontWeight: 500, letterSpacing: "0", color: "var(--text-tertiary)", marginBottom: 12 }}>
               How to reach us
             </div>
 
@@ -74,7 +74,7 @@ export default function UpdatesPage() {
               />
             </div>
 
-            <p style={{ fontSize: 12, color: "var(--text-tertiary)", fontStyle: "italic" }}>
+            <p style={{ fontSize: 13, color: "var(--text-tertiary)", fontStyle: "italic" }}>
               We review all requests and typically respond within 24 hours.
             </p>
           </div>
@@ -94,15 +94,15 @@ function ContactCard({ icon, label, value, buttonLabel, href }: {
   return (
     <div style={{ background: "var(--bg-2)", border: "1px solid var(--border)", borderRadius: 8, padding: 16 }}>
       {icon}
-      <div style={{ fontSize: 12, fontWeight: 500, color: "var(--text-primary)", marginTop: 10 }}>{label}</div>
-      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{value}</div>
+      <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", marginTop: 10 }}>{label}</div>
+      <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{value}</div>
       <a
         href={href}
         style={{
           display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12,
           background: "var(--bg-3)", border: "1px solid var(--border)",
           color: "var(--text-secondary)", padding: "6px 12px", borderRadius: 8,
-          fontSize: 12, cursor: "pointer", textDecoration: "none",
+          fontSize: 13, cursor: "pointer", textDecoration: "none",
         }}
       >
         {buttonLabel}

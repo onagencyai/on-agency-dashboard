@@ -74,7 +74,7 @@ interface NavSidebarProps {
   onClose?: () => void;
 }
 
-export default function NavSidebar({ services, businessName, mobileOpen = false, onClose }: NavSidebarProps) {
+export default function NavSidebar({ services, mobileOpen = false, onClose }: NavSidebarProps) {
   const pathname = usePathname();
   const { signOut } = useClerk();
   const sections = buildNavSections(services);
@@ -87,7 +87,6 @@ export default function NavSidebar({ services, businessName, mobileOpen = false,
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
-  const displayBusiness = businessName.trim() || "Your business";
 
   return (
     <aside className={`dashboard-sidebar${mobileOpen ? " is-open" : ""}`}>
@@ -121,10 +120,10 @@ export default function NavSidebar({ services, businessName, mobileOpen = false,
           <div key={section.heading} style={{ paddingTop: 12, paddingBottom: 8 }}>
             <div
               style={{
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: 500,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
+                letterSpacing: "0",
+                textTransform: "none",
                 color: "var(--text-tertiary)",
                 padding: "0 8px",
                 marginBottom: 4,
@@ -142,27 +141,6 @@ export default function NavSidebar({ services, businessName, mobileOpen = false,
       </nav>
 
       <div style={{ flexShrink: 0, padding: "12px 12px 14px" }}>
-        <div
-          style={{
-            height: 1,
-            margin: "0 10px 14px",
-            background: "var(--sidebar-divider)",
-            borderRadius: 1,
-          }}
-        />
-        <div
-          style={{
-            fontSize: 13,
-            fontWeight: 600,
-            letterSpacing: "-0.02em",
-            color: "var(--text-primary)",
-            padding: "0 8px 10px",
-            lineHeight: 1.3,
-            wordBreak: "break-word",
-          }}
-        >
-          {displayBusiness}
-        </div>
         <LogoutButton onSignOut={() => signOut({ redirectUrl: "/sign-in" })} />
       </div>
     </aside>
@@ -181,7 +159,7 @@ function NavLink({ item, active, onNavigate }: { item: NavItem; active: boolean;
         gap: 10,
         padding: "8px 10px",
         borderRadius: 10,
-        fontSize: 13,
+        fontSize: 14,
         fontWeight: active ? 500 : 400,
         color: active ? "var(--nav-active-text)" : "var(--text-secondary)",
         background: active ? "var(--nav-active-bg)" : "transparent",
@@ -230,7 +208,7 @@ function LogoutButton({ onSignOut }: { onSignOut: () => void }) {
         padding: "7px 8px",
         borderRadius: 8,
         color: "var(--text-secondary)",
-        fontSize: 13,
+        fontSize: 14,
         fontWeight: 400,
         width: "100%",
         background: "transparent",

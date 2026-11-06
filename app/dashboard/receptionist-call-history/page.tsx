@@ -115,7 +115,7 @@ export default function CallHistoryPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
               <button onClick={handleExport}
-                style={{ background: "var(--accent)", color: "var(--bg)", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
+                style={{ background: "var(--accent)", color: "var(--bg)", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
@@ -130,7 +130,7 @@ export default function CallHistoryPage() {
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
             <button onClick={handleExport}
-              style={{ background: "var(--accent)", color: "var(--bg)", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
+              style={{ background: "var(--accent)", color: "var(--bg)", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             >
@@ -151,7 +151,7 @@ export default function CallHistoryPage() {
                 padding: "12px 16px", background: "none", border: "none",
                 borderBottom: activeTab === tab.value ? "2px solid var(--accent)" : "2px solid transparent",
                 color: activeTab === tab.value ? "var(--text-primary)" : "var(--text-tertiary)",
-                fontSize: 13, fontWeight: activeTab === tab.value ? 500 : 400,
+                fontSize: 14, fontWeight: activeTab === tab.value ? 500 : 400,
                 cursor: "pointer", transition: "all 0.15s", marginBottom: -1,
               }}
             >
@@ -177,13 +177,13 @@ export default function CallHistoryPage() {
               style={{
                 width: "100%", paddingLeft: 32, paddingRight: 12, paddingTop: 7, paddingBottom: 7,
                 background: "var(--bg-3)", border: "1px solid var(--border)", borderRadius: 8,
-                fontSize: 13, color: "var(--text-primary)", outline: "none", transition: "border-color 0.15s",
+                fontSize: 14, color: "var(--text-primary)", outline: "none", transition: "border-color 0.15s",
               }}
               onFocus={(e) => (e.currentTarget.style.borderColor = "var(--border-hover)")}
               onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
             />
           </div>
-          <span style={{ fontSize: 12, color: "var(--text-tertiary)", marginLeft: "auto" }}>
+          <span style={{ fontSize: 13, color: "var(--text-tertiary)", marginLeft: "auto" }}>
             {total > 0 && `${total} calls`}
           </span>
         </div>
@@ -198,8 +198,8 @@ export default function CallHistoryPage() {
         ) : calls.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 20px" }}>
             <PhoneOff size={24} style={{ color: "var(--text-tertiary)", marginBottom: 10 }} />
-            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 4 }}>No calls recorded yet</div>
-            <div style={{ fontSize: 12, color: "var(--text-tertiary)" }}>Call data will appear here automatically.</div>
+            <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 4 }}>No calls recorded yet</div>
+            <div style={{ fontSize: 13, color: "var(--text-tertiary)" }}>Call data will appear here automatically.</div>
           </div>
         ) : (
           <div style={{ overflowX: "auto" }}>
@@ -211,8 +211,8 @@ export default function CallHistoryPage() {
                       key={h}
                       style={{
                         padding: "10px 16px", textAlign: "left",
-                        fontSize: 10, fontWeight: 500, letterSpacing: "0.06em",
-                        textTransform: "uppercase", color: "var(--text-tertiary)",
+                        fontSize: 12, fontWeight: 500, letterSpacing: "0",
+                        color: "var(--text-tertiary)",
                         borderBottom: "1px solid var(--border)", whiteSpace: "nowrap",
                       }}
                     >
@@ -235,33 +235,33 @@ export default function CallHistoryPage() {
                       onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent-dim)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
-                      <td style={{ padding: "11px 16px", fontSize: 11, fontFamily: "var(--font-geist-mono, monospace)", color: "var(--text-primary)", fontWeight: 500 }}>
+                      <td style={{ padding: "11px 16px", fontSize: 12, fontFamily: "var(--font-body), system-ui, sans-serif", color: "var(--text-primary)", fontWeight: 500 }}>
                         {(call.call_id ?? call.id ?? "").slice(0, 8)}
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
                         {call.started_at ? new Date(call.started_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"}
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
                         {call.from_number ?? "—"}
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, fontFamily: "var(--font-geist-mono, monospace)", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, fontFamily: "var(--font-body), system-ui, sans-serif", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
                         {formatDuration(call.duration_ms)}
                       </td>
                       <td style={{ padding: "11px 16px" }}>
                         <span style={{
                           display: "inline-flex", alignItems: "center", gap: 4,
-                          padding: "2px 8px", borderRadius: 20, fontSize: 10, fontWeight: 500,
-                          fontFamily: "var(--font-geist-mono, monospace)",
+                          padding: "2px 8px", borderRadius: 20, fontSize: 12, fontWeight: 500,
+                          fontFamily: "var(--font-body), system-ui, sans-serif",
                           color: outcome.color, background: outcome.bg,
                         }}>
                           <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
                           {outcome.label}
                         </span>
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: sentColor }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, color: sentColor }}>
                         {sentiment ?? "—"}
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)", maxWidth: 160 }}>
+                      <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", maxWidth: 160 }}>
                         <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {intent}
                         </span>
@@ -269,7 +269,7 @@ export default function CallHistoryPage() {
                       <td style={{ padding: "11px 16px" }}>
                         <button
                           onClick={(e) => { e.stopPropagation(); setSelectedCall(call); }}
-                          style={{ fontSize: 11, color: "var(--blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                          style={{ fontSize: 12, color: "var(--blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
                         >
                           View →
                         </button>
@@ -290,7 +290,7 @@ export default function CallHistoryPage() {
               padding: "12px 20px", borderTop: "1px solid var(--border)",
             }}
           >
-            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+            <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>
               Showing {Math.min((page - 1) * PAGE_SIZE + 1, total)}–{Math.min(page * PAGE_SIZE, total)} of {total} calls
             </span>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -336,7 +336,7 @@ function PageBtn({ children, onClick, disabled, active }: {
       style={{
         minWidth: 28, height: 28, padding: "0 8px",
         display: "flex", alignItems: "center", justifyContent: "center",
-        borderRadius: 6, fontSize: 12, cursor: disabled ? "not-allowed" : "pointer",
+        borderRadius: 6, fontSize: 13, cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.4 : 1, transition: "all 0.15s",
         background: active ? "var(--bg-3)" : "transparent",
         border: active ? "1px solid var(--border-hover)" : "1px solid transparent",

@@ -77,7 +77,7 @@ export default function CallRangePicker({ value, onChange }: CallRangePickerProp
           display: "flex", alignItems: "center", gap: 6,
           background: "var(--bg-3)", border: "1px solid var(--border)",
           color: "var(--text-secondary)", padding: "6px 12px",
-          borderRadius: 8, fontSize: 12, cursor: "pointer", transition: "all 0.15s",
+          borderRadius: 8, fontSize: 13, cursor: "pointer", transition: "all 0.15s",
         }}
         onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
         onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
@@ -95,7 +95,7 @@ export default function CallRangePicker({ value, onChange }: CallRangePickerProp
           minWidth: 180, boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
         }}>
           {/* Date ranges section */}
-          <div style={{ padding: "6px 14px 4px", fontSize: 10, fontWeight: 500, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-tertiary)" }}>
+          <div style={{ padding: "6px 14px 4px", fontSize: 12, fontWeight: 500, letterSpacing: "0", color: "var(--text-tertiary)" }}>
             Date Range
           </div>
           {RANGE_OPTIONS.map((opt) => {
@@ -113,7 +113,7 @@ export default function CallRangePicker({ value, onChange }: CallRangePickerProp
                   textAlign: "left", border: "none", cursor: "pointer",
                   background: active ? "var(--accent-dim)" : "transparent",
                   color: active ? "var(--text-primary)" : "var(--text-secondary)",
-                  fontSize: 13, transition: "all 0.1s",
+                  fontSize: 14, transition: "all 0.1s",
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = "var(--accent-dim)"; e.currentTarget.style.color = "var(--text-primary)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = active ? "var(--accent-dim)" : "transparent"; e.currentTarget.style.color = active ? "var(--text-primary)" : "var(--text-secondary)"; }}
@@ -127,7 +127,7 @@ export default function CallRangePicker({ value, onChange }: CallRangePickerProp
           <div style={{ height: 1, background: "var(--border)", margin: "4px 0" }} />
 
           {/* By month section */}
-          <div style={{ padding: "6px 14px 4px", fontSize: 10, fontWeight: 500, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-tertiary)" }}>
+          <div style={{ padding: "6px 14px 4px", fontSize: 12, fontWeight: 500, letterSpacing: "0", color: "var(--text-tertiary)" }}>
             By Month
           </div>
           {monthOptions.map((opt) => {
@@ -144,7 +144,7 @@ export default function CallRangePicker({ value, onChange }: CallRangePickerProp
                   textAlign: "left", border: "none", cursor: "pointer",
                   background: active ? "var(--accent-dim)" : "transparent",
                   color: active ? "var(--text-primary)" : "var(--text-secondary)",
-                  fontSize: 13, transition: "all 0.1s",
+                  fontSize: 14, transition: "all 0.1s",
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = "var(--accent-dim)"; e.currentTarget.style.color = "var(--text-primary)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = active ? "var(--accent-dim)" : "transparent"; e.currentTarget.style.color = active ? "var(--text-primary)" : "var(--text-secondary)"; }}

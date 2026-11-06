@@ -106,7 +106,7 @@ export default function OutboundCallHistoryPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
               <button onClick={handleExport}
-                style={{ background: "var(--accent)", color: "var(--bg)", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
+                style={{ background: "var(--accent)", color: "var(--bg)", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
@@ -121,7 +121,7 @@ export default function OutboundCallHistoryPage() {
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
             <button onClick={handleExport}
-              style={{ background: "var(--accent)", color: "var(--bg)", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
+              style={{ background: "var(--accent)", color: "var(--bg)", border: "none", padding: "6px 14px", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             >
@@ -135,7 +135,7 @@ export default function OutboundCallHistoryPage() {
         <div style={{ display: "flex", borderBottom: "1px solid var(--border)", padding: "0 20px" }}>
           {TABS.map((tab) => (
             <button key={tab.value} onClick={() => { setActiveTab(tab.value); setPage(1); }}
-              style={{ padding: "12px 16px", background: "none", border: "none", borderBottom: activeTab === tab.value ? "2px solid var(--accent)" : "2px solid transparent", color: activeTab === tab.value ? "var(--text-primary)" : "var(--text-tertiary)", fontSize: 13, fontWeight: activeTab === tab.value ? 500 : 400, cursor: "pointer", transition: "all 0.15s", marginBottom: -1 }}>
+              style={{ padding: "12px 16px", background: "none", border: "none", borderBottom: activeTab === tab.value ? "2px solid var(--accent)" : "2px solid transparent", color: activeTab === tab.value ? "var(--text-primary)" : "var(--text-tertiary)", fontSize: 14, fontWeight: activeTab === tab.value ? 500 : 400, cursor: "pointer", transition: "all 0.15s", marginBottom: -1 }}>
               {tab.label}
             </button>
           ))}
@@ -145,12 +145,12 @@ export default function OutboundCallHistoryPage() {
           <div style={{ position: "relative", flex: 1, maxWidth: 320 }}>
             <Search size={13} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--text-tertiary)" }} />
             <input type="text" placeholder="Search by number..." value={search} onChange={(e) => setSearch(e.target.value)}
-              style={{ width: "100%", paddingLeft: 32, paddingRight: 12, paddingTop: 7, paddingBottom: 7, background: "var(--bg-3)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 13, color: "var(--text-primary)", outline: "none" }}
+              style={{ width: "100%", paddingLeft: 32, paddingRight: 12, paddingTop: 7, paddingBottom: 7, background: "var(--bg-3)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 14, color: "var(--text-primary)", outline: "none" }}
               onFocus={(e) => (e.currentTarget.style.borderColor = "var(--border-hover)")}
               onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
             />
           </div>
-          <span style={{ fontSize: 12, color: "var(--text-tertiary)", marginLeft: "auto" }}>{total > 0 && `${total} calls`}</span>
+          <span style={{ fontSize: 13, color: "var(--text-tertiary)", marginLeft: "auto" }}>{total > 0 && `${total} calls`}</span>
         </div>
 
         {loading ? (
@@ -162,7 +162,7 @@ export default function OutboundCallHistoryPage() {
         ) : calls.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "60px 20px" }}>
             <PhoneOff size={24} style={{ color: "var(--text-tertiary)", marginBottom: 10 }} />
-            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 4 }}>No outbound calls yet</div>
+            <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 4 }}>No outbound calls yet</div>
           </div>
         ) : (
           <div style={{ overflowX: "auto" }}>
@@ -170,7 +170,7 @@ export default function OutboundCallHistoryPage() {
               <thead>
                 <tr style={{ background: "var(--bg-2)" }}>
                   {["Call ID","Date & Time","Contact #","Duration","Outcome","Sentiment",""].map((h) => (
-                    <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 10, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text-tertiary)", borderBottom: "1px solid var(--border)", whiteSpace: "nowrap" }}>{h}</th>
+                    <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 12, fontWeight: 500, letterSpacing: "0", color: "var(--text-tertiary)", borderBottom: "1px solid var(--border)", whiteSpace: "nowrap" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -185,21 +185,21 @@ export default function OutboundCallHistoryPage() {
                       onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent-dim)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
-                      <td style={{ padding: "11px 16px", fontSize: 11, fontFamily: "var(--font-geist-mono, monospace)", color: "var(--text-primary)", fontWeight: 500 }}>{(call.call_id ?? call.id ?? "").slice(0, 8)}</td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "11px 16px", fontSize: 12, fontFamily: "var(--font-body), system-ui, sans-serif", color: "var(--text-primary)", fontWeight: 500 }}>{(call.call_id ?? call.id ?? "").slice(0, 8)}</td>
+                      <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
                         {call.started_at ? new Date(call.started_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"}
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: "var(--text-secondary)" }}>{call.to_number ?? "—"}</td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, fontFamily: "var(--font-geist-mono, monospace)", color: "var(--text-secondary)" }}>{formatDuration(call.duration_ms)}</td>
+                      <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)" }}>{call.to_number ?? "—"}</td>
+                      <td style={{ padding: "11px 16px", fontSize: 13, fontFamily: "var(--font-body), system-ui, sans-serif", color: "var(--text-secondary)" }}>{formatDuration(call.duration_ms)}</td>
                       <td style={{ padding: "11px 16px" }}>
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", borderRadius: 20, fontSize: 10, fontWeight: 500, fontFamily: "var(--font-geist-mono, monospace)", color: outcome.color, background: outcome.bg }}>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", borderRadius: 20, fontSize: 12, fontWeight: 500, fontFamily: "var(--font-body), system-ui, sans-serif", color: outcome.color, background: outcome.bg }}>
                           <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
                           {outcome.label}
                         </span>
                       </td>
-                      <td style={{ padding: "11px 16px", fontSize: 12, color: sentColor }}>{sentiment ?? "—"}</td>
+                      <td style={{ padding: "11px 16px", fontSize: 13, color: sentColor }}>{sentiment ?? "—"}</td>
                       <td style={{ padding: "11px 16px" }}>
-                        <button onClick={(e) => { e.stopPropagation(); setSelectedCall(call); }} style={{ fontSize: 11, color: "var(--blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>View →</button>
+                        <button onClick={(e) => { e.stopPropagation(); setSelectedCall(call); }} style={{ fontSize: 12, color: "var(--blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>View →</button>
                       </td>
                     </tr>
                   );
@@ -211,7 +211,7 @@ export default function OutboundCallHistoryPage() {
 
         {!loading && total > 0 && (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px", borderTop: "1px solid var(--border)" }}>
-            <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+            <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>
               Showing {Math.min((page - 1) * PAGE_SIZE + 1, total)}–{Math.min(page * PAGE_SIZE, total)} of {total} calls
             </span>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -239,7 +239,7 @@ export default function OutboundCallHistoryPage() {
 function PageBtn({ children, onClick, disabled, active }: { children: React.ReactNode; onClick: () => void; disabled?: boolean; active?: boolean }) {
   return (
     <button onClick={onClick} disabled={disabled}
-      style={{ minWidth: 28, height: 28, padding: "0 8px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, fontSize: 12, cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1, transition: "all 0.15s", background: active ? "var(--bg-3)" : "transparent", border: active ? "1px solid var(--border-hover)" : "1px solid transparent", color: active ? "var(--text-primary)" : "var(--text-secondary)" }}>
+      style={{ minWidth: 28, height: 28, padding: "0 8px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, fontSize: 13, cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1, transition: "all 0.15s", background: active ? "var(--bg-3)" : "transparent", border: active ? "1px solid var(--border-hover)" : "1px solid transparent", color: active ? "var(--text-primary)" : "var(--text-secondary)" }}>
       {children}
     </button>
   );
