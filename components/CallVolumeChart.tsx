@@ -38,8 +38,9 @@ function monotonePath(pts: Pt[]): string {
   return d;
 }
 
-// Area chart in the style of Mercury's balance graph. The header row above it follows your cursor or finger:
-// it shows the day, that day's calls, and the change against the day before.
+// Running-total area graph in the style of Mercury's balance graph: one point per day joined by a smooth,
+// never-overshooting curve (same technique and margins as Mercury), so days without calls stay flat and each
+// busy day is a smooth step up. The row above follows your cursor or finger.
 export default function CallVolumeChart({ data, showOutbound = true, summary }: CallVolumeChartProps) {
   const gid = useId().replace(/:/g, "");
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -48,7 +49,9 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
 
   const rows = data.dates.map((date, i) => ({ date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
   const n = rows.length;
-  const max = Math.max(1, ...rows.map((r) => r.value));
+  const cum: number[] = [];
+  rows.reduce((acc, r, i) => { cum[i] = acc + r.value; return cum[i]; }, 0);
+  const total = n > 0 ? cum[n - 1] : 0;
   const busiest = rows.reduce((b, r) => (r.value > b.value ? r : b), { date: "", value: 0 });
 
   useEffect(() => {
@@ -60,20 +63,12 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
     return () => ro.disconnect();
   }, []);
 
-  // Room under the graph so the dates never crowd the line.
-  const LABEL_H = 46, TOP = 14;
-  const base = size.h - LABEL_H;
+  // Mercury's margins: 32px above the highest point, the fill ends 36px above the bottom, dates 22px below that.
+  const TOP = 32, BOTTOM = 36;
+  const base = size.h - BOTTOM;
   const usable = Math.max(10, base - TOP);
-  const pts: Pt[] = rows.map((r, i) => ({ x: n <= 1 ? size.w / 2 : (i / (n - 1)) * size.w, y: base - (r.value / max) * usable }));
-
-  // Each day is a short flat step that eases into the next one, which is how Mercury's balance graph reads.
-  const half = n > 1 ? (size.w / (n - 1)) * 0.14 : 0;
-  const stepPts: Pt[] = [];
-  pts.forEach((p, i) => {
-    stepPts.push({ x: i === 0 ? 0 : p.x - half, y: p.y });
-    stepPts.push({ x: i === n - 1 ? size.w : p.x + half, y: p.y });
-  });
-  const line = n > 1 ? monotonePath(stepPts) : "";
+  const pts: Pt[] = rows.map((_, i) => ({ x: n <= 1 ? size.w / 2 : (i / (n - 1)) * size.w, y: total > 0 ? base - (cum[i] / total) * usable : base }));
+  const line = n > 1 ? monotonePath(pts) : "";
   const area = n > 1 ? `${line}L${size.w},${base}L0,${base}Z` : "";
 
   // Five dates exactly the same number of days apart, centered under the graph.
@@ -109,13 +104,16 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
           ) : null}
         </span>
         <span className="num" style={{ display: "inline-flex", alignItems: "center", gap: 14, fontSize: 13 }}>
-          {hovered ? (
-            diff !== null && diff !== 0 ? (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: diff > 0 ? upColor : "var(--red)" }}>
-                {diff > 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
-                {diff > 0 ? "+" : "−"}{Math.abs(diff)} vs day before
-              </span>
-            ) : null
+          {hovered && hover !== null ? (
+            <>
+              {diff !== null && diff !== 0 && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: diff > 0 ? upColor : "var(--red)" }}>
+                  {diff > 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
+                  {diff > 0 ? "+" : "−"}{Math.abs(diff)} vs day before
+                </span>
+              )}
+              <span style={{ color: "var(--text-secondary)" }}>{cum[hover]} so far</span>
+            </>
           ) : summary && (summary.up || summary.down) ? (
             <>
               {summary.up && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: upColor }}><ArrowUpRight size={13} />{summary.up}</span>}

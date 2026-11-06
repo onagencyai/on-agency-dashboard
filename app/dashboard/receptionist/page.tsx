@@ -87,26 +87,6 @@ export default function ReceptionistOverviewPage() {
   const [stats, setStats] = useState<ReceptionistStats | null>(null);
   const [volume, setVolume] = useState<CallVolumeData | null>(null);
   const [intents, setIntents] = useState<IntentData[]>([]);
-  const [clientId, setClientId] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/client-info", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d: { client_id?: unknown } | null) => { if (d && typeof d.client_id === "string") setClientId(d.client_id); })
-      .catch(() => {});
-  }, []);
-
-  // TEMPORARY: lets the owner see every Call Intent color at once. Only the On Agency account sees it,
-  // and only while real data has fewer than six intents. Remove once the colors are approved.
-  const PREVIEW_INTENTS: IntentData[] = [
-    { label: "General Information", count: 24, percentage: 24 },
-    { label: "Pricing Information", count: 22, percentage: 22 },
-    { label: "Appointments & Scheduling", count: 20, percentage: 20 },
-    { label: "Complaints & Cancellations", count: 8, percentage: 8 },
-    { label: "Customer Support Requests", count: 14, percentage: 14 },
-    { label: "Other", count: 12, percentage: 12 },
-  ];
-  const colorPreview = clientId === "on-agency" && intents.filter((i) => i.percentage > 0).length < 6;
   const [calls, setCalls] = useState<CallRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCall, setSelectedCall] = useState<CallRow | null>(null);
@@ -314,7 +294,7 @@ export default function ReceptionistOverviewPage() {
  
         <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
           <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
-            <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>Call Intent</span>{colorPreview && <span style={{ fontSize: 12, color: "var(--text-secondary)", marginLeft: 10, fontWeight: 400 }}>Color preview</span>}
+            <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>Call Intent</span>
           </div>
           <div style={{ padding: 20 }}>
             {loading ? (
@@ -324,7 +304,7 @@ export default function ReceptionistOverviewPage() {
                 ))}
               </div>
             ) : (
-              <IntentChart intents={colorPreview ? PREVIEW_INTENTS : intents} />
+              <IntentChart intents={intents} />
             )}
           </div>
         </div>
