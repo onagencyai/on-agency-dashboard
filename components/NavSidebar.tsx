@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
 import {
   Phone,
+  Users,
   BarChart2,
   PhoneOutgoing,
   PenLine,
@@ -37,6 +38,7 @@ function buildNavSections(services: ServiceType[]): NavSection[] {
       items: [
         { label: "Overview", href: "/dashboard/receptionist", icon: "overview" },
         { label: "Call History", href: "/dashboard/receptionist-call-history", icon: Phone },
+        { label: "Leads", href: "/dashboard/leads", icon: Users },
       ],
     });
   }

@@ -122,3 +122,25 @@ export interface CallVolumeData {
   inbound: number[];
   outbound: number[];
 }
+
+export type LeadStatus = "new" | "contacted" | "closed";
+
+export interface LeadRow {
+  id: string;
+  client_id: string;
+  call_id: string;
+  kind: "lead" | "booked" | "message" | "info";
+  name: string | null;
+  phone: string | null;
+  caller_id: string | null;
+  email: string | null;
+  company: string | null;
+  summary: string | null;
+  details: string | null;
+  location: string | null;
+  extra: Record<string, unknown> | null;
+  status: LeadStatus;
+  created_at: string;
+  recording_url?: string | null;
+  duration_ms?: number | null;
+}

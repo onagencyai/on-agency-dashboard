@@ -203,7 +203,38 @@ async function handleN8nAnalyzedCall(req: NextRequest, body: Record<string, unkn
     } else {
       console.log("[retell webhook] n8n analyzed call success for call_id:", callId);
     }
-    return !error;
+    if (error) return false;
+
+    // Leads, messages and bookings captured by the agent's tools on this call.
+    if (Array.isArray(body.leads) && body.leads.length > 0) {
+      const str = (v: unknown): string | null => (typeof v === "string" && v.trim() ? v.trim() : null);
+      const rows = (body.leads as Record<string, unknown>[])
+        .filter((l) => ["lead", "booked", "message", "info"].includes(String(l.kind)))
+        .map((l) => ({
+          client_id: clientId,
+          call_id: callId,
+          kind: String(l.kind),
+          name: str(l.name),
+          phone: str(l.phone),
+          caller_id: str(l.caller_id),
+          email: str(l.email),
+          company: str(l.company),
+          summary: str(l.summary),
+          details: str(l.details),
+          location: str(l.location),
+          extra: (l.extra && typeof l.extra === "object" ? l.extra : {}) as Record<string, unknown>,
+          ...(toIsoFromEpoch(startTs) ? { created_at: toIsoFromEpoch(startTs) as string } : {}),
+        }));
+      if (rows.length > 0) {
+        // status is deliberately not sent, so a re-sent call never resets "contacted" back to "new".
+        const { error: leadErr } = await supabase.from("leads").upsert(rows, { onConflict: "call_id,kind" });
+        if (leadErr) {
+          console.error("[retell webhook] upsert error (leads):", leadErr.message);
+          return false;
+        }
+      }
+    }
+    return true;
   } catch (err) {
     console.error("[retell webhook] handleN8nAnalyzedCall error:", err);
     return false;
