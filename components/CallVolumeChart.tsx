@@ -38,8 +38,8 @@ function monotonePath(pts: Pt[]): string {
   return d;
 }
 
-// Area graph in the style of Mercury's balance graph: one point per day joined by a smooth,
-// never-overshooting curve (same technique and margins as Mercury). The row above follows your cursor or finger.
+// Area chart in the style of Mercury's balance graph. The header row above it follows your cursor or finger:
+// it shows the day, that day's calls, and the change against the day before.
 export default function CallVolumeChart({ data, showOutbound = true, summary }: CallVolumeChartProps) {
   const gid = useId().replace(/:/g, "");
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -48,7 +48,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
 
   const rows = data.dates.map((date, i) => ({ date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
   const n = rows.length;
-  const top = Math.max(1, ...rows.map((r) => r.value));
+  const max = Math.max(1, ...rows.map((r) => r.value));
   const busiest = rows.reduce((b, r) => (r.value > b.value ? r : b), { date: "", value: 0 });
 
   useEffect(() => {
@@ -60,13 +60,14 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
     return () => ro.disconnect();
   }, []);
 
-  // Mercury's margins: 32px above the highest point, the fill ends 36px above the bottom, dates 22px below that.
-  const TOP = 32, BOTTOM = 36;
-  const base = size.h - BOTTOM;
+  // Room under the graph so the dates never crowd the line.
+  const LABEL_H = 46, TOP = 14;
+  const base = size.h - LABEL_H;
   const usable = Math.max(10, base - TOP);
-  const pts: Pt[] = rows.map((r, i) => ({ x: n <= 1 ? size.w / 2 : (i / (n - 1)) * size.w, y: base - (r.value / top) * usable }));
-  // Each day is a flat step that eases into the next one, which is how Mercury's balance graph reads.
-  const half = n > 1 ? (size.w / (n - 1)) * 0.3 : 0;
+  const pts: Pt[] = rows.map((r, i) => ({ x: n <= 1 ? size.w / 2 : (i / (n - 1)) * size.w, y: base - (r.value / max) * usable }));
+
+  // Each day is a short flat step that eases into the next one, which is how Mercury's balance graph reads.
+  const half = n > 1 ? (size.w / (n - 1)) * 0.14 : 0;
   const stepPts: Pt[] = [];
   pts.forEach((p, i) => {
     stepPts.push({ x: i === 0 ? 0 : p.x - half, y: p.y });
@@ -108,15 +109,13 @@ export default function CallVolumeChart({ data, showOutbound = true, summary }: 
           ) : null}
         </span>
         <span className="num" style={{ display: "inline-flex", alignItems: "center", gap: 14, fontSize: 13 }}>
-          {hovered && hover !== null ? (
-            <>
-              {diff !== null && diff !== 0 && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: diff > 0 ? upColor : "var(--red)" }}>
-                  {diff > 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
-                  {diff > 0 ? "+" : "−"}{Math.abs(diff)} vs day before
-                </span>
-              )}
-            </>
+          {hovered ? (
+            diff !== null && diff !== 0 ? (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: diff > 0 ? upColor : "var(--red)" }}>
+                {diff > 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
+                {diff > 0 ? "+" : "−"}{Math.abs(diff)} vs day before
+              </span>
+            ) : null
           ) : summary && (summary.up || summary.down) ? (
             <>
               {summary.up && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: upColor }}><ArrowUpRight size={13} />{summary.up}</span>}
