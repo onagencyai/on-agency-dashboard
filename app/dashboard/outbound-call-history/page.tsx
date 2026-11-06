@@ -9,6 +9,7 @@ import { formatDuration, getSentimentColor, formatPhoneNumber } from "@/lib/form
 import CallRangePicker, { defaultRangeValue } from "@/components/CallRangePicker";
 import type { RangeValue } from "@/components/CallRangePicker";
 import CallDetailModal from "@/components/CallDetailModal";
+import CallCardList from "@/components/CallCardList";
 
 const PAGE_SIZE = 25;
 
@@ -106,7 +107,7 @@ export default function OutboundCallHistoryPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
               <button onClick={handleExport}
-                style={{ background: "var(--accent)", color: "var(--bg)", border: "none", height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
+                style={{ background: "var(--accent)", color: "var(--bg)", border: "none", whiteSpace: "nowrap", flexShrink: 0, height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
@@ -121,7 +122,7 @@ export default function OutboundCallHistoryPage() {
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
             <button onClick={handleExport}
-              style={{ background: "var(--accent)", color: "var(--bg)", border: "none", height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
+              style={{ background: "var(--accent)", color: "var(--bg)", border: "none", whiteSpace: "nowrap", flexShrink: 0, height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             >
@@ -164,6 +165,8 @@ export default function OutboundCallHistoryPage() {
             <PhoneOff size={24} style={{ color: "var(--text-tertiary)", marginBottom: 10 }} />
             <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 4 }}>No outbound calls yet</div>
           </div>
+        ) : isMobile ? (
+            <CallCardList calls={calls} getOutcome={getCallOutcome} onSelect={setSelectedCall} />
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>

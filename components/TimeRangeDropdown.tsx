@@ -74,7 +74,7 @@ export default function TimeRangeDropdown({ value, onChange }: TimeRangeDropdown
             right: 0,
             background: "var(--bg-1)",
             border: "1px solid var(--border)",
-            borderRadius: 8,
+            borderRadius: 12,
             overflow: "hidden",
             zIndex: 100,
             minWidth: 160,

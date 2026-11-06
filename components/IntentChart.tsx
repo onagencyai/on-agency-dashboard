@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { IntentData } from "@/lib/types";
-
 
 const INTENT_COLORS: Record<string, string> = {
   "General Information": "var(--blue)",
-  "Pricing Information": "var(--intent-indigo)",
+  "Pricing Information": "var(--intent-cyan)",
   "Appointments & Scheduling": "var(--green)",
   "Complaints & Cancellations": "var(--red)",
   "Customer Support Requests": "var(--amber-fill)",
@@ -19,47 +18,26 @@ interface IntentChartProps {
 
 export default function IntentChart({ intents }: IntentChartProps) {
   const [animated, setAnimated] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setAnimated(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 900px)");
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
   return (
-    <div ref={ref} style={{ display: "flex", flexDirection: "column" }}>
-      {intents.map((intent, i) => (
-        <div
-          key={intent.label}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            padding: "10px 0",
-            borderBottom: i < intents.length - 1 ? "1px solid var(--border)" : "none",
-          }}
-        >
-          <span
-            style={{
-              flex: "0 0 190px",
-              fontSize: 13,
-              color: "var(--text-primary)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {intent.label}
-          </span>
-          <div
-            style={{
-              flex: 1,
-              height: 8,
-              background: "var(--bg-2)",
-              borderRadius: 999,
-              overflow: "hidden",
-            }}
-          >
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      {intents.map((intent, i) => {
+        const bar = (
+          <div style={{ flex: 1, height: 8, background: "var(--bg-3)", borderRadius: 999, overflow: "hidden" }}>
             <div
               style={{
                 height: "100%",
@@ -70,20 +48,35 @@ export default function IntentChart({ intents }: IntentChartProps) {
               }}
             />
           </div>
-          <span
-            style={{
-              width: 40,
-              fontSize: 13,
-              fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
-              color: "var(--text-secondary)",
-              textAlign: "right",
-              flexShrink: 0,
-            }}
-          >
+        );
+        const pct = (
+          <span className="num" style={{ width: 40, fontSize: 13, color: "var(--text-secondary)", textAlign: "right", flexShrink: 0 }}>
             {intent.percentage}%
           </span>
-        </div>
-      ))}
+        );
+        const border = i < intents.length - 1 ? "1px solid var(--border)" : "none";
+
+        if (isMobile) {
+          return (
+            <div key={intent.label} style={{ padding: "11px 0", borderBottom: border }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 7 }}>
+                <span style={{ fontSize: 14, color: "var(--text-primary)" }}>{intent.label}</span>
+                {pct}
+              </div>
+              {bar}
+            </div>
+          );
+        }
+        return (
+          <div key={intent.label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0", borderBottom: border }}>
+            <span style={{ flex: "0 0 190px", fontSize: 13, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {intent.label}
+            </span>
+            {bar}
+            {pct}
+          </div>
+        );
+      })}
     </div>
   );
 }

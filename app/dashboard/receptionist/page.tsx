@@ -14,8 +14,10 @@ import SentimentBar from "@/components/SentimentBar";
 import CallVolumeChart from "@/components/CallVolumeChart";
 import IntentChart from "@/components/IntentChart";
 import CallDetailModal from "@/components/CallDetailModal";
+import CallCardList from "@/components/CallCardList";
  
-function periodLabel(range: TimeRange): string {
+function periodLabel(range: TimeRange, short = false): string {
+  if (short) return "vs prior";
   switch (range) {
     case "today": return "vs yesterday";
     case "7d":    return "vs 7 days ago";
@@ -25,15 +27,15 @@ function periodLabel(range: TimeRange): string {
   }
 }
 
-function pctDelta(current: number, previous: number, range: TimeRange, isMs = false, fmt?: (n: number) => string): { value: string; direction: "up" | "down" | "neutral" } {
+function pctDelta(current: number, previous: number, range: TimeRange, isMs = false, fmt?: (n: number) => string, short = false): { value: string; direction: "up" | "down" | "neutral" } {
   if (!previous || previous === 0) {
     // Nothing to compare against: show what we gained instead of a dash.
     if (!current) return { value: "—", direction: "neutral" };
     const shown = isMs ? `${Math.floor(current / 60000)}:${Math.floor((current % 60000) / 1000).toString().padStart(2, "0")}` : (fmt ? fmt(current) : String(current));
-    return { value: `+${shown} ${periodLabel(range)}`, direction: "up" };
+    return { value: `+${shown} ${periodLabel(range, short)}`, direction: "up" };
   }
   const pct = ((current - previous) / previous) * 100;
-  const label = periodLabel(range);
+  const label = periodLabel(range, short);
   if (isMs) {
     const diffSec = Math.abs((current - previous) / 1000);
     const m = Math.floor(diffSec / 60);
@@ -136,14 +138,14 @@ export default function ReceptionistOverviewPage() {
   const prev = stats?.previous;
   const metricCardShell = {
     border: "1px solid var(--border)",
-    borderRadius: 8,
+    borderRadius: 12,
     overflow: "hidden",
     background: "var(--bg-1)",
   } as const;
  
-  const totalCallsDelta = cur && prev ? pctDelta(cur.total_calls, prev.total_calls, timeRange) : undefined;
-  const avgDurationDelta = cur && prev ? pctDelta(cur.avg_duration_seconds * 1000, prev.avg_duration_seconds * 1000, timeRange, true) : undefined;
-  const talkTimeDelta = cur && prev ? pctDelta(cur.total_duration_ms, prev.total_duration_ms, timeRange, false, formatTalkTime) : undefined;
+  const totalCallsDelta = cur && prev ? pctDelta(cur.total_calls, prev.total_calls, timeRange, false, undefined, isMobile) : undefined;
+  const avgDurationDelta = cur && prev ? pctDelta(cur.avg_duration_seconds * 1000, prev.avg_duration_seconds * 1000, timeRange, true, undefined, isMobile) : undefined;
+  const talkTimeDelta = cur && prev ? pctDelta(cur.total_duration_ms, prev.total_duration_ms, timeRange, false, formatTalkTime, isMobile) : undefined;
  
   const inboundOnlyVolume: CallVolumeData = volume
     ? { dates: volume.dates, inbound: volume.inbound, outbound: volume.dates.map(() => 0) }
@@ -275,11 +277,10 @@ export default function ReceptionistOverviewPage() {
       )}
  
       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1.2fr) minmax(360px, 0.85fr)", gap: 16, marginBottom: 16 }}>
-        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
             <div>
               <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>Call Volume</span>
-              <span style={{ fontSize: 12, color: "var(--text-tertiary)", marginLeft: 8 }}>Daily</span>
             </div>
           </div>
           <div style={{ padding: 20 }}>
@@ -291,10 +292,9 @@ export default function ReceptionistOverviewPage() {
           </div>
         </div>
  
-        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
           <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
             <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>Call Intent</span>
-            <span style={{ fontSize: 12, color: "var(--text-tertiary)", marginLeft: 8 }}>By volume</span>
           </div>
           <div style={{ padding: 20 }}>
             {loading ? (
@@ -310,7 +310,7 @@ export default function ReceptionistOverviewPage() {
         </div>
       </div>
  
-      <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+      <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid var(--border)", gap: 10 }}>
           <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)" }}>Recent Calls</span>
           {calls.length > 0 && (
@@ -335,6 +335,8 @@ export default function ReceptionistOverviewPage() {
             <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 4 }}>No calls recorded yet</div>
             <div style={{ fontSize: 13, color: "var(--text-tertiary)" }}>Call data will appear here automatically.</div>
           </div>
+        ) : isMobile ? (
+            <CallCardList calls={calls} getOutcome={getCallOutcome} getIntent={getCallIntent} onSelect={setSelectedCall} />
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>

@@ -163,7 +163,7 @@ function NavLink({ item, active, onNavigate }: { item: NavItem; active: boolean;
         borderRadius: 7,
         fontSize: 14,
         fontWeight: active ? 500 : 400,
-        color: active ? "var(--nav-active-text)" : "var(--text-secondary)",
+        color: active ? "var(--nav-active-text)" : "var(--nav-text)",
         background: active ? "var(--nav-active-bg)" : "transparent",
         textDecoration: "none",
         marginBottom: 2,
@@ -178,7 +178,7 @@ function NavLink({ item, active, onNavigate }: { item: NavItem; active: boolean;
       onMouseLeave={(e) => {
         if (!active) {
           e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = "var(--text-secondary)";
+          e.currentTarget.style.color = "var(--nav-text)";
         }
       }}
     >

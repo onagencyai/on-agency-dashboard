@@ -77,7 +77,7 @@ export default function CallRangePicker({ value, onChange }: CallRangePickerProp
           display: "flex", alignItems: "center", gap: 6,
           background: "var(--bg)", border: "1px solid var(--border)",
           color: "var(--text-secondary)", height: 36, padding: "0 12px",
-          borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s",
+          borderRadius: 6, fontSize: 13, fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer", transition: "all 0.15s",
         }}
         onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
         onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
@@ -91,7 +91,7 @@ export default function CallRangePicker({ value, onChange }: CallRangePickerProp
         <div style={{
           position: "absolute", top: "calc(100% + 6px)", right: 0,
           background: "var(--bg-1)", border: "1px solid var(--border)",
-          borderRadius: 8, overflow: "hidden", zIndex: 100,
+          borderRadius: 12, overflow: "hidden", zIndex: 100,
           minWidth: 180, boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
         }}>
           {/* Date ranges section */}

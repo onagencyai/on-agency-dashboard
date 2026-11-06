@@ -37,7 +37,7 @@ export default function SettingsPage() {
 
       <div
         style={{
-          background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden",
+          background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden",
           maxWidth: 520,
         }}
       >

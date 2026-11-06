@@ -18,21 +18,21 @@
   --gray-badge-bg: var(--bg-3);
 
   --bg: #ffffff;
-  --bg-1: #f7f8f8;
-  --bg-2: #f1f3f3;
-  --bg-3: #e9eded;
-  --bg-4: #dde3e2;
-  --border: #dde2e1;
-  --border-hover: #c5cdcc;
-  --text-primary: #1f2933;
-  --text-secondary: #66737a;
-  --text-tertiary: #66737a;
-  --ink: #0d333f;
+  --bg-1: #ffffff;
+  --bg-2: #f7f8fa;
+  --bg-3: #f0f1f4;
+  --bg-4: #e4e6ec;
+  --border: #e9ebf0;
+  --border-hover: #d5d8e0;
+  --text-primary: #1e1e29;
+  --text-secondary: #70707c;
+  --text-tertiary: #70707c;
+  --ink: #1e1e29;
   --accent: #0a0a0a;
   --accent-dim: rgba(10, 10, 10, 0.05);
-  --green: #138a3d;
-  --green-text: #0d6b31;
-  --green-dim: #e7f5ec;
+  --green: #2f6c47;
+  --green-text: #2f6c47;
+  --green-dim: #e8f3ec;
   --red: #c1352b;
   --red-dim: #fdecea;
   --amber: #c77700;
@@ -40,20 +40,21 @@
   --amber-dim: #fff3d6;
   --orange: #f97316;
   --orange-dim: rgba(249, 115, 22, 0.12);
-  --blue: #2f80ff;
-  --blue-dim: #eaf4ff;
-  --chart-grid: rgba(13, 51, 63, 0.10);
-  --intent-indigo: #4255a4;
+  --blue: #5665e3;
+  --blue-dim: #eceefc;
+  --chart-grid: rgba(30, 30, 41, 0.08);
   --intent-gray: #8c979c;
 
   --dashboard-shell: #ffffff;
   --dashboard-panel: #ffffff;
-  --dashboard-sidebar: #ffffff;
-  --dashboard-border: #e6e9e9;
+  --dashboard-sidebar: #fbfcfd;
+  --dashboard-border: #edeef2;
   --dashboard-sidebar-shadow: none;
-  --nav-active-bg: #eaf4ff;
-  --nav-active-text: #0060f2;
-  --sidebar-divider: #e6e9e9;
+  --nav-active-bg: #edeef2;
+  --nav-active-text: #1e1e29;
+  --sidebar-divider: #edeef2;
+  --intent-cyan: #1aa6c9;
+  --nav-text: #535460;
 }
 
 .dark {
@@ -83,7 +84,7 @@
   --blue: #6da7ec;
   --blue-dim: rgba(42, 120, 214, 0.2);
   --chart-grid: rgba(255, 255, 255, 0.08);
-  --intent-indigo: #8b9de3;
+  --intent-cyan: #6dc7de;
   --intent-gray: #8a887e;
 
   --dashboard-shell: #0a0a0a;
@@ -94,6 +95,7 @@
   --nav-active-bg: rgba(42, 120, 214, 0.2);
   --nav-active-text: #6da7ec;
   --sidebar-divider: rgba(255, 255, 255, 0.08);
+  --nav-text: var(--text-secondary);
 }
 
 * {

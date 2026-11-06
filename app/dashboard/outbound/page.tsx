@@ -13,6 +13,7 @@ import MetricCard from "@/components/MetricCard";
 import CallVolumeChart from "@/components/CallVolumeChart";
 import IntentChart from "@/components/IntentChart";
 import CallDetailModal from "@/components/CallDetailModal";
+import CallCardList from "@/components/CallCardList";
 
 function periodLabel(range: TimeRange): string {
   switch (range) {
@@ -128,7 +129,7 @@ export default function OutboundOverviewPage() {
   const prev = stats?.previous;
   const metricCardShell = {
     border: "1px solid var(--border)",
-    borderRadius: 8,
+    borderRadius: 12,
     overflow: "hidden",
     background: "var(--bg-1)",
   } as const;
@@ -148,7 +149,7 @@ export default function OutboundOverviewPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
               <button onClick={handleExport}
-                style={{ background: "var(--accent)", color: "var(--bg)", border: "none", height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
+                style={{ background: "var(--accent)", color: "var(--bg)", border: "none", whiteSpace: "nowrap", flexShrink: 0, height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
@@ -163,7 +164,7 @@ export default function OutboundOverviewPage() {
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
             <button onClick={handleExport}
-              style={{ background: "var(--accent)", color: "var(--bg)", border: "none", height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
+              style={{ background: "var(--accent)", color: "var(--bg)", border: "none", whiteSpace: "nowrap", flexShrink: 0, height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             >
@@ -245,13 +246,12 @@ export default function OutboundOverviewPage() {
 
       {/* Charts */}
       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1.2fr) minmax(360px, 0.85fr)", gap: 16, marginBottom: 16 }}>
-        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
             <div>
               <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>
                 Outbound Call Volume
               </span>
-              <span style={{ fontSize: 12, color: "var(--text-tertiary)", marginLeft: 8 }}>Daily</span>
             </div>
           </div>
           <div style={{ padding: 20 }}>
@@ -263,12 +263,11 @@ export default function OutboundOverviewPage() {
           </div>
         </div>
 
-        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
           <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
             <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>
               Call Outcomes
             </span>
-            <span style={{ fontSize: 12, color: "var(--text-tertiary)", marginLeft: 8 }}>By volume</span>
           </div>
           <div style={{ padding: 20 }}>
             <IntentChart intents={outcomeData} />
@@ -277,7 +276,7 @@ export default function OutboundOverviewPage() {
       </div>
 
       {/* Recent Calls */}
-      <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+      <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid var(--border)", gap: 10 }}>
           <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)" }}>Recent Outbound Calls</span>
           <Link href="/dashboard/outbound-call-history" style={{ marginLeft: "auto", fontSize: 13, color: "var(--blue)", textDecoration: "none" }}>
@@ -297,6 +296,8 @@ export default function OutboundOverviewPage() {
             <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 4 }}>No outbound calls yet</div>
             <div style={{ fontSize: 13, color: "var(--text-tertiary)" }}>Call data will appear here automatically.</div>
           </div>
+        ) : isMobile ? (
+            <CallCardList calls={recentCalls} getOutcome={getCallOutcome} onSelect={setSelectedCall} />
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>

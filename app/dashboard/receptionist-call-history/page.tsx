@@ -9,6 +9,7 @@ import { formatDuration, getSentimentColor, formatPhoneNumber, getInboundOutcome
 import CallRangePicker, { defaultRangeValue } from "@/components/CallRangePicker";
 import type { RangeValue } from "@/components/CallRangePicker";
 import CallDetailModal from "@/components/CallDetailModal";
+import CallCardList from "@/components/CallCardList";
 
 const PAGE_SIZE = 25;
 
@@ -111,12 +112,12 @@ export default function CallHistoryPage() {
     <div style={{ padding: isMobile ? "18px 12px 20px" : "24px 32px 32px" }}>
       {isMobile ? (
         <div style={{ marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-            <span style={{ fontSize: 22, lineHeight: "28px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Call History</span>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+            <span style={{ whiteSpace: "nowrap", fontSize: 22, lineHeight: "28px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Call History</span>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
               <button onClick={handleExport}
-                style={{ background: "var(--accent)", color: "var(--bg)", border: "none", height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
+                style={{ background: "var(--accent)", color: "var(--bg)", border: "none", whiteSpace: "nowrap", flexShrink: 0, height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
@@ -131,7 +132,7 @@ export default function CallHistoryPage() {
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
             <button onClick={handleExport}
-              style={{ background: "var(--accent)", color: "var(--bg)", border: "none", height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
+              style={{ background: "var(--accent)", color: "var(--bg)", border: "none", whiteSpace: "nowrap", flexShrink: 0, height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             >
@@ -143,13 +144,13 @@ export default function CallHistoryPage() {
 
       <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
         {/* Tabs */}
-        <div style={{ display: "flex", borderBottom: "1px solid var(--border)", padding: "0 20px" }}>
+        <div style={{ display: "flex", borderBottom: "1px solid var(--border)", padding: isMobile ? "0 8px" : "0 20px", overflowX: "auto" }}>
           {TABS.map((tab) => (
             <button
               key={tab.value}
               onClick={() => { setActiveTab(tab.value); setPage(1); }}
               style={{
-                padding: "12px 16px", background: "none", border: "none",
+                padding: isMobile ? "12px 12px" : "12px 16px", background: "none", border: "none", whiteSpace: "nowrap", flexShrink: 0,
                 borderBottom: activeTab === tab.value ? "2px solid var(--accent)" : "2px solid transparent",
                 color: activeTab === tab.value ? "var(--text-primary)" : "var(--text-tertiary)",
                 fontSize: 14, fontWeight: activeTab === tab.value ? 500 : 400,
@@ -202,6 +203,8 @@ export default function CallHistoryPage() {
             <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 4 }}>No calls recorded yet</div>
             <div style={{ fontSize: 13, color: "var(--text-tertiary)" }}>Call data will appear here automatically.</div>
           </div>
+        ) : isMobile ? (
+            <CallCardList calls={calls} getOutcome={getCallOutcome} getIntent={getCallIntent} onSelect={setSelectedCall} />
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>

@@ -84,7 +84,7 @@ export default function LeadsPage() {
       ) : leads.length === 0 ? (
         <EmptyState icon={Users} primary="No leads yet" secondary="When someone calls and leaves their details, they will show up here." />
       ) : (
-        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+        <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
           {!isMobile && (
             <div style={{ display: "grid", gridTemplateColumns: COLUMNS, gap: 16, padding: "10px 20px", borderBottom: "1px solid var(--border)" }}>
               <span style={th}>Name</span>

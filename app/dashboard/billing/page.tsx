@@ -37,7 +37,7 @@ export default async function BillingPage() {
       {/* Current Plan */}
       <div
         style={{
-          background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8,
+          background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12,
           padding: 24, marginBottom: 16,
         }}
       >
