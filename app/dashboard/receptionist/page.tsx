@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
  
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Download, PhoneOff, Phone, CircleCheckBig, PhoneOutgoing, UserPlus } from "lucide-react";
+import { Download, PhoneOff, Phone, ClipboardCheck, PhoneOutgoing, UserPlus } from "lucide-react";
 import Link from "next/link";
 import type { TimeRange, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange } from "@/lib/dateRange";
@@ -234,7 +234,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Leads Captured"
               value={cur?.lead_count ?? 0}
-              icon={<CircleCheckBig size={15} />}
+              icon={<ClipboardCheck size={14} />}
               delta={cur && prev ? countDelta(cur.lead_count, prev.lead_count, timeRange, false, isMobile) : undefined}
             />
           </div>
