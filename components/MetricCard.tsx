@@ -25,7 +25,7 @@ export default function MetricCard({ label, shortLabel, value, valueSuffix, icon
 
   return (
     <div className="metric-card" style={{ background: "var(--bg-1)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
         {icon && (
           <span className="metric-icon" style={{ color: "var(--ink)", display: "flex", flexShrink: 0 }}>
             {icon}
@@ -41,7 +41,7 @@ export default function MetricCard({ label, shortLabel, value, valueSuffix, icon
         </span>
       </div>
 
-      <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: children || delta ? 10 : 0 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: children || delta ? 12 : 0 }}>
         <span className="num" style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: "32px" }}>
           {value}
         </span>
