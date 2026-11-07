@@ -34,37 +34,39 @@ export default function SettingsPage() {
       <PageTitle>Settings</PageTitle>
 
       <PageSection title="Account" cue="The details tied to your login.">
-        <div style={cardStyle}>
-          <Row label="Business name" value={businessName} />
-          <Row label="Email" value={email} last />
+        <div className="ledger-grid">
+          <InfoCard label="Business name" value={businessName} />
+          <InfoCard label="Email" value={email} />
         </div>
       </PageSection>
 
       <PageSection title="Session" cue="Sign out of this device.">
-        <div style={{ ...cardStyle, padding: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-          <div>
-            <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>Log out</div>
-            <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 2 }}>You can sign back in any time with your email.</div>
+        <div className="ledger-grid">
+          <div style={{ ...cardStyle, padding: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>Log out</div>
+              <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 2 }}>You can sign back in any time with your email.</div>
+            </div>
+            <button
+              onClick={() => signOut({ redirectUrl: "/sign-in" })}
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 36, padding: "0 14px", borderRadius: 6, background: "var(--bg)", border: "1px solid var(--border-hover)", color: "var(--red)", fontSize: 13, fontWeight: 500, cursor: "pointer" }}
+            >
+              <LogOut size={14} />
+              Log out
+            </button>
           </div>
-          <button
-            onClick={() => signOut({ redirectUrl: "/sign-in" })}
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 36, padding: "0 14px", borderRadius: 6, background: "var(--bg)", border: "1px solid var(--border-hover)", color: "var(--red)", fontSize: 13, fontWeight: 500, cursor: "pointer" }}
-          >
-            <LogOut size={14} />
-            Log out
-          </button>
         </div>
       </PageSection>
-      </div>
+    </div>
     </div>
   );
 }
 
-function Row({ label, value, last }: { label: string; value: string; last?: boolean }) {
+function InfoCard({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 150px) minmax(0, 1fr)", alignItems: "baseline", gap: 16, padding: "16px 20px", borderBottom: last ? "none" : "1px solid var(--border)" }}>
-      <span style={{ fontSize: 13.5, color: "var(--text-secondary)" }}>{label}</span>
-      <span style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)", overflowWrap: "anywhere" }}>{value}</span>
+    <div style={{ ...cardStyle, padding: 20 }}>
+      <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink)", overflowWrap: "anywhere" }}>{value}</div>
     </div>
   );
 }

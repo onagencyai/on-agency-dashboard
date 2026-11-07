@@ -24,8 +24,8 @@ export const cardGrid: CSSProperties = {
   gap: 12,
 };
 
-// Settings-style pages keep their content in a readable column on the left (like Mercury and Stripe) instead of stretching across wide monitors.
-export const pageColumn: CSSProperties = { maxWidth: 720 };
+// Same page container as Ledger: centered, up to 1440px wide.
+export const pageColumn: CSSProperties = { maxWidth: 1440, margin: "0 auto" };
 
 export const pagePadding = "24px clamp(12px, 3vw, 32px) 32px";
 

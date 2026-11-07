@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { Check, Mail, MessageSquare } from "lucide-react";
-import { PageSection, PageTitle, cardStyle, cardGrid, pagePadding, pageColumn } from "@/components/PageSection";
+import { PageSection, PageTitle, cardStyle, pagePadding, pageColumn } from "@/components/PageSection";
 
 const UPDATE_ITEMS = [
   "Business hours or holiday closures",
@@ -19,7 +19,7 @@ export default function UpdatesPage() {
       <PageTitle>Updates</PageTitle>
 
       <PageSection title="Request a change" cue="We handle every change for you. Send us a message and we update your AI. We usually reply within 24 hours.">
-        <div style={cardGrid}>
+        <div className="ledger-grid">
           <ContactCard
             icon={<Mail size={16} />}
             label="Email"
@@ -38,7 +38,7 @@ export default function UpdatesPage() {
       </PageSection>
 
       <PageSection title="What you can request" cue="Anything about how your AI talks, answers or routes calls.">
-        <div style={cardGrid}>
+        <div className="ledger-grid">
           {UPDATE_ITEMS.map((item) => (
             <div key={item} style={{ ...cardStyle, padding: "16px 20px", display: "flex", alignItems: "center", gap: 12 }}>
               <span style={{ width: 22, height: 22, borderRadius: "50%", background: "var(--green-dim)", color: "var(--green)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>

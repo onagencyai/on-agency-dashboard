@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { PageSection, PageTitle, cardStyle, cardGrid, pagePadding, pageColumn } from "@/components/PageSection";
+import { PageSection, PageTitle, cardStyle, pagePadding, pageColumn } from "@/components/PageSection";
 
 function getMonthRange(): { billingPeriod: string; nextCharge: string } {
   const now = new Date();
@@ -32,7 +32,7 @@ export default async function BillingPage() {
       <PageTitle>Billing</PageTitle>
 
       <PageSection title="Current plan" cue="Your subscription with On Agency.">
-        <div style={cardGrid}>
+        <div className="ledger-grid">
           <InfoCard label="Billing period" value={billingPeriod} />
           <InfoCard label="Next charge" value={nextCharge} />
           <InfoCard label="Cycle" value="Month to month" />
@@ -47,6 +47,7 @@ export default async function BillingPage() {
       </PageSection>
 
       <PageSection title="Need a change?" cue="To add services, update your plan or change anything about billing, reach out to us.">
+        <div className="ledger-grid">
         <div style={{ ...cardStyle, padding: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div>
             <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>Billing questions</div>
@@ -58,6 +59,7 @@ export default async function BillingPage() {
           >
             Contact us
           </a>
+        </div>
         </div>
       </PageSection>
       </div>

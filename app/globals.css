@@ -304,3 +304,7 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
 
 .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* Ledger's settings grid: one column on phones, two from 640px up. */
+.ledger-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 640px) { .ledger-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
