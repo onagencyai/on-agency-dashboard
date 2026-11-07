@@ -191,7 +191,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
           })}
           {n > 1 && <path d={area} fill={`url(#g${gid})`} />}
           <path d={line} fill="none" style={{ stroke: "var(--blue)" }} strokeWidth={1.75} strokeLinejoin="round" strokeLinecap="round" />
-          {n <= 14 && rows.map((r, i) => i !== active && (
+          {n <= 14 && rows.map((r, i) => i !== active && r.value > 0 && (
             <circle key={i} cx={pts[i].x} cy={pts[i].y} r={3} style={{ fill: "var(--bg-1)", stroke: "var(--blue)" }} strokeWidth={1.5} />
           ))}
           {active !== null && pts[active] && (
