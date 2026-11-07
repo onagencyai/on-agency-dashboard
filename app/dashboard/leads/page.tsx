@@ -155,7 +155,7 @@ export default function LeadsPage() {
 
       <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "clip" }}>
         {/* Tabs */}
-        <div style={{ display: "flex", borderBottom: "1px solid var(--border)", padding: isMobile ? "0 8px" : "0 20px", overflowX: "auto" }}>
+        <div style={{ display: "flex", borderBottom: "1px solid var(--border)", padding: isMobile ? "0 8px" : "0 20px", overflowX: isMobile ? "auto" : "visible" }}>
           {FILTERS.map((f) => (
             <button
               key={f.value}

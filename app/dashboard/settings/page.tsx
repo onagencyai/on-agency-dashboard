@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { LogOut } from "lucide-react";
+import { PageSection, PageTitle, cardStyle, pagePadding } from "@/components/PageSection";
 
 export default function SettingsPage() {
   const { user } = useUser();
@@ -28,61 +29,40 @@ export default function SettingsPage() {
   }, []);
 
   return (
-    <div style={{ padding: "24px 32px 32px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>
-          Settings
-        </span>
-      </div>
+    <div style={{ padding: pagePadding }}>
+      <PageTitle>Settings</PageTitle>
 
-      <div
-        style={{
-          background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden",
-          maxWidth: 520,
-        }}
-      >
-        {/* Panel header */}
-        <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--border)" }}>
-          <span style={{ fontSize: 16, fontWeight: 600, color: "var(--ink)" }}>Account</span>
+      <PageSection title="Account" cue="The details tied to your login.">
+        <div style={cardStyle}>
+          <Row label="Business name" value={businessName} />
+          <Row label="Email" value={email} last />
         </div>
+      </PageSection>
 
-        {/* Fields */}
-        <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
-          {/* Business Name */}
+      <PageSection title="Session" cue="Sign out of this device.">
+        <div style={{ ...cardStyle, padding: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 500, color: "var(--text-tertiary)", marginBottom: 6 }}>
-              Business Name
-            </div>
-            <div style={{ fontSize: 14, color: "var(--text-secondary)" }}>{businessName}</div>
+            <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>Log out</div>
+            <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 2 }}>You can sign back in any time with your email.</div>
           </div>
-
-          {/* Email */}
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 500, color: "var(--text-tertiary)", marginBottom: 6 }}>
-              Email
-            </div>
-            <div style={{ fontSize: 14, color: "var(--text-secondary)" }}>{email}</div>
-          </div>
-        </div>
-
-        {/* Logout */}
-        <div style={{ borderTop: "1px solid var(--border)", padding: "20px 24px" }}>
           <button
             onClick={() => signOut({ redirectUrl: "/sign-in" })}
-            style={{
-              display: "flex", alignItems: "center", gap: 8,
-              color: "var(--red)", fontSize: 14, fontWeight: 400,
-              cursor: "pointer", background: "none", border: "none", padding: 0,
-              transition: "opacity 0.15s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 36, padding: "0 14px", borderRadius: 6, background: "var(--bg)", border: "1px solid var(--border-hover)", color: "var(--red)", fontSize: 13, fontWeight: 500, cursor: "pointer" }}
           >
-            <LogOut size={16} />
-            Log out of your account
+            <LogOut size={14} />
+            Log out
           </button>
         </div>
-      </div>
+      </PageSection>
+    </div>
+  );
+}
+
+function Row({ label, value, last }: { label: string; value: string; last?: boolean }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", padding: "16px 20px", borderBottom: last ? "none" : "1px solid var(--border)" }}>
+      <span style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>{label}</span>
+      <span style={{ fontSize: 13.5, color: "var(--text-secondary)", overflowWrap: "anywhere" }}>{value}</span>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
-import type { ReactNode } from "react";
-import { PenLine, CheckCircle2, Mail, MessageSquare } from "lucide-react";
+import { Check, Mail, MessageSquare } from "lucide-react";
+import { PageSection, PageTitle, cardStyle, cardGrid, pagePadding } from "@/components/PageSection";
 
 const UPDATE_ITEMS = [
   "Business hours or holiday closures",
@@ -14,96 +14,57 @@ const UPDATE_ITEMS = [
 
 export default function UpdatesPage() {
   return (
-    <div style={{ padding: "24px 32px 32px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>
-          Updates
-        </span>
-      </div>
+    <div style={{ padding: pagePadding }}>
+      <PageTitle>Updates</PageTitle>
 
-      <div
-        style={{
-          background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden",
-        }}
-      >
-        {/* Panel header */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "16px 24px", borderBottom: "1px solid var(--border)" }}>
-          <PenLine size={20} style={{ color: "var(--text-secondary)" }} />
-          <span style={{ fontSize: 16, fontWeight: 600, color: "var(--ink)" }}>
-            Request a change to your AI
-          </span>
+      <PageSection title="Request a change" cue="We handle every change for you. Send us a message and we update your AI. We usually reply within 24 hours.">
+        <div style={cardGrid}>
+          <ContactCard
+            icon={<Mail size={16} />}
+            label="Email"
+            value="contact@onagency.ai"
+            buttonLabel="Send email"
+            href="mailto:contact@onagency.ai?subject=Dashboard Update Request"
+          />
+          <ContactCard
+            icon={<MessageSquare size={16} />}
+            label="Text message"
+            value="+1 (832) 961-4870"
+            buttonLabel="Send text"
+            href="sms:+18329614870"
+          />
         </div>
+      </PageSection>
 
-        {/* Panel body */}
-        <div style={{ padding: "24px 32px 32px" }}>
-          <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.7, maxWidth: 560, marginBottom: 24 }}>
-            Want to update your AI agent? We handle all changes for you — just send us a message.
-          </p>
-
-          <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: 12 }}>
-            What you can request
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 0 }}>
-            {UPDATE_ITEMS.map((item) => (
-              <div key={item} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <CheckCircle2 size={14} style={{ color: "var(--green)", flexShrink: 0 }} />
-                <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>{item}</span>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ borderTop: "1px solid var(--border)", marginTop: 24, paddingTop: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: 12 }}>
-              How to reach us
+      <PageSection title="What you can request" cue="Anything about how your AI talks, answers or routes calls.">
+        <div style={cardGrid}>
+          {UPDATE_ITEMS.map((item) => (
+            <div key={item} style={{ ...cardStyle, padding: "16px 20px", display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ width: 22, height: 22, borderRadius: "50%", background: "var(--green-dim)", color: "var(--green)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Check size={13} strokeWidth={2.5} />
+              </span>
+              <span style={{ fontSize: 13.5, color: "var(--ink)", fontWeight: 500 }}>{item}</span>
             </div>
-
-            <div className="updates-contact-grid" style={{ marginBottom: 16 }}>
-              <ContactCard
-                icon={<Mail size={20} style={{ color: "var(--text-secondary)" }} />}
-                label="Email"
-                value="contact@onagency.ai"
-                buttonLabel="Send Email"
-                href="mailto:contact@onagency.ai?subject=Dashboard Update Request"
-              />
-              <ContactCard
-                icon={<MessageSquare size={20} style={{ color: "var(--text-secondary)" }} />}
-                label="Text Message"
-                value="+1 (832) 961-4870"
-                buttonLabel="Send Text"
-                href="sms:+18329614870"
-              />
-            </div>
-
-            <p style={{ fontSize: 13, color: "var(--text-tertiary)", fontStyle: "italic" }}>
-              We review all requests and typically respond within 24 hours.
-            </p>
-          </div>
+          ))}
         </div>
-      </div>
+      </PageSection>
     </div>
   );
 }
 
-function ContactCard({ icon, label, value, buttonLabel, href }: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-  buttonLabel: string;
-  href: string;
-}) {
+function ContactCard({ icon, label, value, buttonLabel, href }: { icon: React.ReactNode; label: string; value: string; buttonLabel: string; href: string }) {
   return (
-    <div style={{ background: "var(--bg-2)", border: "1px solid var(--border)", borderRadius: 8, padding: 16 }}>
-      {icon}
-      <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", marginTop: 10 }}>{label}</div>
-      <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>{value}</div>
+    <div style={{ ...cardStyle, padding: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+        <span style={{ width: 36, height: 36, borderRadius: 8, background: "var(--bg-2)", color: "var(--text-secondary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</span>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>{label}</div>
+          <div className="num" style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 2 }}>{value}</div>
+        </div>
+      </div>
       <a
         href={href}
-        style={{
-          display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12,
-          background: "var(--bg-3)", border: "1px solid var(--border)",
-          color: "var(--text-secondary)", padding: "6px 12px", borderRadius: 8,
-          fontSize: 13, cursor: "pointer", textDecoration: "none",
-        }}
+        style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 14px", borderRadius: 6, background: "var(--accent)", color: "var(--bg)", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" }}
       >
         {buttonLabel}
       </a>

@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { CreditCard, MessageCircle } from "lucide-react";
+import { PageSection, PageTitle, cardStyle, cardGrid, pagePadding } from "@/components/PageSection";
 
 function getMonthRange(): { billingPeriod: string; nextCharge: string } {
   const now = new Date();
@@ -27,79 +27,47 @@ export default async function BillingPage() {
   const { billingPeriod, nextCharge } = getMonthRange();
 
   return (
-    <div style={{ padding: "24px 32px 32px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>
-          Billing
-        </span>
-      </div>
+    <div style={{ padding: pagePadding }}>
+      <PageTitle>Billing</PageTitle>
 
-      {/* Current Plan */}
-      <div
-        style={{
-          background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12,
-          padding: 24, marginBottom: 16,
-        }}
-      >
-        <CreditCard size={20} style={{ color: "var(--text-secondary)" }} />
-        <div style={{ fontSize: 16, fontWeight: 600, color: "var(--ink)", marginTop: 12 }}>
-          Current Plan
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 20 }}>
-          <InfoItem label="Billing Period" value={billingPeriod} />
-          <InfoItem label="Next Charge" value={nextCharge} />
-          <div>
-            <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-tertiary)", marginBottom: 4 }}>
-              Status
-            </div>
-            <span
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 5,
-                fontSize: 13, fontWeight: 500, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
-                color: "var(--green)", background: "var(--green-dim)",
-                padding: "3px 10px", borderRadius: 20,
-              }}
-            >
+      <PageSection title="Current plan" cue="Your subscription with On Agency.">
+        <div style={cardGrid}>
+          <InfoCard label="Billing period" value={billingPeriod} />
+          <InfoCard label="Next charge" value={nextCharge} />
+          <InfoCard label="Cycle" value="Month to month" />
+          <div style={{ ...cardStyle, padding: 20 }}>
+            <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginBottom: 8 }}>Status</div>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 500, color: "var(--green)", background: "var(--green-dim)", padding: "3px 10px", borderRadius: 20 }}>
               <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
               Active
             </span>
           </div>
-          <InfoItem label="Cycle" value="Month to month" />
         </div>
-      </div>
+      </PageSection>
 
-      {/* Need changes? */}
-      <div
-        style={{
-          background: "var(--bg-2)", border: "1px solid var(--border)", borderRadius: 8, padding: 20,
-          display: "flex", alignItems: "flex-start", gap: 12,
-        }}
-      >
-        <MessageCircle size={16} style={{ color: "var(--text-tertiary)", marginTop: 2, flexShrink: 0 }} />
-        <div>
-          <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.7 }}>
-            To add services, update your plan, or make any billing changes, reach out to us directly.{" "}
-            <a
-              href="mailto:contact@onagency.ai?subject=Billing Inquiry"
-              style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: 3 }}
-            >
-              contact@onagency.ai
-            </a>
-          </p>
+      <PageSection title="Need a change?" cue="To add services, update your plan or change anything about billing, reach out to us.">
+        <div style={{ ...cardStyle, padding: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+          <div>
+            <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>Billing questions</div>
+            <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 2 }}>contact@onagency.ai</div>
+          </div>
+          <a
+            href="mailto:contact@onagency.ai?subject=Billing Inquiry"
+            style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 14px", borderRadius: 6, background: "var(--accent)", color: "var(--bg)", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" }}
+          >
+            Contact us
+          </a>
         </div>
-      </div>
+      </PageSection>
     </div>
   );
 }
 
-function InfoItem({ label, value }: { label: string; value: string }) {
+function InfoCard({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-tertiary)", marginBottom: 4 }}>
-        {label}
-      </div>
-      <div style={{ fontSize: 15, fontWeight: 500, color: "var(--text-primary)" }}>{value}</div>
+    <div style={{ ...cardStyle, padding: 20 }}>
+      <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink)" }}>{value}</div>
     </div>
   );
 }
