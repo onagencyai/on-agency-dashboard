@@ -48,22 +48,25 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   const [size, setSize] = useState({ w: 600, h: 200 });
   const [hover, setHover] = useState<number | null>(null);
 
-  const daily = data.dates.map((date, i) => ({ date, label: date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
-  // Long ranges (30 days and up) are grouped into weeks, counted back from the latest day, so the line stays calm and readable.
-  const weekly = daily.length >= 28;
-  const rows = weekly
+  const base0 = data.dates.map((date, i) => ({ date, label: date, value: (showOutbound ? data.outbound[i] : data.inbound[i]) ?? 0 }));
+  // The line adapts to any range: hours stay hours, up to two weeks stay days, longer ranges are grouped into weeks
+  // (or about-monthly groups for very long ranges), counted back from the latest day so the newest group is always full.
+  const hourly = data.unit === "hour";
+  const groupSize = hourly || base0.length <= 14 ? 1 : base0.length <= 100 ? 7 : 30;
+  const grouped = groupSize > 1;
+  const rows = grouped
     ? (() => {
         const out: { date: string; label: string; value: number }[] = [];
-        for (let end = daily.length; end > 0; end -= 7) {
-          const chunk = daily.slice(Math.max(0, end - 7), end);
+        for (let end = base0.length; end > 0; end -= groupSize) {
+          const chunk = base0.slice(Math.max(0, end - groupSize), end);
           const first = chunk[0].date, last = chunk[chunk.length - 1].date;
           out.unshift({ date: chunk.length > 1 ? `${first} – ${last}` : first, label: first, value: chunk.reduce((a, r) => a + r.value, 0) });
         }
         return out;
       })()
-    : daily;
+    : base0;
   const n = rows.length;
-  const unit = weekly ? "week" : "day";
+  const unit = hourly ? "hour" : groupSize === 1 ? "day" : groupSize === 7 ? "week" : "month";
   const [touch, setTouch] = useState(false);
   useEffect(() => { setTouch(window.matchMedia("(pointer: coarse)").matches); }, []);
   const max = Math.max(1, ...rows.map((r) => r.value));
@@ -82,17 +85,10 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   const LABEL_H = 46, TOP = 14;
   const base = size.h - LABEL_H;
   const usable = Math.max(10, base - TOP);
-  const PAD = weekly ? 28 : 0;
+  const PAD = 28;
   const pts: Pt[] = rows.map((r, i) => ({ x: n <= 1 ? size.w / 2 : PAD + (i / (n - 1)) * (size.w - 2 * PAD), y: base - (r.value / max) * usable }));
 
-  // Each day is a short flat step that eases into the next one, which is how Mercury's balance graph reads.
-  const half = n > 1 && !weekly ? (size.w / (n - 1)) * 0.14 : 0;
-  const stepPts: Pt[] = [];
-  if (weekly) stepPts.push(...pts);
-  else pts.forEach((p, i) => {
-    stepPts.push({ x: i === 0 ? 0 : p.x - half, y: p.y });
-    stepPts.push({ x: i === n - 1 ? size.w : p.x + half, y: p.y });
-  });
+  const stepPts: Pt[] = pts;
   const line = n > 1 ? monotonePath(stepPts) : "";
   const area = n > 1 ? `${line}L${pts[n - 1].x},${base}L${pts[0].x},${base}Z` : "";
 
@@ -166,7 +162,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
           </defs>
           {n > 1 && <path d={area} fill={`url(#g${gid})`} />}
           <path d={line} fill="none" style={{ stroke: "var(--blue)" }} strokeWidth={1.75} strokeLinejoin="round" strokeLinecap="round" />
-          {weekly && rows.map((r, i) => i !== active && (
+          {n <= 14 && rows.map((r, i) => i !== active && (
             <circle key={i} cx={pts[i].x} cy={pts[i].y} r={3} style={{ fill: "var(--bg-1)", stroke: "var(--blue)" }} strokeWidth={1.5} />
           ))}
           {active !== null && pts[active] && (

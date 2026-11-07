@@ -21,6 +21,39 @@ export async function GET(req: NextRequest) {
   const from = searchParams.get("from") ?? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const to = searchParams.get("to") ?? new Date().toISOString();
 
+  // Hourly mode for "Today": hours of the viewer's local day. tz is the browser's getTimezoneOffset() in minutes.
+  if (searchParams.get("hourly") === "1") {
+    const tz = Number(searchParams.get("tz") ?? "0") || 0;
+    const tzMs = tz * 60000;
+    const HOUR = 3600000;
+    const fromH = Math.floor((new Date(from).getTime() - tzMs) / HOUR);
+    const nowH = Math.floor((Math.min(new Date(to).getTime(), Date.now()) - tzMs) / HOUR);
+    const toH = Math.max(nowH, fromH + 2);
+    const supabase = createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from("calls")
+      .select("started_at, direction")
+      .eq("client_id", clientId)
+      .gte("started_at", new Date(fromH * HOUR + tzMs).toISOString())
+      .lte("started_at", to);
+    if (error) return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    const dates: string[] = [], inbound: number[] = [], outbound: number[] = [];
+    for (let h = fromH; h <= toH; h++) {
+      const h24 = ((h % 24) + 24) % 24;
+      dates.push(`${h24 % 12 === 0 ? 12 : h24 % 12} ${h24 < 12 ? "AM" : "PM"}`);
+      inbound.push(0);
+      outbound.push(0);
+    }
+    for (const row of data ?? []) {
+      if (!row.started_at) continue;
+      const idx = Math.floor((new Date(row.started_at).getTime() - tzMs) / HOUR) - fromH;
+      if (idx < 0 || idx >= dates.length) continue;
+      if (row.direction === "inbound") inbound[idx] += 1;
+      else if (row.direction === "outbound") outbound[idx] += 1;
+    }
+    return NextResponse.json({ unit: "hour", dates, inbound, outbound });
+  }
+
   const supabase = createServerSupabaseClient();
   const { data, error } = await supabase
     .from("calls")

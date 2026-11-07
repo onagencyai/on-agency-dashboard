@@ -124,6 +124,8 @@ export interface OutboundStats {
 }
 
 export interface CallVolumeData {
+  /** "hour" when the points are hours of one day, otherwise one point per day. */
+  unit?: "hour" | "day";
   dates: string[];
   inbound: number[];
   outbound: number[];

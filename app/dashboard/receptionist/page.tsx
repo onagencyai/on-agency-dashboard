@@ -3,8 +3,7 @@ export const dynamic = "force-dynamic";
  
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Download, PhoneOff } from "lucide-react";
-import { Headset, AddressBook, PhoneCall, HandWaving } from "@phosphor-icons/react";
+import { Download, PhoneOff, PhoneCall, Target, Voicemail, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { TimeRange, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange } from "@/lib/dateRange";
@@ -96,7 +95,7 @@ export default function ReceptionistOverviewPage() {
 
     const [statsRes, volRes, intentRes, callsRes] = await Promise.allSettled([
       fetch(`/api/receptionist-stats?from=${f}&to=${t}`).then((r) => r.json()),
-      fetch(`/api/call-volume?from=${f}&to=${tPlusOne}`).then((r) => r.json()),
+      fetch(`/api/call-volume?from=${f}&to=${tPlusOne}${timeRange === "today" ? `&hourly=1&tz=${new Date().getTimezoneOffset()}` : ""}`).then((r) => r.json()),
       fetch(`/api/call-intents?from=${f}&to=${t}&direction=inbound`).then((r) => r.json()),
       fetch(`/api/calls?from=${f}&to=${t}&direction=inbound&page=1&limit=10`).then((r) => r.json()),
     ]);
@@ -139,10 +138,10 @@ export default function ReceptionistOverviewPage() {
   const totalCallsDelta = cur && prev ? pctDelta(cur.total_calls, prev.total_calls, timeRange, false, undefined, isMobile) : undefined;
  
   const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const rangeLabel = `${MONTH_SHORT[from.getMonth()]} ${from.getDate()} – ${MONTH_SHORT[to.getMonth()]} ${to.getDate()}`;
+  const rangeLabel = timeRange === "today" ? `${MONTH_SHORT[to.getMonth()]} ${to.getDate()}` : `${MONTH_SHORT[from.getMonth()]} ${from.getDate()} – ${MONTH_SHORT[to.getMonth()]} ${to.getDate()}`;
  
   const inboundOnlyVolume: CallVolumeData = volume
-    ? { dates: volume.dates, inbound: volume.inbound, outbound: volume.dates.map(() => 0) }
+    ? { unit: volume.unit, dates: volume.dates, inbound: volume.inbound, outbound: volume.dates.map(() => 0) }
     : { dates: [], inbound: [], outbound: [] };
  
   return (
@@ -227,7 +226,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Total Calls"
               value={cur?.total_calls ?? 0}
-              icon={<Headset size={16} weight="duotone" />}
+              icon={<PhoneCall size={12} />}
               delta={totalCallsDelta}
             />
           </div>
@@ -235,7 +234,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Leads Captured"
               value={cur?.lead_count ?? 0}
-              icon={<AddressBook size={16} weight="duotone" />}
+              icon={<Target size={12} />}
               delta={cur && prev ? countDelta(cur.lead_count, prev.lead_count, timeRange, false, isMobile) : undefined}
             />
           </div>
@@ -243,7 +242,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Callbacks Requested"
               value={cur?.callback_count ?? 0}
-              icon={<PhoneCall size={16} weight="duotone" />}
+              icon={<Voicemail size={12} />}
               delta={cur && prev ? countDelta(cur.callback_count, prev.callback_count, timeRange, false, isMobile) : undefined}
             />
           </div>
@@ -251,7 +250,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="First-Time Callers"
               value={cur?.first_time_callers ?? 0}
-              icon={<HandWaving size={16} weight="duotone" />}
+              icon={<Sparkles size={12} />}
               delta={cur && prev ? countDelta(cur.first_time_callers, prev.first_time_callers, timeRange, false, isMobile) : undefined}
             />
           </div>

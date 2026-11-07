@@ -98,7 +98,7 @@ export default function OutboundOverviewPage() {
 
     const [statsRes, volRes, callsRes] = await Promise.allSettled([
       fetch(`/api/outbound-stats?from=${f}&to=${t}`).then((r) => r.json()),
-      fetch(`/api/call-volume?from=${f}&to=${tPlusOne}`).then((r) => r.json()),
+      fetch(`/api/call-volume?from=${f}&to=${tPlusOne}${timeRange === "today" ? `&hourly=1&tz=${new Date().getTimezoneOffset()}` : ""}`).then((r) => r.json()),
       fetch(`/api/calls?from=${f}&to=${t}&direction=outbound&page=1&limit=10`).then((r) => r.json()),
     ]);
 
@@ -135,8 +135,11 @@ export default function OutboundOverviewPage() {
   } as const;
 
   const outboundVolume: CallVolumeData = volume
-    ? { dates: volume.dates, inbound: volume.dates.map(() => 0), outbound: volume.outbound }
+    ? { unit: volume.unit, dates: volume.dates, inbound: volume.dates.map(() => 0), outbound: volume.outbound }
     : { dates: [], inbound: [], outbound: [] };
+
+  const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const rangeLabel = timeRange === "today" ? `${MONTH_SHORT[to.getMonth()]} ${to.getDate()}` : `${MONTH_SHORT[from.getMonth()]} ${from.getDate()} – ${MONTH_SHORT[to.getMonth()]} ${to.getDate()}`;
 
   const outcomeData = buildOutcomeData(recentCalls);
 
@@ -258,7 +261,7 @@ export default function OutboundOverviewPage() {
             {loading ? (
               <div className="skeleton" style={{ height: 220 }} />
             ) : (
-              <CallVolumeChart data={outboundVolume} />
+              <CallVolumeChart data={outboundVolume} rangeLabel={rangeLabel} />
             )}
           </div>
         </div>
