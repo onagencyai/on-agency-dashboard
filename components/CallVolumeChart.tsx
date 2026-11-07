@@ -134,8 +134,8 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   const upColor = "var(--green-text)";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 210 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", minHeight: 24 }}>
+    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 224 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", columnGap: 12, rowGap: 4, flexWrap: "wrap", minHeight: 24 }}>
         <span className="num" style={{ fontSize: 14, color: "var(--text-primary)" }}>
           {hovered ? (
             <>
@@ -165,7 +165,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
         </span>
       </div>
 
-      <div ref={wrapRef} style={{ position: "relative", flex: 1, minHeight: 150, margin: "6px -20px -20px" }}>
+      <div ref={wrapRef} style={{ position: "relative", flex: 1, minHeight: 150, margin: "20px -20px -20px" }}>
         <svg
           width={size.w}
           height={size.h}
@@ -185,7 +185,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
             return (
               <g key={v}>
                 <line x1={pts[0]?.x ?? PAD_L} x2={pts[n - 1]?.x ?? size.w - PAD} y1={y} y2={y} strokeDasharray="3 3" strokeWidth={1} style={{ stroke: "var(--border)" }} />
-                <text x={34} y={y} dy="0.35em" textAnchor="end" fontSize={12} style={{ fill: "var(--text-secondary)" }}>{v}</text>
+                <text x={34} y={y} dy="0.35em" textAnchor="end" fontSize={12} style={{ fill: "var(--text-secondary)", fontVariantNumeric: "tabular-nums", fontFeatureSettings: '"tnum"' }}>{v}</text>
               </g>
             );
           })}
