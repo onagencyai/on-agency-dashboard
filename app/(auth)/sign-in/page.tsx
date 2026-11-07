@@ -1,6 +1,6 @@
 "use client";
 
-import { useSignIn } from "@clerk/nextjs";
+import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState, FormEvent } from "react";
 import { Inter } from "next/font/google";
@@ -9,7 +9,6 @@ import LogoMark from "@/components/LogoMark";
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"] });
 
 export default function SignInPage() {
-  const { isLoaded, signIn, setActive } = useSignIn();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,27 +18,19 @@ export default function SignInPage() {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!isLoaded || !signIn) return;
-
     setError("");
     setLoading(true);
 
     try {
-      const result = await signIn.create({ identifier: email, password });
-
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
+      const { error: err } = await createClient().auth.signInWithPassword({ email: email.trim(), password });
+      if (err) {
+        setError(err.message === "Invalid login credentials" ? "Incorrect email or password." : err.message);
+      } else {
         router.push("/dashboard");
-      } else {
-        setError("Sign in could not be completed. Please try again.");
+        router.refresh();
       }
-    } catch (err: unknown) {
-      if (typeof err === "object" && err !== null && "errors" in err) {
-        const errors = (err as { errors: Array<{ message: string }> }).errors;
-        setError(errors[0]?.message ?? "An unexpected error occurred.");
-      } else {
-        setError("An unexpected error occurred.");
-      }
+    } catch {
+      setError("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -244,14 +235,14 @@ export default function SignInPage() {
             <button
               type="button"
               className="oa-google-btn"
-              disabled={!isLoaded || loading}
-              onClick={() => {
-                if (!isLoaded || !signIn) return;
-                signIn.authenticateWithRedirect({
-                  strategy: "oauth_google",
-                  redirectUrl: "/sign-in/sso-callback",
-                  redirectUrlComplete: "/dashboard",
+              disabled={loading}
+              onClick={async () => {
+                setError("");
+                const { error: err } = await createClient().auth.signInWithOAuth({
+                  provider: "google",
+                  options: { redirectTo: `${window.location.origin}/auth/callback` },
                 });
+                if (err) setError(err.message);
               }}
             >
               <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
@@ -405,7 +396,7 @@ export default function SignInPage() {
               <button
                 type="submit"
                 className="oa-btn"
-                disabled={loading || !isLoaded}
+                disabled={loading}
                 style={{
                   marginTop: 2,
                   width: "100%",
@@ -417,7 +408,7 @@ export default function SignInPage() {
                   fontSize: "14px",
                   fontWeight: 500,
                   fontFamily: "inherit",
-                  cursor: loading || !isLoaded ? "not-allowed" : "pointer",
+                  cursor: loading ? "not-allowed" : "pointer",
                   transition: "background 150ms",
                 }}
               >

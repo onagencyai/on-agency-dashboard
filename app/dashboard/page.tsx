@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { ServiceType } from "@/lib/types";
@@ -16,7 +16,7 @@ export default async function DashboardEntryPage() {
   const { data } = await supabase
     .from("clients")
     .select("services")
-    .eq("clerk_user_id", user.id)
+    .eq("login_email", user.email)
     .limit(1)
     .maybeSingle();
 

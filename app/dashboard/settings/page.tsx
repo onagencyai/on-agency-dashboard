@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import SignOutButton from "@/components/SignOutButton";
@@ -17,11 +17,11 @@ export default async function SettingsPage() {
   let timezone = "America/Chicago";
   try {
     const supabase = createServerSupabaseClient();
-    const { data } = await supabase.from("clients").select("business_name, timezone").eq("clerk_user_id", user.id).single();
+    const { data } = await supabase.from("clients").select("business_name, timezone").eq("login_email", user.email).single();
     if (data?.business_name && String(data.business_name).trim()) businessName = String(data.business_name).trim();
     if (data?.timezone) timezone = String(data.timezone);
   } catch {
-    // keep the Clerk value
+    // keep the default
   }
   if (!businessName) businessName = "—";
 

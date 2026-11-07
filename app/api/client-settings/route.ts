@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@/lib/auth";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { resolveClientId } from "@/lib/resolve-client-id";
 import { TIMEZONES } from "@/lib/timezones";

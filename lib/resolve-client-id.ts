@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 interface UserLike {
   id: string;
+  email?: string;
   publicMetadata?: unknown;
 }
 
@@ -18,7 +19,7 @@ export async function resolveClientId(user: UserLike): Promise<string | null> {
   const { data, error } = await supabase
     .from("clients")
     .select("client_id")
-    .eq("clerk_user_id", user.id)
+    .eq("login_email", (user.email ?? "").toLowerCase())
     .limit(1)
     .maybeSingle();
 

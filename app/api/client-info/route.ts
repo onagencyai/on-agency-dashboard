@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@/lib/auth";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { resolveClientId } from "@/lib/resolve-client-id";
 
@@ -18,7 +18,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("clients")
     .select("client_id, services, business_name")
-    .eq("clerk_user_id", user.id)
+    .eq("login_email", user.email)
     .single();
 
   if (error || !data) {

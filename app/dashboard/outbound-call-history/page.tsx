@@ -2,7 +2,6 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useUser } from "@clerk/nextjs";
 import { Search, Download, PhoneOff, ChevronLeft, ChevronRight } from "lucide-react";
 import type { CallRow } from "@/lib/types";
 import { formatDuration, getSentimentColor, formatPhoneNumber } from "@/lib/formatters";
@@ -33,7 +32,6 @@ function getCallOutcome(call: CallRow): { label: string; color: string; bg: stri
 }
 
 export default function OutboundCallHistoryPage() {
-  const { isLoaded } = useUser();
 
   const [rangeValue, setRangeValue] = useState<RangeValue>(defaultRangeValue);
   const [activeTab, setActiveTab] = useState<OutcomeTab>("all");
@@ -67,7 +65,6 @@ export default function OutboundCallHistoryPage() {
   }, [search]);
 
   const fetchCalls = useCallback(async () => {
-    if (!isLoaded) return;
     setLoading(true);
     const f = from.toISOString();
     const t = to.toISOString();
@@ -87,7 +84,7 @@ export default function OutboundCallHistoryPage() {
     } finally {
       setLoading(false);
     }
-  }, [isLoaded, page, activeTab, debouncedSearch, rangeValue]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [page, activeTab, debouncedSearch, rangeValue]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { void fetchCalls(); }, [fetchCalls]);
 

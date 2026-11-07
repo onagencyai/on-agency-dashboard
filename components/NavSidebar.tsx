@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useClerk } from "@clerk/nextjs";
+import { signOutAndLeave } from "@/lib/sign-out";
 import {
   Phone,
   Users,
@@ -60,7 +60,6 @@ interface NavSidebarProps {
 
 export default function NavSidebar({ services, mobileOpen = false, onClose }: NavSidebarProps) {
   const pathname = usePathname();
-  const { signOut } = useClerk();
   const navItems = buildNavItems(services);
 
   const isActive = (href: string) => {
@@ -108,7 +107,7 @@ export default function NavSidebar({ services, mobileOpen = false, onClose }: Na
       </nav>
 
       <div style={{ flexShrink: 0, padding: "12px 12px 16px" }}>
-        <LogoutButton onSignOut={() => signOut({ redirectUrl: "/sign-in" })} />
+        <LogoutButton onSignOut={() => signOutAndLeave()} />
       </div>
     </aside>
   );

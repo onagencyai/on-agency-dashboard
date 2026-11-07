@@ -2,7 +2,6 @@
 export const dynamic = "force-dynamic";
  
 import { useState, useEffect, useCallback } from "react";
-import { useUser } from "@clerk/nextjs";
 import { Download, PhoneOff, Phone, ClipboardCheck, PhoneOutgoing, UserPlus } from "lucide-react";
 import Link from "next/link";
 import type { TimeRange, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
@@ -73,7 +72,6 @@ function getCallIntent(call: CallRow): string {
 }
  
 export default function ReceptionistOverviewPage() {
-  const { isLoaded } = useUser();
  
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
   const [stats, setStats] = useState<ReceptionistStats | null>(null);
@@ -87,7 +85,6 @@ export default function ReceptionistOverviewPage() {
   const { from, to } = getDateRange(timeRange);
  
   const fetchData = useCallback(async () => {
-    if (!isLoaded) return;
     setLoading(true);
     const f = from.toISOString();
     const t = to.toISOString();
@@ -106,7 +103,7 @@ export default function ReceptionistOverviewPage() {
     if (callsRes.status === "fulfilled") setCalls((callsRes.value as { calls: CallRow[] }).calls ?? []);
  
     setLoading(false);
-  }, [timeRange, isLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [timeRange]); // eslint-disable-line react-hooks/exhaustive-deps
  
   useEffect(() => {
     void fetchData();

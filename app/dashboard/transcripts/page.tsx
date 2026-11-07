@@ -3,7 +3,6 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useUser } from "@clerk/nextjs";
 import { Search, AlertCircle, FileText, ChevronDown } from "lucide-react";
 import type { CallRow } from "@/lib/types";
 import Badge from "@/components/Badge";
@@ -129,7 +128,6 @@ function TranscriptCard({ call }: { call: CallRow }) {
 }
 
 export default function TranscriptsPage() {
-  const { isLoaded } = useUser();
 
   const [calls, setCalls] = useState<CallRow[]>([]);
   const [filtered, setFiltered] = useState<CallRow[]>([]);
@@ -139,7 +137,6 @@ export default function TranscriptsPage() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchTranscripts = useCallback(async () => {
-    if (!isLoaded) return;
     setLoading(true);
     setError(false);
 
@@ -158,7 +155,7 @@ export default function TranscriptsPage() {
     } finally {
       setLoading(false);
     }
-  }, [isLoaded]);
+  }, []);
 
   useEffect(() => {
     void fetchTranscripts();

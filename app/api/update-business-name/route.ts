@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@/lib/auth";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 export async function PATCH(req: NextRequest) {
@@ -16,7 +16,7 @@ export async function PATCH(req: NextRequest) {
   const { error } = await supabase
     .from("clients")
     .update({ business_name: businessName })
-    .eq("clerk_user_id", user.id);
+    .eq("login_email", user.email);
 
   if (error) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

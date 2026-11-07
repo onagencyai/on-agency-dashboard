@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
 import { Menu } from "lucide-react";
 import NavSidebar from "@/components/NavSidebar";
 import LogoMark from "@/components/LogoMark";
 import ThemeToggle from "@/components/ThemeToggle";
-import type { ServiceType, UserPublicMetadata } from "@/lib/types";
+import type { ServiceType } from "@/lib/types";
 import { usePathname } from "next/navigation";
 
 export default function DashboardLayout({
@@ -15,10 +14,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { user } = useUser();
-  const metadata = (user?.publicMetadata ?? {}) as Partial<UserPublicMetadata>;
-  const [services, setServices] = useState<ServiceType[]>((metadata.services ?? ["receptionist"]) as ServiceType[]);
-  const [businessName, setBusinessName] = useState(metadata.business_name ?? "");
+  const [services, setServices] = useState<ServiceType[]>((["receptionist"]) as ServiceType[]);
+  const [businessName, setBusinessName] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
