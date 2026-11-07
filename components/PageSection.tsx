@@ -31,7 +31,7 @@ export const pagePadding = "24px clamp(12px, 3vw, 32px) 32px";
 
 export function PageTitle({ children }: { children: ReactNode }) {
   return (
-    <div style={{ marginBottom: 24 }}>
+    <div style={{ marginBottom: 24, minHeight: 36, display: "flex", alignItems: "center" }}>
       <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>{children}</span>
     </div>
   );
