@@ -60,9 +60,11 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   // The line adapts to any range: hours stay hours, up to two weeks stay days, longer ranges are grouped into weeks
   // (or about-monthly groups for very long ranges), counted back from the latest day so the newest group is always full.
   const hourly = data.unit === "hour";
-  // How many points fit comfortably: a wide monitor can show every day of 30 or 60 days, a phone groups them into weeks.
-  const fitPoints = Math.max(8, Math.floor((size.w - 80) / 14));
-  const groupSize = hourly || base0.length <= fitPoints ? 1 : Math.ceil(base0.length / 7) <= fitPoints ? 7 : 30;
+  // Hours stay hours and up to two weeks stay days. Longer ranges are grouped: weekly (monthly for very long ranges),
+  // and 30 days on a big monitor (card wider than 1000px) is grouped by 4 days so it has about as many points as 60 days
+  // does. On a laptop or phone, 30 days stays weekly.
+  const wide = size.w >= 1000;
+  const groupSize = hourly || base0.length <= 14 ? 1 : wide && base0.length <= 45 ? 4 : base0.length <= 100 ? 7 : 30;
   const grouped = groupSize > 1;
   const rows = grouped
     ? (() => {
@@ -76,7 +78,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
       })()
     : base0;
   const n = rows.length;
-  const unit = hourly ? "hour" : groupSize === 1 ? "day" : groupSize === 7 ? "week" : "month";
+  const unit = hourly ? "hour" : groupSize === 1 ? "day" : groupSize === 4 ? "4 days" : groupSize === 7 ? "week" : "month";
   const [touch, setTouch] = useState(false);
   useEffect(() => { setTouch(window.matchMedia("(pointer: coarse)").matches); }, []);
   const max = Math.max(1, ...rows.map((r) => r.value));
@@ -112,7 +114,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   // Dates sit under the points at an equal step, spanning the whole graph from the first point to the last.
   // Show every point when they fit; otherwise use a step that divides the span evenly so both ends get a date.
   let labelIdx: number[] = rows.map((_, i) => i);
-  const maxLabels = Math.max(2, Math.floor((size.w - PAD_L - PAD) / 54) + 1);
+  const maxLabels = Math.max(2, Math.floor((size.w - PAD_L - PAD) / 74) + 1);
   if (n > maxLabels) {
     const span = n - 1;
     const minStep = Math.ceil(span / (maxLabels - 1));
