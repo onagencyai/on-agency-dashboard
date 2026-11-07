@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { PageSection, PageTitle, cardStyle, cardGrid, pagePadding } from "@/components/PageSection";
+import { PageSection, PageTitle, cardStyle, cardGrid, pagePadding, pageColumn } from "@/components/PageSection";
 
 function getMonthRange(): { billingPeriod: string; nextCharge: string } {
   const now = new Date();
@@ -28,6 +28,7 @@ export default async function BillingPage() {
 
   return (
     <div style={{ padding: pagePadding }}>
+      <div style={pageColumn}>
       <PageTitle>Billing</PageTitle>
 
       <PageSection title="Current plan" cue="Your subscription with On Agency.">
@@ -59,6 +60,7 @@ export default async function BillingPage() {
           </a>
         </div>
       </PageSection>
+      </div>
     </div>
   );
 }

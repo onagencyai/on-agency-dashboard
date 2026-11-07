@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { LogOut } from "lucide-react";
-import { PageSection, PageTitle, cardStyle, pagePadding } from "@/components/PageSection";
+import { PageSection, PageTitle, cardStyle, pagePadding, pageColumn } from "@/components/PageSection";
 
 export default function SettingsPage() {
   const { user } = useUser();
@@ -30,6 +30,7 @@ export default function SettingsPage() {
 
   return (
     <div style={{ padding: pagePadding }}>
+      <div style={pageColumn}>
       <PageTitle>Settings</PageTitle>
 
       <PageSection title="Account" cue="The details tied to your login.">
@@ -54,15 +55,16 @@ export default function SettingsPage() {
           </button>
         </div>
       </PageSection>
+      </div>
     </div>
   );
 }
 
 function Row({ label, value, last }: { label: string; value: string; last?: boolean }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", padding: "16px 20px", borderBottom: last ? "none" : "1px solid var(--border)" }}>
-      <span style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>{label}</span>
-      <span style={{ fontSize: 13.5, color: "var(--text-secondary)", overflowWrap: "anywhere" }}>{value}</span>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 150px) minmax(0, 1fr)", alignItems: "baseline", gap: 16, padding: "16px 20px", borderBottom: last ? "none" : "1px solid var(--border)" }}>
+      <span style={{ fontSize: 13.5, color: "var(--text-secondary)" }}>{label}</span>
+      <span style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)", overflowWrap: "anywhere" }}>{value}</span>
     </div>
   );
 }

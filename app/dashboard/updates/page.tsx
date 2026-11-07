@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { Check, Mail, MessageSquare } from "lucide-react";
-import { PageSection, PageTitle, cardStyle, cardGrid, pagePadding } from "@/components/PageSection";
+import { PageSection, PageTitle, cardStyle, cardGrid, pagePadding, pageColumn } from "@/components/PageSection";
 
 const UPDATE_ITEMS = [
   "Business hours or holiday closures",
@@ -15,6 +15,7 @@ const UPDATE_ITEMS = [
 export default function UpdatesPage() {
   return (
     <div style={{ padding: pagePadding }}>
+      <div style={pageColumn}>
       <PageTitle>Updates</PageTitle>
 
       <PageSection title="Request a change" cue="We handle every change for you. Send us a message and we update your AI. We usually reply within 24 hours.">
@@ -48,6 +49,7 @@ export default function UpdatesPage() {
           ))}
         </div>
       </PageSection>
+      </div>
     </div>
   );
 }

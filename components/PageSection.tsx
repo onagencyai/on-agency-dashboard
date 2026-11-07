@@ -24,6 +24,9 @@ export const cardGrid: CSSProperties = {
   gap: 12,
 };
 
+// Settings-style pages keep their content in a readable column on the left (like Mercury and Stripe) instead of stretching across wide monitors.
+export const pageColumn: CSSProperties = { maxWidth: 720 };
+
 export const pagePadding = "24px clamp(12px, 3vw, 32px) 32px";
 
 export function PageTitle({ children }: { children: ReactNode }) {
