@@ -8,6 +8,8 @@ interface DeltaProps {
 
 interface MetricCardProps {
   label: string;
+  /** Shorter label used on phones so it stays on one line. */
+  shortLabel?: string;
   value: string | number;
   valueSuffix?: string;
   icon?: ReactNode;
@@ -16,16 +18,21 @@ interface MetricCardProps {
 }
 
 // Stat card in Ledger's style: small caps label, large number, one line of context.
-export default function MetricCard({ label, value, valueSuffix, icon, delta, children }: MetricCardProps) {
+export default function MetricCard({ label, shortLabel, value, valueSuffix, icon, delta, children }: MetricCardProps) {
   const deltaColor =
     delta?.direction === "up" ? "var(--green-text)" : delta?.direction === "down" ? "var(--red)" : "var(--text-secondary)";
 
   return (
-    <div style={{ background: "var(--bg-1)", padding: "18px 20px" }}>
+    <div className="metric-card" style={{ background: "var(--bg-1)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
         {icon && <span style={{ color: "var(--text-secondary)", display: "flex" }}>{icon}</span>}
         <span style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.025em", textTransform: "uppercase", color: "var(--text-secondary)" }}>
-          {label}
+          {shortLabel ? (
+            <>
+              <span className="label-full">{label}</span>
+              <span className="label-short">{shortLabel}</span>
+            </>
+          ) : label}
         </span>
       </div>
 

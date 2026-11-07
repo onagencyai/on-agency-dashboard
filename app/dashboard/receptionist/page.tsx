@@ -220,6 +220,7 @@ export default function ReceptionistOverviewPage() {
           <div style={metricCardShell}>
             <MetricCard
               label="Leads Captured"
+              shortLabel="Leads"
               value={cur?.lead_count ?? 0}
               icon={<ClipboardCheck size={14} />}
               delta={cur && prev ? countDelta(cur.lead_count, prev.lead_count, timeRange, false, isMobile) : undefined}
@@ -228,6 +229,7 @@ export default function ReceptionistOverviewPage() {
           <div style={metricCardShell}>
             <MetricCard
               label="Callbacks Requested"
+              shortLabel="Callbacks"
               value={cur?.callback_count ?? 0}
               icon={<PhoneOutgoing size={14} />}
               delta={cur && prev ? countDelta(cur.callback_count, prev.callback_count, timeRange, false, isMobile) : undefined}
@@ -236,6 +238,7 @@ export default function ReceptionistOverviewPage() {
           <div style={metricCardShell}>
             <MetricCard
               label="First-Time Callers"
+              shortLabel="New Callers"
               value={cur?.first_time_callers ?? 0}
               icon={<UserPlus size={14} />}
               delta={cur && prev ? countDelta(cur.first_time_callers, prev.first_time_callers, timeRange, false, isMobile) : undefined}

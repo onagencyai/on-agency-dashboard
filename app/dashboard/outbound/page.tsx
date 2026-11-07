@@ -197,6 +197,7 @@ export default function OutboundOverviewPage() {
           <div style={metricCardShell}>
             <MetricCard
               label="Total Calls Made"
+              shortLabel="Calls Made"
               value={cur?.total_calls ?? 0}
               icon={<PhoneCall size={12} />}
               delta={cur && prev ? pctDelta(cur.total_calls, prev.total_calls, timeRange) : undefined}
