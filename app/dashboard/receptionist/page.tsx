@@ -145,11 +145,11 @@ export default function ReceptionistOverviewPage() {
     : { dates: [], inbound: [], outbound: [] };
  
   return (
-    <div style={{ padding: isMobile ? "18px 12px 20px" : "24px 32px 32px" }}>
+    <div className="page-pad">
       {isMobile ? (
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-            <span style={{ fontSize: 22, lineHeight: "28px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>
+            <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>
               Overview
             </span>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -158,7 +158,7 @@ export default function ReceptionistOverviewPage() {
           </div>
         </div>
       ) : (
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
           <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>
             Overview
           </span>

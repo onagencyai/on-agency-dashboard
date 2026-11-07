@@ -4,7 +4,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import SignOutButton from "@/components/SignOutButton";
-import { PageSection, PageTitle, cardStyle, pagePadding, pageColumn } from "@/components/PageSection";
+import { PageSection, PageTitle, cardStyle, pageColumn } from "@/components/PageSection";
 
 // Rendered on the server so the business name is already in the page when it opens.
 export default async function SettingsPage() {
@@ -23,7 +23,7 @@ export default async function SettingsPage() {
   if (!businessName) businessName = "—";
 
   return (
-    <div style={{ padding: pagePadding }}>
+    <div className="page-pad">
       <div style={pageColumn}>
       <PageTitle>Settings</PageTitle>
 

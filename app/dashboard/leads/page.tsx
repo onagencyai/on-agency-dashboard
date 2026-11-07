@@ -147,9 +147,9 @@ export default function LeadsPage() {
   const td: React.CSSProperties = { padding: "12px 16px", fontSize: 13, verticalAlign: "middle" };
 
   return (
-    <div style={{ padding: isMobile ? "18px 12px 20px" : "24px 32px 32px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 20 }}>
-        <span style={{ fontSize: isMobile ? 22 : 25, lineHeight: isMobile ? "28px" : "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Leads</span>
+    <div className="page-pad">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 24 }}>
+        <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Leads</span>
         {!isMobile && exportBtn}
       </div>
 

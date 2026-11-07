@@ -252,6 +252,11 @@ body {
   .menu-item { font-size: 14px; padding: 8px 12px; }
 }
 
+/* Page padding copied from Ledger: 20/16/64 on phones, 24 sides from 640px, 24/32 from 1024px. */
+.page-pad { padding: 20px 16px 64px; }
+@media (min-width: 640px) { .page-pad { padding: 20px 24px 24px; } }
+@media (min-width: 1024px) { .page-pad { padding: 24px 32px 24px; } }
+
 .mobile-topbar {
   display: none;
 }
@@ -342,7 +347,7 @@ body {
     z-index: 30;
     background: var(--bg);
     height: 56px;
-    padding: 0 12px 0 20px;
+    padding: 0 16px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
