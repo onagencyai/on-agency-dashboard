@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   if (!customerId) return NextResponse.json({ error: "No billing account found" }, { status: 404 });
 
   const origin = req.headers.get("origin") ?? new URL(req.url).origin;
-  const url = await createPortalUrl(customerId, `${origin}/dashboard/billing`);
+  const url = await createPortalUrl(customerId, `${origin}/billing`);
   if (!url) return NextResponse.json({ error: "Could not open billing" }, { status: 502 });
   return NextResponse.json({ url });
 }

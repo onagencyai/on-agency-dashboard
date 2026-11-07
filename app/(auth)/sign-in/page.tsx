@@ -26,7 +26,7 @@ export default function SignInPage() {
       if (err) {
         setError(err.message === "Invalid login credentials" ? "Incorrect email or password." : err.message);
       } else {
-        router.push("/dashboard");
+        router.push("/");
         router.refresh();
       }
     } catch {

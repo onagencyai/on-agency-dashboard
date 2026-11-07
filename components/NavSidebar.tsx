@@ -29,22 +29,22 @@ function buildNavItems(services: ServiceType[]): (NavItem & { gapBefore?: boolea
 
   if (services.includes("receptionist")) {
     items.push(
-      { label: "Home", href: "/dashboard/receptionist", icon: Home },
-      { label: "Call History", href: "/dashboard/receptionist-call-history", icon: Phone },
-      { label: "Leads", href: "/dashboard/leads", icon: UsersRound },
+      { label: "Home", href: "/home", icon: Home },
+      { label: "Call History", href: "/call-history", icon: Phone },
+      { label: "Leads", href: "/leads", icon: UsersRound },
     );
   }
 
   if (services.includes("outbound")) {
     items.push(
-      { label: "Outbound", href: "/dashboard/outbound", icon: PhoneOutgoing },
+      { label: "Outbound", href: "/outbound", icon: PhoneOutgoing },
     );
   }
 
   items.push(
-    { label: "Updates", href: "/dashboard/updates", icon: PenLine },
-    { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
-    { label: "Settings", href: "/dashboard/settings", icon: Settings },
+    { label: "Updates", href: "/updates", icon: PenLine },
+    { label: "Billing", href: "/billing", icon: CreditCard },
+    { label: "Settings", href: "/settings", icon: Settings },
   );
   return items;
 }
@@ -61,9 +61,7 @@ export default function NavSidebar({ services, mobileOpen = false, onClose }: Na
   const navItems = buildNavItems(services);
 
   const isActive = (href: string) => {
-    if (href === "/dashboard/receptionist") return pathname === "/dashboard/receptionist" || pathname === "/dashboard";
-    if (href === "/dashboard/receptionist-call-history") return pathname === "/dashboard/receptionist-call-history";
-    if (href === "/dashboard/outbound") return pathname === "/dashboard/outbound";
+    if (href === "/home") return pathname === "/home" || pathname === "/";
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 

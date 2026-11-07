@@ -298,7 +298,7 @@ export default function ReceptionistOverviewPage() {
               {calls.length}
             </span>
           )}
-          <Link href="/dashboard/receptionist-call-history" style={{ marginLeft: "auto", fontSize: 13, color: "var(--blue)", textDecoration: "none" }}>
+          <Link href="/call-history" style={{ marginLeft: "auto", fontSize: 13, color: "var(--blue)", textDecoration: "none" }}>
             View all →
           </Link>
         </div>
