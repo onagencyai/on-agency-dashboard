@@ -11,8 +11,8 @@ export async function POST(req: NextRequest) {
   if (!clientId) return NextResponse.json({ error: "No client ID" }, { status: 403 });
 
   const supabase = createServerSupabaseClient();
-  const { data } = await supabase.from("clients").select("stripe_customer_id").eq("client_id", clientId).maybeSingle();
-  const customerId = await findCustomerId(user.primaryEmailAddress?.emailAddress ?? null, data?.stripe_customer_id ?? null);
+  const { data } = await supabase.from("clients").select("stripe_customer_id, billing_email").eq("client_id", clientId).maybeSingle();
+  const customerId = await findCustomerId(data?.billing_email ?? user.primaryEmailAddress?.emailAddress ?? null, data?.stripe_customer_id ?? null);
   if (!customerId) return NextResponse.json({ error: "No billing account found" }, { status: 404 });
 
   const origin = req.headers.get("origin") ?? new URL(req.url).origin;

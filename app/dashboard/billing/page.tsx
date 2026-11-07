@@ -34,21 +34,24 @@ export default async function BillingPage() {
 
   const email = user.primaryEmailAddress?.emailAddress ?? null;
   let billing = null;
+  // The email the client uses in Stripe can differ from their dashboard login (Structta's owner pays with her own email).
+  let billingEmail: string | null = null;
+  let known: string | null = null;
+  const clientId = await resolveClientId(user);
+  if (clientId) {
+    const supabase = createServerSupabaseClient();
+    const { data } = await supabase.from("clients").select("stripe_customer_id, billing_email").eq("client_id", clientId).maybeSingle();
+    known = data?.stripe_customer_id ?? null;
+    billingEmail = data?.billing_email ?? null;
+  }
   if (stripeConfigured()) {
-    const clientId = await resolveClientId(user);
-    let known: string | null = null;
-    if (clientId) {
-      const supabase = createServerSupabaseClient();
-      const { data } = await supabase.from("clients").select("stripe_customer_id").eq("client_id", clientId).maybeSingle();
-      known = data?.stripe_customer_id ?? null;
-    }
-    const customerId = await findCustomerId(email, known);
+    const customerId = await findCustomerId(billingEmail ?? email, known);
     if (customerId) billing = await getBilling(customerId);
   }
 
   // Stripe's no-code customer portal link (Settings > Billing > Customer portal). Needs no API key: the client signs in with their email.
   const portalBase = process.env.STRIPE_PORTAL_LOGIN_URL?.startsWith("https://billing.stripe.com/") ? process.env.STRIPE_PORTAL_LOGIN_URL : null;
-  const portalHref = portalBase ? `${portalBase}${portalBase.includes("?") ? "&" : "?"}prefilled_email=${encodeURIComponent(email ?? "")}` : null;
+  const portalHref = portalBase ? `${portalBase}${portalBase.includes("?") ? "&" : "?"}prefilled_email=${encodeURIComponent(billingEmail ?? email ?? "")}` : null;
 
   const sub = billing?.subscription ?? null;
   const invoices = billing?.invoices ?? [];
