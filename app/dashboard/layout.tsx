@@ -5,6 +5,7 @@ import { Menu } from "lucide-react";
 import NavSidebar from "@/components/NavSidebar";
 import LogoMark from "@/components/LogoMark";
 import ThemeToggle from "@/components/ThemeToggle";
+import { prefetchOutbound } from "@/lib/prefetch";
 import type { ServiceType } from "@/lib/types";
 import { usePathname } from "next/navigation";
 
@@ -50,6 +51,13 @@ export default function DashboardLayout({
     void hydrateClientInfo();
     return () => { cancelled = true; };
   }, []);
+
+  // Warm up the Outbound page in the background so its first open is instant.
+  useEffect(() => {
+    if (!services.includes("outbound")) return;
+    const id = window.setTimeout(() => { void prefetchOutbound(); }, 1200);
+    return () => window.clearTimeout(id);
+  }, [services]);
 
   return (
     <div className="dashboard-shell">
