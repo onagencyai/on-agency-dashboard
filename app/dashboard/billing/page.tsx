@@ -55,7 +55,7 @@ export default async function BillingPage() {
           </div>
           <a
             href="mailto:contact@onagency.ai?subject=Billing Inquiry"
-            style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 14px", borderRadius: 6, background: "var(--accent)", color: "var(--bg)", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" }}
+            style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 14px", borderRadius: 6, background: "var(--btn-blue)", color: "#fff", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" }}
           >
             Contact us
           </a>

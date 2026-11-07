@@ -41,6 +41,7 @@
   --orange: #f97316;
   --orange-dim: rgba(249, 115, 22, 0.12);
   --blue: #2f80ff;
+  --btn-blue: #0060f2; /* Ledger's primary button blue */
   --blue-dim: #eaf4ff;
   --on-blue: #ffffff;
   --bubble-agent: #f4f3f9;
@@ -85,6 +86,7 @@
   --orange: #f97316;
   --orange-dim: rgba(249, 115, 22, 0.16);
   --blue: #6da7ec;
+  --btn-blue: #2a78d6;
   --blue-dim: rgba(42, 120, 214, 0.2);
   --on-blue: #0a0a0a;
   --bubble-agent: rgba(255, 255, 255, 0.07);
