@@ -48,7 +48,7 @@
   --bubble-agent: #f4f3f9;
   --bubble-user: #e9eefe;
   --chart-grid: rgba(30, 30, 41, 0.08);
-  --intent-gray: #7a8493;
+  --intent-gray: #818b9a;
 
   --dashboard-shell: #ffffff;
   --dashboard-panel: #ffffff;
@@ -58,11 +58,11 @@
   --nav-active-bg: #eaf4ff;
   --nav-active-text: #0060f2;
   --sidebar-divider: #edeef2;
-  --intent-blue: #2866d6;
-  --intent-cyan: #1790a4;
-  --intent-green: #1d9560;
-  --intent-red: #c93f39;
-  --intent-amber: #d1850b;
+  --intent-blue: #2c6ee3;
+  --intent-cyan: #199aaf;
+  --intent-green: #209f66;
+  --intent-red: #d4443e;
+  --intent-amber: #dd8e0d;
   --nav-text: #535460;
 }
 
