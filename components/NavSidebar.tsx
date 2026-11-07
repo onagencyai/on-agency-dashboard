@@ -6,6 +6,7 @@ import { signOutAndLeave } from "@/lib/sign-out";
 import {
   Phone,
   UsersRound,
+  Home,
   BarChart2,
   PhoneOutgoing,
   PenLine,
@@ -30,7 +31,7 @@ function buildNavItems(services: ServiceType[]): (NavItem & { gapBefore?: boolea
 
   if (services.includes("receptionist")) {
     items.push(
-      { label: "Overview", href: "/dashboard/receptionist", icon: "overview" },
+      { label: "Home", href: "/dashboard/receptionist", icon: Home },
       { label: "Call History", href: "/dashboard/receptionist-call-history", icon: Phone },
       { label: "Leads", href: "/dashboard/leads", icon: UsersRound },
     );
