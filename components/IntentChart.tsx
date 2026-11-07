@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import type { IntentData } from "@/lib/types";
 
 const INTENT_COLORS: Record<string, string> = {
-  "General Information": "var(--blue)",
+  "General Information": "var(--intent-blue)",
   "Pricing Information": "var(--intent-cyan)",
   "Appointments & Scheduling": "var(--intent-green)",
-  "Complaints & Cancellations": "var(--red)",
-  "Customer Support Requests": "var(--amber-fill)",
+  "Complaints & Cancellations": "var(--intent-red)",
+  "Customer Support Requests": "var(--intent-amber)",
   "Other": "var(--intent-gray)",
 };
 
