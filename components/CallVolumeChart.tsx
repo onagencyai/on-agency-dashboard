@@ -70,6 +70,11 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   const [touch, setTouch] = useState(false);
   useEffect(() => { setTouch(window.matchMedia("(pointer: coarse)").matches); }, []);
   const max = Math.max(1, ...rows.map((r) => r.value));
+  // Whole-number scale on the left (0, 2, 4, 6 ...) with at most 4 steps, always at least 0 to 3, so the height of the line reads as a count.
+  const yStep = max <= 3 ? 1 : [2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000, 10000].find((c) => Math.ceil(max / c) <= 4) ?? Math.ceil(max / 4);
+  const yTop = Math.max(3, Math.ceil(max / yStep) * yStep);
+  const yTicks: number[] = [];
+  for (let v = 0; v <= yTop; v += yStep) yTicks.push(v);
   const busiest = rows.reduce((b, r) => (r.value > b.value ? r : b), { date: "", value: 0 });
 
   useEffect(() => {
@@ -85,8 +90,8 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   const LABEL_H = 46, TOP = 14;
   const base = size.h - LABEL_H;
   const usable = Math.max(10, base - TOP);
-  const PAD = 28;
-  const pts: Pt[] = rows.map((r, i) => ({ x: n <= 1 ? size.w / 2 : PAD + (i / (n - 1)) * (size.w - 2 * PAD), y: base - (r.value / max) * usable }));
+  const PAD = 28, PAD_L = 52;
+  const pts: Pt[] = rows.map((r, i) => ({ x: n <= 1 ? (PAD_L + size.w - PAD) / 2 : PAD_L + (i / (n - 1)) * (size.w - PAD_L - PAD), y: base - (r.value / yTop) * usable }));
 
   const stepPts: Pt[] = pts;
   const line = n > 1 ? monotonePath(stepPts) : "";
@@ -95,7 +100,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   // Dates sit under the points at an equal step, spanning the whole graph from the first point to the last.
   // Show every point when they fit; otherwise use a step that divides the span evenly so both ends get a date.
   let labelIdx: number[] = rows.map((_, i) => i);
-  const maxLabels = Math.max(2, Math.floor((size.w - 2 * PAD) / 74) + 1);
+  const maxLabels = Math.max(2, Math.floor((size.w - PAD_L - PAD) / 74) + 1);
   if (n > maxLabels) {
     const span = n - 1;
     const minStep = Math.ceil(span / (maxLabels - 1));
@@ -173,6 +178,15 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
               <stop offset="100%" style={{ stopColor: "var(--blue)", stopOpacity: 0.02 }} />
             </linearGradient>
           </defs>
+          {yTicks.map((v) => {
+            const y = base - (v / yTop) * usable;
+            return (
+              <g key={v}>
+                <line x1={44} x2={size.w} y1={y} y2={y} strokeDasharray="3 3" strokeWidth={1} style={{ stroke: "var(--border)" }} />
+                <text x={34} y={y} dy="0.35em" textAnchor="end" fontSize={12} style={{ fill: "var(--text-secondary)" }}>{v}</text>
+              </g>
+            );
+          })}
           {n > 1 && <path d={area} fill={`url(#g${gid})`} />}
           <path d={line} fill="none" style={{ stroke: "var(--blue)" }} strokeWidth={1.75} strokeLinejoin="round" strokeLinecap="round" />
           {n <= 14 && rows.map((r, i) => i !== active && (
