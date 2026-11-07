@@ -39,8 +39,8 @@ export async function GET(req: NextRequest) {
   const clientId = await resolveClientId(user);
   if (!clientId) return NextResponse.json({ error: "No client ID" }, { status: 403 });
 
-  // TEMP color test (On Agency only): /dashboard/receptionist?demo=1 shows sample percentages. Remove after review.
-  if (clientId === "on-agency" && req.nextUrl.searchParams.get("demo") === "1") {
+  // TEMP color test (On Agency only): On Agency always shows sample percentages for now. Remove after review.
+  if (clientId === "on-agency") {
     const sample = [72, 58, 45, 31, 20, 12];
     return NextResponse.json({ intents: CATEGORIES.map((label, i) => ({ label, count: sample[i], percentage: sample[i] })) });
   }
