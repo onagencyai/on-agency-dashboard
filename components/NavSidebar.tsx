@@ -8,7 +8,6 @@ import {
   UsersRound,
   Home,
   BarChart2,
-  PhoneOutgoing,
   PenLine,
   CreditCard,
   Settings,
@@ -27,7 +26,6 @@ interface NavItem {
 
 function buildNavItems(services: ServiceType[]): (NavItem & { gapBefore?: boolean })[] {
   const items: (NavItem & { gapBefore?: boolean })[] = [];
-  const both = services.includes("receptionist") && services.includes("outbound");
 
   if (services.includes("receptionist")) {
     items.push(
@@ -39,8 +37,7 @@ function buildNavItems(services: ServiceType[]): (NavItem & { gapBefore?: boolea
 
   if (services.includes("outbound")) {
     items.push(
-      { label: both ? "Outbound Overview" : "Overview", href: "/dashboard/outbound", icon: BarChart2 },
-      { label: both ? "Outbound Calls" : "Call History", href: "/dashboard/outbound-call-history", icon: PhoneOutgoing },
+      { label: "Outbound", href: "/dashboard/outbound", icon: BarChart2 },
     );
   }
 
@@ -67,7 +64,6 @@ export default function NavSidebar({ services, mobileOpen = false, onClose }: Na
     if (href === "/dashboard/receptionist") return pathname === "/dashboard/receptionist" || pathname === "/dashboard";
     if (href === "/dashboard/receptionist-call-history") return pathname === "/dashboard/receptionist-call-history";
     if (href === "/dashboard/outbound") return pathname === "/dashboard/outbound";
-    if (href === "/dashboard/outbound-call-history") return pathname === "/dashboard/outbound-call-history";
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 

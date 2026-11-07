@@ -2,18 +2,16 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback } from "react";
-import { Download, PhoneOff, PhoneCall, UserCheck, Target, Clock3 } from "lucide-react";
-import Link from "next/link";
+import { Download, PhoneCall, UserCheck, Target, Clock3 } from "lucide-react";
 import type { TimeRange, OutboundStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange } from "@/lib/dateRange";
-import { formatDuration, formatDurationSeconds, getSentimentColor, formatPhoneNumber } from "@/lib/formatters";
+import { formatDurationSeconds } from "@/lib/formatters";
 import TimeRangeDropdown from "@/components/TimeRangeDropdown";
 import MetricCard from "@/components/MetricCard";
 import CallVolumeChart from "@/components/CallVolumeChart";
 import IntentChart from "@/components/IntentChart";
-import CallDetailModal from "@/components/CallDetailModal";
 import { cacheGet, cacheSet } from "@/lib/page-cache";
-import CallCardList from "@/components/CallCardList";
+import OutboundCallHistory from "@/components/OutboundCallHistory";
 
 function periodLabel(range: TimeRange): string {
   switch (range) {
@@ -67,15 +65,6 @@ function buildOutcomeData(calls: CallRow[]): IntentData[] {
   }));
 }
 
-function getCallOutcome(call: CallRow): { label: string; color: string; bg: string } {
-  if (call.in_voicemail) return { label: "Voicemail", color: "var(--text-secondary)", bg: "var(--bg-3)" };
-  if (call.disconnection_reason === "call_transfer") return { label: "Transferred", color: "var(--blue)", bg: "var(--blue-dim)" };
-  if (call.call_successful === true) return { label: "Converted", color: "var(--green)", bg: "var(--green-dim)" };
-  if (call.disconnection_reason === "dial_no_answer") return { label: "No Answer", color: "var(--amber)", bg: "var(--amber-dim)" };
-  if (call.call_successful === false) return { label: "Not Interested", color: "var(--red)", bg: "var(--red-dim)" };
-  return { label: "Ended", color: "var(--text-secondary)", bg: "var(--bg-3)" };
-}
-
 export default function OutboundOverviewPage() {
 
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
@@ -83,7 +72,6 @@ export default function OutboundOverviewPage() {
   const [volume, setVolume] = useState<CallVolumeData | null>(null);
   const [recentCalls, setRecentCalls] = useState<CallRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCall, setSelectedCall] = useState<CallRow | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   const { from, to } = getDateRange(timeRange);
@@ -157,7 +145,7 @@ export default function OutboundOverviewPage() {
       {isMobile ? (
         <div style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-            <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Outbound Overview</span>
+            <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Outbound</span>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
             </div>
@@ -165,7 +153,7 @@ export default function OutboundOverviewPage() {
         </div>
       ) : (
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
-          <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Outbound Overview</span>
+          <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Outbound</span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
             <button onClick={handleExport}
@@ -281,99 +269,7 @@ export default function OutboundOverviewPage() {
         </div>
       </div>
 
-      {/* Recent Calls */}
-      <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
-        <div style={{ display: "flex", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid var(--border)", gap: 10 }}>
-          <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)" }}>Recent Outbound Calls</span>
-          <Link href="/dashboard/outbound-call-history" style={{ marginLeft: "auto", fontSize: 13, color: "var(--blue)", textDecoration: "none" }}>
-            View all →
-          </Link>
-        </div>
-
-        {loading ? (
-          <div style={{ padding: "12px 0" }}>
-            {[0,1,2,3,4].map((i) => (
-              <div key={i} className="skeleton" style={{ height: 44, margin: "2px 16px", borderRadius: 4 }} />
-            ))}
-          </div>
-        ) : recentCalls.length === 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 20px" }}>
-            <PhoneOff size={24} style={{ color: "var(--text-tertiary)", marginBottom: 10 }} />
-            <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 4 }}>No outbound calls yet</div>
-            <div style={{ fontSize: 13, color: "var(--text-tertiary)" }}>Call data will appear here automatically.</div>
-          </div>
-        ) : isMobile ? (
-            <CallCardList calls={recentCalls} getOutcome={getCallOutcome} onSelect={setSelectedCall} />
-        ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "var(--bg-1)" }}>
-                  {["Call ID","Date & Time","Contact #","Duration","Outcome","Sentiment",""].map((h) => (
-                    <th key={h} style={{
-                      padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 500,
-                      letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text-tertiary)",
-                      borderBottom: "1px solid var(--border)", whiteSpace: "nowrap",
-                    }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {recentCalls.map((call) => {
-                  const outcome = getCallOutcome(call);
-                  const sentiment = call.user_sentiment;
-                  const sentColor = getSentimentColor(sentiment);
-                  return (
-                    <tr key={call.id}
-                      style={{ borderBottom: "1px solid var(--border)", transition: "background 0.1s", cursor: "pointer" }}
-                      onClick={() => setSelectedCall(call)}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent-dim)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                    >
-                      <td style={{ padding: "11px 16px", fontSize: 13, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-primary)", fontWeight: 400, fontVariantNumeric: "normal" }}>
-                        {(call.call_id ?? call.id ?? "").slice(0, 8)}
-                      </td>
-                      <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
-                        {call.started_at ? new Date(call.started_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"}
-                      </td>
-                      <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)" }}>
-                        {formatPhoneNumber(call.to_number)}
-                      </td>
-                      <td style={{ padding: "11px 16px", fontSize: 13, fontFamily: "var(--font-geist-sans, system-ui, sans-serif)", color: "var(--text-secondary)" }}>
-                        {formatDuration(call.duration_ms)}
-                      </td>
-                      <td style={{ padding: "11px 16px" }}>
-                        <span style={{
-                          display: "inline-flex", alignItems: "center", gap: 4,
-                          padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 500,
-                          fontFamily: "var(--font-geist-sans, system-ui, sans-serif)",
-                          color: outcome.color, background: outcome.bg,
-                        }}>
-                          <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
-                          {outcome.label}
-                        </span>
-                      </td>
-                      <td style={{ padding: "11px 16px", fontSize: 13, color: sentColor }}>{sentiment ?? "—"}</td>
-                      <td style={{ padding: "11px 16px" }}>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setSelectedCall(call); }}
-                          style={{ fontSize: 12, color: "var(--blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
-                        >
-                          View →
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      <CallDetailModal call={selectedCall} onClose={() => setSelectedCall(null)} />
+      <OutboundCallHistory timeRange={timeRange} />
     </div>
   );
 }

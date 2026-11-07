@@ -1,12 +1,11 @@
 "use client";
-export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Search, Download, PhoneOff, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, PhoneOff, ChevronLeft, ChevronRight } from "lucide-react";
 import type { CallRow } from "@/lib/types";
 import { formatDuration, getSentimentColor, formatPhoneNumber } from "@/lib/formatters";
-import CallRangePicker, { defaultRangeValue } from "@/components/CallRangePicker";
-import type { RangeValue } from "@/components/CallRangePicker";
+import type { TimeRange } from "@/lib/types";
+import { getDateRange } from "@/lib/dateRange";
 import CallDetailModal from "@/components/CallDetailModal";
 import { cacheGet, cacheSet } from "@/lib/page-cache";
 import CallCardList from "@/components/CallCardList";
@@ -32,9 +31,8 @@ function getCallOutcome(call: CallRow): { label: string; color: string; bg: stri
   return { label: "Ended", color: "var(--text-secondary)", bg: "var(--bg-3)" };
 }
 
-export default function OutboundCallHistoryPage() {
+export default function OutboundCallHistory({ timeRange }: { timeRange: TimeRange }) {
 
-  const [rangeValue, setRangeValue] = useState<RangeValue>(defaultRangeValue);
   const [activeTab, setActiveTab] = useState<OutcomeTab>("all");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -46,7 +44,7 @@ export default function OutboundCallHistoryPage() {
   const [isMobile, setIsMobile] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { from, to } = rangeValue;
+  const { from, to } = getDateRange(timeRange);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 900px)");
@@ -66,7 +64,7 @@ export default function OutboundCallHistoryPage() {
   }, [search]);
 
   const fetchCalls = useCallback(async () => {
-    const ck = `history:outbound:${page}|${activeTab}|${debouncedSearch}|${rangeValue.label}`;
+    const ck = `history:outbound:${page}|${activeTab}|${debouncedSearch}|${timeRange}`;
     const hit = cacheGet<{ calls: CallRow[]; total: number }>(ck);
     if (hit) {
       setCalls(hit.calls); setTotal(hit.total);
@@ -93,49 +91,21 @@ export default function OutboundCallHistoryPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, activeTab, debouncedSearch, rangeValue]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [page, activeTab, debouncedSearch, timeRange]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { void fetchCalls(); }, [fetchCalls]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
-  function handleExport() {
-    const label = rangeValue.label.toLowerCase().replace(/\s+/g, "-");
-    window.location.href = `/api/export-calls?from=${from.toISOString()}&to=${to.toISOString()}&direction=outbound&label=${label}`;
-  }
-
   return (
-    <div className="page-pad">
-      {isMobile ? (
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-            <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Outbound Call History</span>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
-          <span style={{ fontSize: 25, lineHeight: "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Outbound Call History</span>
-          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
-            <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
-            <button onClick={handleExport}
-              style={{ background: "var(--accent)", color: "var(--bg)", border: "none", whiteSpace: "nowrap", flexShrink: 0, height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-            >
-              <Download size={12} /> Export CSV
-            </button>
-          </div>
-        </div>
-      )}
+    <section style={{ marginTop: 24 }}>
+      <div style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)", marginBottom: 12 }}>Call History</div>
 
       <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
-        <div style={{ display: "flex", borderBottom: "1px solid var(--border)", padding: "0 20px" }}>
+        <div style={{ display: "flex", borderBottom: "1px solid var(--border)", padding: isMobile ? "0 8px" : "0 20px", overflowX: isMobile ? "auto" : "visible" }}>
           {TABS.map((tab) => (
             <button key={tab.value} onClick={() => { setActiveTab(tab.value); setPage(1); }}
-              style={{ padding: "12px 16px", background: "none", border: "none", borderBottom: activeTab === tab.value ? "2px solid var(--accent)" : "2px solid transparent", color: activeTab === tab.value ? "var(--text-primary)" : "var(--text-tertiary)", fontSize: 14, fontWeight: activeTab === tab.value ? 500 : 400, cursor: "pointer", transition: "all 0.15s", marginBottom: -1 }}>
+              style={{ padding: isMobile ? "12px 12px" : "12px 16px", whiteSpace: "nowrap", flexShrink: 0, background: "none", border: "none", borderBottom: activeTab === tab.value ? "2px solid var(--accent)" : "2px solid transparent", color: activeTab === tab.value ? "var(--text-primary)" : "var(--text-tertiary)", fontSize: 14, fontWeight: activeTab === tab.value ? 500 : 400, cursor: "pointer", transition: "all 0.15s", marginBottom: -1 }}>
               {tab.label}
             </button>
           ))}
@@ -234,7 +204,7 @@ export default function OutboundCallHistoryPage() {
       </div>
 
       <CallDetailModal call={selectedCall} onClose={() => setSelectedCall(null)} />
-    </div>
+    </section>
   );
 }
 
