@@ -17,16 +17,21 @@ interface MetricCardProps {
   children?: ReactNode;
 }
 
-// Stat card: the label on top with a dark icon at the top right, then the big number, then one plain line for the
-// change against the previous period.
+// Stat card: icon and label on one line in dark ink, then the big number, then one plain line for the change
+// against the previous period.
 export default function MetricCard({ label, shortLabel, value, valueSuffix, icon, delta, children }: MetricCardProps) {
   const deltaColor =
     delta?.direction === "up" ? "var(--green-text)" : delta?.direction === "down" ? "var(--red)" : "var(--text-secondary)";
 
   return (
     <div className="metric-card" style={{ background: "var(--bg-1)" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
-        <span style={{ fontSize: 15, fontWeight: 500, letterSpacing: "-0.005em", color: "var(--ink)", minWidth: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        {icon && (
+          <span className="metric-icon" style={{ color: "var(--ink)", display: "flex", flexShrink: 0 }}>
+            {icon}
+          </span>
+        )}
+        <span style={{ fontSize: 14, fontWeight: 500, letterSpacing: "-0.005em", color: "var(--ink)", minWidth: 0 }}>
           {shortLabel ? (
             <>
               <span className="label-full">{label}</span>
@@ -34,11 +39,6 @@ export default function MetricCard({ label, shortLabel, value, valueSuffix, icon
             </>
           ) : label}
         </span>
-        {icon && (
-          <span className="metric-icon" style={{ color: "var(--ink)", display: "flex", flexShrink: 0 }}>
-            {icon}
-          </span>
-        )}
       </div>
 
       <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: children || delta ? 10 : 0 }}>
