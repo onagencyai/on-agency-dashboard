@@ -4,6 +4,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import SignOutButton from "@/components/SignOutButton";
+import TimezoneSelect from "@/components/TimezoneSelect";
 import { PageSection, PageTitle, cardStyle, pageColumn } from "@/components/PageSection";
 
 // Rendered on the server so the business name is already in the page when it opens.
@@ -13,10 +14,12 @@ export default async function SettingsPage() {
 
   const email = user.primaryEmailAddress?.emailAddress ?? "—";
   let businessName = ((user.publicMetadata as { business_name?: string }).business_name ?? "").trim();
+  let timezone = "America/Chicago";
   try {
     const supabase = createServerSupabaseClient();
-    const { data } = await supabase.from("clients").select("business_name").eq("clerk_user_id", user.id).single();
+    const { data } = await supabase.from("clients").select("business_name, timezone").eq("clerk_user_id", user.id).single();
     if (data?.business_name && String(data.business_name).trim()) businessName = String(data.business_name).trim();
+    if (data?.timezone) timezone = String(data.timezone);
   } catch {
     // keep the Clerk value
   }
@@ -31,6 +34,12 @@ export default async function SettingsPage() {
         <div className="ledger-grid">
           <InfoCard label="Business name" value={businessName} />
           <InfoCard label="Email" value={email} />
+        </div>
+      </PageSection>
+
+      <PageSection title="Time zone" cue="Used for the hours on your Today chart, so they match your real day.">
+        <div style={{ ...cardStyle, padding: 20 }}>
+          <TimezoneSelect initial={timezone} />
         </div>
       </PageSection>
 

@@ -1,16 +1,8 @@
 export const dynamic = "force-dynamic";
 
-import { Check, Mail, MessageSquare } from "lucide-react";
+import { Mail, MessageSquare } from "lucide-react";
+import UpdateRequests from "@/components/UpdateRequests";
 import { PageSection, PageTitle, cardStyle, pageColumn } from "@/components/PageSection";
-
-const UPDATE_ITEMS = [
-  "Business hours or holiday closures",
-  "Service list or pricing information",
-  "Custom responses or FAQ answers",
-  "Call transfer numbers or destinations",
-  "Agent name, voice, or greeting script",
-  "Special promotions or seasonal messaging",
-];
 
 export default function UpdatesPage() {
   return (
@@ -18,7 +10,11 @@ export default function UpdatesPage() {
       <div style={pageColumn}>
       <PageTitle>Updates</PageTitle>
 
-      <PageSection title="Request a change" cue="We handle every change for you. Send us a message and we update your AI. We usually reply within 24 hours.">
+      <PageSection title="Request a change" cue="We handle every change for you. Fill this in and we update your AI.">
+        <UpdateRequests />
+      </PageSection>
+
+      <PageSection title="Prefer to talk?" cue="You can also reach us directly.">
         <div className="ledger-grid">
           <ContactCard
             icon={<Mail size={16} />}
@@ -34,19 +30,6 @@ export default function UpdatesPage() {
             buttonLabel="Send text"
             href="sms:+18329614870"
           />
-        </div>
-      </PageSection>
-
-      <PageSection title="What you can request" cue="Anything about how your AI talks, answers or routes calls.">
-        <div className="ledger-grid">
-          {UPDATE_ITEMS.map((item) => (
-            <div key={item} style={{ ...cardStyle, padding: "16px 20px", display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ width: 22, height: 22, borderRadius: "50%", background: "var(--green-dim)", color: "var(--green)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Check size={13} strokeWidth={2.5} />
-              </span>
-              <span style={{ fontSize: 13.5, color: "var(--ink)", fontWeight: 500 }}>{item}</span>
-            </div>
-          ))}
         </div>
       </PageSection>
       </div>

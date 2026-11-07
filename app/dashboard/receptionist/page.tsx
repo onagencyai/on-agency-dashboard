@@ -7,7 +7,7 @@ import { Download, PhoneOff, Phone, ClipboardCheck, PhoneOutgoing, UserPlus } fr
 import Link from "next/link";
 import type { TimeRange, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange } from "@/lib/dateRange";
-import { formatDuration, getSentimentColor, formatPhoneNumber, getInboundOutcome } from "@/lib/formatters";
+import { formatDuration, formatPhoneNumber, getInboundOutcome } from "@/lib/formatters";
 import TimeRangeDropdown from "@/components/TimeRangeDropdown";
 import MetricCard from "@/components/MetricCard";
 import CallVolumeChart from "@/components/CallVolumeChart";
@@ -313,7 +313,7 @@ export default function ReceptionistOverviewPage() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "var(--bg-1)" }}>
-                  {["Call ID","Date & Time","From","Duration","Outcome","Sentiment","Intent",""].map((h) => (
+                  {["Call ID","Date & Time","From","Duration","Outcome","Intent",""].map((h) => (
                     <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-secondary)", borderBottom: "1px solid var(--border)", whiteSpace: "nowrap" }}>
                       {h}
                     </th>
@@ -324,8 +324,6 @@ export default function ReceptionistOverviewPage() {
                 {calls.map((call) => {
                   const outcome = getCallOutcome(call);
                   const intent = getCallIntent(call);
-                  const sentiment = call.user_sentiment ?? (call.call_category === "spam" ? "Spam" : null);
-                  const sentColor = getSentimentColor(sentiment);
                   return (
                     <tr
                       key={call.id}
@@ -351,9 +349,6 @@ export default function ReceptionistOverviewPage() {
                           <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
                           {outcome.label}
                         </span>
-                      </td>
-                      <td style={{ padding: "11px 16px", fontSize: 13, color: sentColor }}>
-                        {sentiment ?? "—"}
                       </td>
                       <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", maxWidth: 160 }}>
                         <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{intent}</span>

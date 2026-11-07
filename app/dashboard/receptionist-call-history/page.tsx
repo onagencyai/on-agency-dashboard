@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Search, Download, PhoneOff, ChevronLeft, ChevronRight } from "lucide-react";
 import type { CallRow } from "@/lib/types";
-import { formatDuration, getSentimentColor, formatPhoneNumber, getInboundOutcome } from "@/lib/formatters";
+import { formatDuration, formatPhoneNumber, getInboundOutcome } from "@/lib/formatters";
 import CallRangePicker, { defaultRangeValue } from "@/components/CallRangePicker";
 import type { RangeValue } from "@/components/CallRangePicker";
 import CallDetailModal from "@/components/CallDetailModal";
@@ -203,7 +203,7 @@ export default function CallHistoryPage() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "var(--bg-1)" }}>
-                  {["Call ID","Date & Time","From","Duration","Outcome","Sentiment","Intent",""].map((h) => (
+                  {["Call ID","Date & Time","From","Duration","Outcome","Intent",""].map((h) => (
                     <th
                       key={h}
                       style={{
@@ -223,8 +223,6 @@ export default function CallHistoryPage() {
                 {calls.map((call) => {
                   const outcome = getCallOutcome(call);
                   const intent = getCallIntent(call);
-                  const sentiment = call.user_sentiment ?? (call.call_category === "spam" ? "Spam" : null);
-                  const sentColor = getSentimentColor(sentiment);
                   return (
                     <tr
                       key={call.id}
@@ -255,9 +253,6 @@ export default function CallHistoryPage() {
                           <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
                           {outcome.label}
                         </span>
-                      </td>
-                      <td style={{ padding: "11px 16px", fontSize: 13, color: sentColor }}>
-                        {sentiment ?? "—"}
                       </td>
                       <td style={{ padding: "11px 16px", fontSize: 13, color: "var(--text-secondary)", maxWidth: 160 }}>
                         <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

@@ -23,10 +23,25 @@ export async function GET(req: NextRequest) {
 
   // Hourly mode for "Today": hours of the viewer's local day. tz is the browser's getTimezoneOffset() in minutes.
   if (searchParams.get("hourly") === "1") {
-    const tz = Number(searchParams.get("tz") ?? "0") || 0;
+    let tz = Number(searchParams.get("tz") ?? "0") || 0;
+    let fromMs = new Date(from).getTime();
+    // Use the business's saved time zone for "Today" so the hours match their real day.
+    try {
+      const sb = createServerSupabaseClient();
+      const { data: c } = await sb.from("clients").select("timezone").eq("client_id", clientId).maybeSingle();
+      if (c?.timezone) {
+        const parts = new Intl.DateTimeFormat("en-US", { timeZone: c.timezone, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }).formatToParts(new Date());
+        const g = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+        const asUtc = Date.UTC(g("year"), g("month") - 1, g("day"), g("hour"), g("minute"), g("second"));
+        tz = Math.round((Date.now() - asUtc) / 60000);
+        fromMs = Date.UTC(g("year"), g("month") - 1, g("day")) + tz * 60000;
+      }
+    } catch {
+      // keep the browser's time zone
+    }
     const tzMs = tz * 60000;
     const HOUR = 3600000;
-    const fromH = Math.floor((new Date(from).getTime() - tzMs) / HOUR);
+    const fromH = Math.floor((fromMs - tzMs) / HOUR);
     const nowH = Math.floor((Math.min(new Date(to).getTime(), Date.now()) - tzMs) / HOUR);
     const toH = Math.max(nowH, fromH + 2);
     const supabase = createServerSupabaseClient();

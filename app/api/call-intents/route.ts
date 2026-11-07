@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
   const supabase = createServerSupabaseClient();
   const query = supabase
     .from("calls")
-    .select("custom_analysis_data")
+    .select("custom_analysis_data, call_category")
     .eq("client_id", clientId)
     .gte("started_at", from)
     .lte("started_at", to)
@@ -64,9 +64,13 @@ export async function GET(req: NextRequest) {
   const counts: Record<string, number> = {};
   CATEGORIES.forEach((c) => (counts[c] = 0));
 
+  // Silent, spam, sales and wrong-number calls have no real intent, so they stay out of the chart instead of piling up under "Other".
+  const NOT_A_CONVERSATION = new Set(["no_conversation", "spam", "vendor", "wrong_number"]);
+
   for (const row of data ?? []) {
     const analysis = row.custom_analysis_data as Record<string, unknown> | null;
     if (!analysis) continue;
+    if (row.call_category && NOT_A_CONVERSATION.has(row.call_category as string)) continue;
     const raw = analysis.call_reason ?? analysis.reason ?? analysis.intent;
     if (typeof raw !== "string" || !raw.trim()) {
       counts["Other"]++;
