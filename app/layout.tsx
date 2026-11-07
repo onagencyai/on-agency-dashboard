@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   description: "AI voice agent performance dashboard",
 };
 
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  themeColor: "#ffffff",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -19,7 +24,6 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <head>
-          <meta name="theme-color" content="#fafafa" />
           <meta name="apple-mobile-web-app-status-bar-style" content="default" />
           <script
             dangerouslySetInnerHTML={{
@@ -28,6 +32,8 @@ export default function RootLayout({
                   const stored = localStorage.getItem('on-agency-theme');
                   if (stored === 'dark') {
                     document.documentElement.classList.add('dark');
+                    var m = document.querySelector('meta[name="theme-color"]');
+                    if (m) m.setAttribute('content', '#0a0a0a');
                   }
                 } catch {}
               `,
@@ -36,7 +42,7 @@ export default function RootLayout({
         </head>
         <body
           className={`${inter.variable} antialiased`}
-          style={{ background: "#fafafa", color: "var(--text-primary)", fontFamily: "var(--font-geist-sans, system-ui, sans-serif)" }}
+          style={{ color: "var(--text-primary)", fontFamily: "var(--font-geist-sans, system-ui, sans-serif)" }}
         >
           {children}
         </body>
