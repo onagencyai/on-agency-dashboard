@@ -93,7 +93,7 @@ export default function ReceptionistOverviewPage() {
     const [statsRes, volRes, intentRes, callsRes] = await Promise.allSettled([
       fetch(`/api/receptionist-stats?from=${f}&to=${t}`).then((r) => r.json()),
       fetch(`/api/call-volume?from=${f}&to=${tPlusOne}${timeRange === "today" ? `&hourly=1&tz=${new Date().getTimezoneOffset()}` : ""}`).then((r) => r.json()),
-      fetch(`/api/call-intents?from=${f}&to=${t}&direction=inbound`).then((r) => r.json()),
+      fetch(`/api/call-intents?from=${f}&to=${t}&direction=inbound${typeof window !== "undefined" && window.location.search.includes("demo=1") ? "&demo=1" : ""}`).then((r) => r.json()),
       fetch(`/api/calls?from=${f}&to=${t}&direction=inbound&page=1&limit=10`).then((r) => r.json()),
     ]);
  

@@ -39,6 +39,12 @@ export async function GET(req: NextRequest) {
   const clientId = await resolveClientId(user);
   if (!clientId) return NextResponse.json({ error: "No client ID" }, { status: 403 });
 
+  // TEMP color test (On Agency only): /dashboard/receptionist?demo=1 shows sample percentages. Remove after review.
+  if (clientId === "on-agency" && req.nextUrl.searchParams.get("demo") === "1") {
+    const sample = [72, 58, 45, 31, 20, 12];
+    return NextResponse.json({ intents: CATEGORIES.map((label, i) => ({ label, count: sample[i], percentage: sample[i] })) });
+  }
+
   const { searchParams } = new URL(req.url);
   const from = searchParams.get("from") ?? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const to = searchParams.get("to") ?? new Date().toISOString();
