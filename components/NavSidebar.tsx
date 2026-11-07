@@ -96,18 +96,18 @@ export default function NavSidebar({ services, mobileOpen = false, onClose }: Na
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "4px 15px 8px",
+          padding: "4px 12px 8px",
           minHeight: 0,
         }}
       >
         {navItems.map((item) => (
-          <div key={item.href} style={{ marginTop: 0 }}>
+          <div key={item.href} style={{ marginTop: 0, marginBottom: 2 }}>
             <NavLink item={item} active={isActive(item.href)} onNavigate={onClose} />
           </div>
         ))}
       </nav>
 
-      <div style={{ flexShrink: 0, padding: "12px 15px 14px" }}>
+      <div style={{ flexShrink: 0, padding: "12px 12px 16px" }}>
         <LogoutButton onSignOut={() => signOut({ redirectUrl: "/sign-in" })} />
       </div>
     </aside>
@@ -120,18 +120,15 @@ function NavLink({ item, active, onNavigate }: { item: NavItem; active: boolean;
     <Link
       href={item.href}
       onClick={onNavigate}
+      className="nav-link"
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 10,
-        padding: "8px 10px",
         borderRadius: 7,
-        fontSize: 14,
         fontWeight: active ? 500 : 400,
         color: active ? "var(--nav-active-text)" : "var(--nav-text)",
         background: active ? "var(--nav-active-bg)" : "transparent",
         textDecoration: "none",
-        marginBottom: 2,
         transition: "background 0.15s, color 0.15s",
       }}
       onMouseEnter={(e) => {
@@ -169,15 +166,12 @@ function LogoutButton({ onSignOut }: { onSignOut: () => void }) {
   return (
     <button
       onClick={onSignOut}
+      className="nav-logout"
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 8,
-        padding: "8px 10px",
         borderRadius: 7,
         color: "var(--text-secondary)",
-        fontSize: 14,
-        fontWeight: 400,
         width: "100%",
         background: "transparent",
         border: "none",
