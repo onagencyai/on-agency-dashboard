@@ -66,7 +66,7 @@ export async function findCustomerId(email: string | null, knownId: string | nul
 
 export async function getBilling(customerId: string): Promise<BillingData | null> {
   const [subs, invs] = await Promise.all([
-    call<StripeList<Record<string, unknown>>>(`/subscriptions?customer=${customerId}&status=all&limit=5&expand[]=data.items.data.price.product`),
+    call<StripeList<Record<string, unknown>>>(`/subscriptions?customer=${customerId}&status=all&limit=5&expand[]=data.items.data.price`),
     call<StripeList<Record<string, unknown>>>(`/invoices?customer=${customerId}&limit=12`),
   ]);
   if (!subs && !invs) return null;
@@ -79,11 +79,14 @@ export async function getBilling(customerId: string): Promise<BillingData | null
     const items = (sub.items as { data?: Record<string, unknown>[] } | undefined)?.data ?? [];
     const item = items[0] ?? {};
     const price = (item.price as Record<string, unknown> | undefined) ?? {};
-    const product = price.product as { name?: string } | string | undefined;
+    const productId = typeof price.product === "string" ? price.product : (price.product as { id?: string } | undefined)?.id;
     const recurring = price.recurring as { interval?: string } | undefined;
+    // Reading the product name needs the "Products: read" permission on the key; without it we fall back to a generic name.
+    const product = productId ? await call<{ name?: string }>(`/products/${productId}`) : null;
+    const generic = recurring?.interval === "month" ? "Monthly plan" : recurring?.interval === "year" ? "Yearly plan" : "Your plan";
     subscription = {
       status: String(sub.status),
-      planName: (typeof product === "object" && product?.name) || (price.nickname as string) || "Your plan",
+      planName: product?.name || (price.nickname as string) || generic,
       amountCents: typeof price.unit_amount === "number" ? price.unit_amount : null,
       currency: String(price.currency ?? "usd"),
       interval: recurring?.interval ?? null,
@@ -94,7 +97,7 @@ export async function getBilling(customerId: string): Promise<BillingData | null
   }
 
   const invoices: BillingInvoice[] = (invs?.data ?? [])
-    .filter((i) => i.status !== "draft")
+    .filter((i) => i.status !== "draft" && i.status !== "void")
     .map((i) => ({
       id: String(i.id),
       number: (i.number as string | null) ?? null,

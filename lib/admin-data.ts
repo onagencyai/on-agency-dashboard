@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { findCustomerId, getBilling, stripeConfigured } from "@/lib/stripe-billing";
+import { isAdminEmail } from "@/lib/admin";
 
 export type Health = "healthy" | "quiet" | "check" | "new";
 
@@ -44,7 +45,9 @@ async function billingFor(row: { stripe_customer_id: string | null; billing_emai
     if (!id) return { line1: "No Stripe customer", line2: "Not billed through Stripe yet", trouble: false };
     const b = await getBilling(id);
     if (!b) return { line1: "Could not read Stripe", line2: "", trouble: true };
-    const open = b.invoices.filter((i) => i.status === "open");
+    // An open invoice older than the latest payment belongs to a plan that was replaced (for example a new subscription), so it is not a problem.
+    const latestPaid = Math.max(0, ...b.invoices.filter((i) => i.status === "paid").map((i) => i.created));
+    const open = b.invoices.filter((i) => i.status === "open" && i.created > latestPaid);
     const openTotal = open.reduce((s, i) => s + i.amountCents, 0);
     const oldestOpenDays = open.length ? Math.floor((Date.now() / 1000 - Math.min(...open.map((i) => i.created))) / 86400) : 0;
     const sub = b.subscription;
@@ -68,7 +71,8 @@ export async function getAdminOverview(): Promise<AdminClient[]> {
   const { thisStart, lastStart } = monthStarts();
 
   const { data: clients } = await sb.from("clients").select("client_id, business_name, services, stripe_customer_id, billing_email, login_email");
-  const rows = clients ?? [];
+  // You are not a client: your own account is left out.
+  const rows = (clients ?? []).filter((r) => !isAdminEmail(r.login_email));
 
   const [{ data: calls }, { data: leads }, lastCalls] = await Promise.all([
     sb.from("calls").select("client_id, started_at, call_category, disconnection_reason, direction").gte("started_at", lastStart.toISOString()).order("started_at", { ascending: false }).limit(5000),

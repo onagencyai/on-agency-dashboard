@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { Users, PhoneCall, ClipboardCheck, AlertTriangle } from "lucide-react";
+import { PhoneCall, ClipboardCheck, MessageSquare, AlertTriangle } from "lucide-react";
 import { currentUser } from "@/lib/auth";
 import { isAdminEmail } from "@/lib/admin";
 import { getAdminOverview } from "@/lib/admin-data";
@@ -37,6 +37,7 @@ export default async function AdminPage() {
   const sorted = clients.slice().sort((a, b) => order[a.health] - order[b.health] || b.callsThisMonth - a.callsThisMonth);
   const totalCalls = clients.reduce((s, c) => s + c.callsThisMonth, 0);
   const totalLeads = clients.reduce((s, c) => s + c.leadsThisMonth, 0);
+  const totalMessages = clients.reduce((s, c) => s + c.messagesThisMonth, 0);
   const attention = clients.filter((c) => c.health === "check").length;
   const monthName = new Date().toLocaleDateString("en-US", { month: "long", timeZone: "America/Chicago" });
 
@@ -46,9 +47,9 @@ export default async function AdminPage() {
         <PageTitle>Admin</PageTitle>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, marginBottom: 32 }}>
-          <div style={{ ...cardStyle, borderRadius: 12 }}><MetricCard label="Clients" value={clients.length} icon={<Users size={15} />} /></div>
           <div style={{ ...cardStyle, borderRadius: 12 }}><MetricCard label={`Calls in ${monthName}`} value={totalCalls} icon={<PhoneCall size={15} />} /></div>
           <div style={{ ...cardStyle, borderRadius: 12 }}><MetricCard label={`Leads in ${monthName}`} value={totalLeads} icon={<ClipboardCheck size={15} />} /></div>
+          <div style={{ ...cardStyle, borderRadius: 12 }}><MetricCard label={`Messages in ${monthName}`} value={totalMessages} icon={<MessageSquare size={15} />} /></div>
           <div style={{ ...cardStyle, borderRadius: 12 }}><MetricCard label="Needs attention" value={attention} icon={<AlertTriangle size={15} />} /></div>
         </div>
 
@@ -65,7 +66,6 @@ export default async function AdminPage() {
 
 function ClientCard({ c }: { c: AdminClient }) {
   const h = HEALTH[c.health];
-  const diff = c.callsThisMonth - c.callsLastMonth;
   return (
     <div style={{ ...cardStyle, padding: 20 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
@@ -80,7 +80,7 @@ function ClientCard({ c }: { c: AdminClient }) {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 16 }}>
-        <Stat label="Calls this month" value={String(c.callsThisMonth)} note={c.callsLastMonth || c.callsThisMonth ? `${diff >= 0 ? "+" : "−"}${Math.abs(diff)} vs last month` : "None yet"} />
+        <Stat label="Calls this month" value={String(c.callsThisMonth)} note={`${c.callsLastMonth} last month`} />
         <Stat label="Leads" value={String(c.leadsThisMonth)} note="Leads and booked calls" />
         <Stat label="Messages" value={String(c.messagesThisMonth)} note={c.spamThisMonth ? `${c.spamThisMonth} spam or silent blocked` : "Taken by the agent"} />
         <Stat label="Last call" value={ago(c.lastCallAt)} note={c.lastCallAt ? new Date(c.lastCallAt).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/Chicago" }) : ""} />
