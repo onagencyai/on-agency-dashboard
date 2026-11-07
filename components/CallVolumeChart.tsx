@@ -165,7 +165,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
           style={{ display: "block", touchAction: "pan-y", cursor: "crosshair" }}
           onPointerMove={onMove}
           onPointerDown={onMove}
-          onPointerLeave={() => setHover(null)}
+          onPointerLeave={(e) => { if (e.pointerType === "mouse") setHover(null); }}
         >
           <defs>
             <linearGradient id={`g${gid}`} x1="0%" y1="0%" x2="0%" y2="100%">
