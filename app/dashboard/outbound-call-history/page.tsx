@@ -106,13 +106,6 @@ export default function OutboundCallHistoryPage() {
             <span style={{ fontSize: 22, lineHeight: "28px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Outbound Call History</span>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <CallRangePicker value={rangeValue} onChange={(v) => { setRangeValue(v); setPage(1); }} />
-              <button onClick={handleExport}
-                style={{ background: "var(--accent)", color: "var(--bg)", border: "none", whiteSpace: "nowrap", flexShrink: 0, height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6 }}
-                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-              >
-                <Download size={12} /> Export CSV
-              </button>
             </div>
           </div>
         </div>

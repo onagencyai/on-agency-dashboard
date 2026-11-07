@@ -87,14 +87,9 @@ export default function CallRangePicker({ value, onChange }: CallRangePickerProp
       </button>
 
       {open && (
-        <div style={{
-          position: "absolute", top: "calc(100% + 6px)", right: 0,
-          background: "var(--bg-1)", border: "1px solid var(--border)",
-          borderRadius: 12, overflow: "hidden", zIndex: 100,
-          minWidth: 180, boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-        }}>
+        <div className="menu-panel" style={{ minWidth: 190 }}>
           {/* Date ranges section */}
-          <div style={{ padding: "6px 14px 4px", fontSize: 11, fontWeight: 500, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-tertiary)" }}>
+          <div style={{ padding: "6px 12px 4px", fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-secondary)" }}>
             Date Range
           </div>
           {RANGE_OPTIONS.map((opt) => {
@@ -103,19 +98,11 @@ export default function CallRangePicker({ value, onChange }: CallRangePickerProp
             return (
               <button
                 key={opt.value}
+                className={`menu-item${active ? " is-active" : ""}`}
                 onClick={() => {
                   onChange({ kind: "range", value: opt.value, label: opt.label, from: buildRangeFrom(opt.value), to: now });
                   setOpen(false);
                 }}
-                style={{
-                  display: "block", width: "100%", padding: "7px 14px",
-                  textAlign: "left", border: "none", cursor: "pointer",
-                  background: active ? "var(--accent-dim)" : "transparent",
-                  color: active ? "var(--text-primary)" : "var(--text-secondary)",
-                  fontSize: 14, transition: "all 0.1s",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "var(--accent-dim)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = active ? "var(--accent-dim)" : "transparent"; e.currentTarget.style.color = active ? "var(--text-primary)" : "var(--text-secondary)"; }}
               >
                 {opt.label}
               </button>
@@ -126,7 +113,7 @@ export default function CallRangePicker({ value, onChange }: CallRangePickerProp
           <div style={{ height: 1, background: "var(--border)", margin: "4px 0" }} />
 
           {/* By month section */}
-          <div style={{ padding: "6px 14px 4px", fontSize: 11, fontWeight: 500, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-tertiary)" }}>
+          <div style={{ padding: "6px 12px 4px", fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-secondary)" }}>
             By Month
           </div>
           {monthOptions.map((opt) => {
@@ -134,19 +121,11 @@ export default function CallRangePicker({ value, onChange }: CallRangePickerProp
             return (
               <button
                 key={opt.value}
+                className={`menu-item${active ? " is-active" : ""}`}
                 onClick={() => {
                   onChange({ kind: "month", value: opt.value, label: opt.label, from: opt.from, to: opt.to });
                   setOpen(false);
                 }}
-                style={{
-                  display: "block", width: "100%", padding: "7px 14px",
-                  textAlign: "left", border: "none", cursor: "pointer",
-                  background: active ? "var(--accent-dim)" : "transparent",
-                  color: active ? "var(--text-primary)" : "var(--text-secondary)",
-                  fontSize: 14, transition: "all 0.1s",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "var(--accent-dim)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = active ? "var(--accent-dim)" : "transparent"; e.currentTarget.style.color = active ? "var(--text-primary)" : "var(--text-secondary)"; }}
               >
                 {opt.label}
               </button>

@@ -13,8 +13,7 @@ export default function ThemeToggle() {
   function toggle() {
     const next = !isDark;
     setIsDark(next);
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", next ? "#0a0a0a" : "#ffffff");
+    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", next ? "#0a0a0a" : "#ffffff"));
     if (next) {
       document.documentElement.classList.add("dark");
       localStorage.setItem("on-agency-theme", "dark");

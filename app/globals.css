@@ -41,6 +41,7 @@
   --orange: #f97316;
   --orange-dim: rgba(249, 115, 22, 0.12);
   --blue: #2f80ff;
+  --overlay-shadow: rgba(30, 30, 41, 0.12);
   --btn-blue: #2b7bf0; /* mid blue for primary buttons */
   --blue-dim: #eaf4ff;
   --on-blue: #ffffff;
@@ -86,6 +87,7 @@
   --orange: #f97316;
   --orange-dim: rgba(249, 115, 22, 0.16);
   --blue: #6da7ec;
+  --overlay-shadow: rgba(0, 0, 0, 0.45);
   --btn-blue: #2a78d6;
   --blue-dim: rgba(42, 120, 214, 0.2);
   --on-blue: #0a0a0a;
@@ -116,11 +118,12 @@ td, th { font-variant-numeric: tabular-nums; }
 
 html, body {
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
   background-color: var(--bg);
 }
 
 body {
+  overscroll-behavior-y: none;
   background-color: var(--bg);
   color: var(--text-primary);
   font-size: 14px;
@@ -219,6 +222,36 @@ body {
   .nav-logout { font-size: 14px; }
 }
 
+/* Dropdown menus: Ledger's menu (8px corners, 4px padding, soft shadow, 13px rows, 14px on phones). */
+.menu-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 100;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 0;
+  box-shadow: 0 8px 24px var(--overlay-shadow);
+}
+.menu-item {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.menu-item:hover { background: var(--bg-2); }
+.menu-item.is-active { color: var(--ink); font-weight: 500; }
+@media (max-width: 900px) {
+  .menu-item { font-size: 14px; padding: 8px 12px; }
+}
+
 .mobile-topbar {
   display: none;
 }
@@ -247,24 +280,25 @@ body {
 }
 
 @media (max-width: 900px) {
+  /* Real document scroll on phones, like Ledger: Safari can then tint its top and bottom bars from the page itself. */
   .dashboard-shell {
-    padding: env(safe-area-inset-top) 0 0;
-    gap: 0;
-    flex-direction: row;
+    display: block;
+    padding: 0;
+    min-height: 100dvh;
   }
 
   .dashboard-sidebar {
     position: fixed;
-    top: env(safe-area-inset-top);
+    top: 0;
     left: 0;
-    z-index: 30;
-    width: min(40vw, 320px);
-    min-width: 260px;
-    height: calc(100dvh - env(safe-area-inset-top));
+    bottom: 0;
+    z-index: 50;
+    width: 270px;
+    height: 100dvh;
     border-radius: 0;
     border-left: none;
     transform: translateX(-100%);
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease-out;
   }
 
   .dashboard-sidebar.is-open {
@@ -278,9 +312,9 @@ body {
   .sidebar-backdrop {
     display: block;
     position: fixed;
-    inset: env(safe-area-inset-top) 0 0 0;
-    z-index: 20;
-    background: rgba(0, 0, 0, 0.28);
+    inset: 0;
+    z-index: 40;
+    background: rgba(0, 0, 0, 0.4);
     border: none;
     padding: 0;
     margin: 0;
@@ -288,15 +322,25 @@ body {
 
   .dashboard-main-panel {
     width: 100%;
-    height: calc(100dvh - env(safe-area-inset-top));
-    min-height: 0;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
     border-radius: 0;
     border-left: none;
     border-right: none;
     border-bottom: none;
   }
 
+  .dashboard-main-scroll {
+    overflow: visible;
+    flex: none;
+  }
+
   .mobile-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--bg);
     height: 56px;
     padding: 0 12px 0 20px;
     border-bottom: 1px solid var(--border);

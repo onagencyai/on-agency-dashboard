@@ -11,8 +11,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  viewportFit: "cover",
-  themeColor: "#ffffff",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 };
 
 export default function RootLayout({
@@ -32,8 +34,7 @@ export default function RootLayout({
                   const stored = localStorage.getItem('on-agency-theme');
                   if (stored === 'dark') {
                     document.documentElement.classList.add('dark');
-                    var m = document.querySelector('meta[name="theme-color"]');
-                    if (m) m.setAttribute('content', '#0a0a0a');
+                    document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', '#0a0a0a'); });
                   }
                 } catch {}
               `,

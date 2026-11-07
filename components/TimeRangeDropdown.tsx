@@ -66,46 +66,14 @@ export default function TimeRangeDropdown({ value, onChange }: TimeRangeDropdown
       </button>
 
       {open && (
-        <div
-          style={{
-            position: "absolute",
-            top: "calc(100% + 6px)",
-            right: 0,
-            background: "var(--bg-1)",
-            border: "1px solid var(--border)",
-            borderRadius: 12,
-            overflow: "hidden",
-            zIndex: 100,
-            minWidth: 160,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-          }}
-        >
+        <div className="menu-panel" style={{ minWidth: 180 }}>
           {OPTIONS.map((opt) => (
             <button
               key={opt.value}
+              className={`menu-item${opt.value === value ? " is-active" : ""}`}
               onClick={() => {
                 onChange(opt.value);
                 setOpen(false);
-              }}
-              style={{
-                display: "block",
-                width: "100%",
-                padding: "8px 14px",
-                textAlign: "left",
-                background: opt.value === value ? "var(--accent-dim)" : "transparent",
-                border: "none",
-                color: opt.value === value ? "var(--text-primary)" : "var(--text-secondary)",
-                fontSize: 14,
-                cursor: "pointer",
-                transition: "all 0.1s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "var(--accent-dim)";
-                e.currentTarget.style.color = "var(--text-primary)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = opt.value === value ? "var(--accent-dim)" : "transparent";
-                e.currentTarget.style.color = opt.value === value ? "var(--text-primary)" : "var(--text-secondary)";
               }}
             >
               {opt.label}

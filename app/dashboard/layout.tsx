@@ -26,6 +26,11 @@ export default function DashboardLayout({
   }, [pathname]);
 
   useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
     let cancelled = false;
     async function hydrateClientInfo() {
       try {

@@ -150,7 +150,7 @@ export default function LeadsPage() {
     <div style={{ padding: isMobile ? "18px 12px 20px" : "24px 32px 32px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 20 }}>
         <span style={{ fontSize: isMobile ? 22 : 25, lineHeight: isMobile ? "28px" : "31px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)" }}>Leads</span>
-        {exportBtn}
+        {!isMobile && exportBtn}
       </div>
 
       <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "clip" }}>

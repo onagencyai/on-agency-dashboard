@@ -1,32 +1,26 @@
-"use client";
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
-import { useUser, useClerk } from "@clerk/nextjs";
-import { LogOut } from "lucide-react";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
+import SignOutButton from "@/components/SignOutButton";
 import { PageSection, PageTitle, cardStyle, pagePadding, pageColumn } from "@/components/PageSection";
 
-export default function SettingsPage() {
-  const { user } = useUser();
-  const { signOut } = useClerk();
-  const [businessName, setBusinessName] = useState("—");
-  const email = user?.primaryEmailAddress?.emailAddress ?? "—";
+// Rendered on the server so the business name is already in the page when it opens.
+export default async function SettingsPage() {
+  const user = await currentUser();
+  if (!user) redirect("/sign-in");
 
-  useEffect(() => {
-    async function fetchClientInfo() {
-      try {
-        const res = await fetch("/api/client-info", { cache: "no-store" });
-        if (!res.ok) return;
-        const data = await res.json() as { business_name?: unknown };
-        if (typeof data.business_name === "string" && data.business_name.trim()) {
-          setBusinessName(data.business_name);
-        }
-      } catch {
-        // keep default "—"
-      }
-    }
-    void fetchClientInfo();
-  }, []);
+  const email = user.primaryEmailAddress?.emailAddress ?? "—";
+  let businessName = ((user.publicMetadata as { business_name?: string }).business_name ?? "").trim();
+  try {
+    const supabase = createServerSupabaseClient();
+    const { data } = await supabase.from("clients").select("business_name").eq("clerk_user_id", user.id).single();
+    if (data?.business_name && String(data.business_name).trim()) businessName = String(data.business_name).trim();
+  } catch {
+    // keep the Clerk value
+  }
+  if (!businessName) businessName = "—";
 
   return (
     <div style={{ padding: pagePadding }}>
@@ -47,13 +41,7 @@ export default function SettingsPage() {
               <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>Log out</div>
               <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 2 }}>You can sign back in any time with your email.</div>
             </div>
-            <button
-              onClick={() => signOut({ redirectUrl: "/sign-in" })}
-              style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 36, padding: "0 14px", borderRadius: 6, background: "var(--bg)", border: "1px solid var(--border-hover)", color: "var(--red)", fontSize: 13, fontWeight: 500, cursor: "pointer" }}
-            >
-              <LogOut size={14} />
-              Log out
-            </button>
+            <SignOutButton />
           </div>
         </div>
       </PageSection>
