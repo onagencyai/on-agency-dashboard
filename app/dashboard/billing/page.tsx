@@ -46,6 +46,10 @@ export default async function BillingPage() {
     if (customerId) billing = await getBilling(customerId);
   }
 
+  // Stripe's no-code customer portal link (Settings > Billing > Customer portal). Needs no API key: the client signs in with their email.
+  const portalBase = process.env.STRIPE_PORTAL_LOGIN_URL?.startsWith("https://billing.stripe.com/") ? process.env.STRIPE_PORTAL_LOGIN_URL : null;
+  const portalHref = portalBase ? `${portalBase}${portalBase.includes("?") ? "&" : "?"}prefilled_email=${encodeURIComponent(email ?? "")}` : null;
+
   const sub = billing?.subscription ?? null;
   const invoices = billing?.invoices ?? [];
 
@@ -57,13 +61,24 @@ export default async function BillingPage() {
         {!billing || (!sub && invoices.length === 0) ? (
           <PageSection title="Your plan" cue="Your subscription is managed by On Agency.">
             <div style={{ ...cardStyle, padding: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-              <div>
-                <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>Invoices and plan changes</div>
-                <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 2 }}>For your invoices, payment details or any plan change, contact us and we will take care of it.</div>
+              <div style={{ minWidth: 0, maxWidth: 520 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>{portalHref ? "Manage your billing" : "Invoices and plan changes"}</div>
+                <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 2, lineHeight: 1.5 }}>
+                  {portalHref
+                    ? "See your invoices and next payment, update your card or cancel, in Stripe's secure billing portal. Stripe will email you a link to sign in."
+                    : "For your invoices, payment details or any plan change, contact us and we will take care of it."}
+                </div>
               </div>
-              <a href="mailto:contact@onagency.ai?subject=Billing Inquiry" style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 14px", borderRadius: 6, background: "var(--btn-blue)", color: "#fff", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" }}>
-                Contact us
-              </a>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {portalHref && (
+                  <a href={portalHref} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 14px", borderRadius: 6, background: "var(--btn-blue)", color: "#fff", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" }}>
+                    Manage billing
+                  </a>
+                )}
+                <a href="mailto:contact@onagency.ai?subject=Billing Inquiry" style={portalHref ? { display: "inline-flex", alignItems: "center", height: 36, padding: "0 14px", borderRadius: 6, background: "var(--bg)", border: "1px solid var(--border-hover)", color: "var(--text-primary)", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" } : { display: "inline-flex", alignItems: "center", height: 36, padding: "0 14px", borderRadius: 6, background: "var(--btn-blue)", color: "#fff", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" }}>
+                  Contact us
+                </a>
+              </div>
             </div>
           </PageSection>
         ) : (
