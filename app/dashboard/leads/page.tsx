@@ -209,7 +209,6 @@ export default function LeadsPage() {
           <div>
             {visible.map((l) => {
               const phone = l.phone ?? l.caller_id;
-              const href = telHref(phone);
               const request = prettyDates(l.summary) || "No details given";
               const sub = [l.company, l.location].filter(Boolean).join(" · ");
               const pill = KIND_PILL[l.kind];
@@ -229,11 +228,7 @@ export default function LeadsPage() {
                     </span>
                   </div>
                   <div style={{ fontSize: 14, color: "var(--text-primary)", lineHeight: 1.45 }}>{request}{sub ? <span style={{ color: "var(--text-secondary)" }}> · {sub}</span> : null}</div>
-                  {href && (
-                    <a href={href} onClick={(e) => e.stopPropagation()} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 42, borderRadius: 8, background: "var(--accent)", color: "var(--bg)", fontSize: 15, fontWeight: 600, textDecoration: "none" }}>
-                      <PhoneIcon size={16} /> Call <span className="num" style={{ fontWeight: 400, opacity: 0.85 }}>{formatPhoneNumber(phone)}</span>
-                    </a>
-                  )}
+                  {phone && <div className="num" style={{ fontSize: 14, color: "var(--text-secondary)" }}>{formatPhoneNumber(phone)}</div>}
                 </div>
               );
             })}
@@ -250,7 +245,6 @@ export default function LeadsPage() {
             <tbody>
               {visible.map((l) => {
                 const phone = l.phone ?? l.caller_id;
-                const href = telHref(phone);
                 const request = prettyDates(l.summary) || "No details given";
                 const sub = [l.company, l.location].filter(Boolean).join(" · ");
                 const pill = KIND_PILL[l.kind];
@@ -283,16 +277,6 @@ export default function LeadsPage() {
                       {phone ? (
                         <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
                           <span>{formatPhoneNumber(phone)}</span>
-                          {href && (
-                            <a
-                              href={href}
-                              onClick={(e) => e.stopPropagation()}
-                              title="Call"
-                              style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: 6, border: "1px solid var(--border-hover)", color: "var(--text-primary)", background: "var(--bg)" }}
-                            >
-                              <PhoneIcon size={13} />
-                            </a>
-                          )}
                         </span>
                       ) : "No number"}
                     </td>
