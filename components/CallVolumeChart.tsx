@@ -92,12 +92,25 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   const line = n > 1 ? monotonePath(stepPts) : "";
   const area = n > 1 ? `${line}L${pts[n - 1].x},${base}L${pts[0].x},${base}Z` : "";
 
-  // Five dates exactly the same number of days apart, centered under the graph.
+  // Dates sit under the points at an equal step, spanning the whole graph from the first point to the last.
+  // Show every point when they fit; otherwise use a step that divides the span evenly so both ends get a date.
   let labelIdx: number[] = rows.map((_, i) => i);
-  if (n >= 6) {
-    const step = Math.max(1, Math.floor((n - 1) / 5));
-    const start = Math.round(((n - 1) - 4 * step) / 2);
-    labelIdx = [0, 1, 2, 3, 4].map((k) => start + k * step);
+  const maxLabels = Math.max(2, Math.floor((size.w - 2 * PAD) / 74) + 1);
+  if (n > maxLabels) {
+    const span = n - 1;
+    const minStep = Math.ceil(span / (maxLabels - 1));
+    let step = 0;
+    for (let c = minStep; c <= span; c++) if (span % c === 0) { step = c; break; }
+    labelIdx = [];
+    if (step && span / step >= 2) {
+      for (let i = 0; i <= span; i += step) labelIdx.push(i);
+    } else {
+      // No even split that spans both ends: keep an equal step and center the dates under the graph.
+      step = minStep;
+      const k = Math.floor(span / step) + 1;
+      const start = Math.round((span - (k - 1) * step) / 2);
+      for (let j = 0; j < k; j++) labelIdx.push(start + j * step);
+    }
   }
 
   function onMove(e: React.PointerEvent<SVGSVGElement>) {
