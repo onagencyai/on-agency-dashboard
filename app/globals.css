@@ -401,4 +401,4 @@ body {
 .ledger-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
 @media (min-width: 640px) { .ledger-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
-.manage-billing-row:hover:not(:disabled) { background: var(--bg-2); }
+.manage-billing-btn:hover:not(:disabled) { filter: brightness(1.08); }

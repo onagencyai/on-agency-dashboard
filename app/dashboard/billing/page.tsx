@@ -107,10 +107,8 @@ export default async function BillingPage() {
               </PageSection>
             )}
 
-            <PageSection title="Manage billing" cue="Update your card, see receipts or cancel in Stripe's secure billing page. If you cancel, you keep access until the end of your billing period. Taxes may apply.">
-              <div className="ledger-grid">
-                <ManageBillingButton />
-              </div>
+            <PageSection title="Manage billing" cue="Update your card, see receipts or cancel in Stripe's secure billing page, which opens in a new tab. If you cancel, you keep access until the end of your billing period. Taxes may apply.">
+              <ManageBillingButton />
             </PageSection>
 
             {invoices.length > 0 && (
