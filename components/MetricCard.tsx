@@ -17,21 +17,23 @@ interface MetricCardProps {
   children?: ReactNode;
 }
 
-// Stat card: the number first, the label under it, a dark icon at the top right, and one plain line for the change
-// against the previous period.
+// Stat card: the label on top with a dark icon at the top right, then the big number, then one plain line for the
+// change against the previous period.
 export default function MetricCard({ label, shortLabel, value, valueSuffix, icon, delta, children }: MetricCardProps) {
   const deltaColor =
     delta?.direction === "up" ? "var(--green-text)" : delta?.direction === "down" ? "var(--red)" : "var(--text-secondary)";
 
   return (
     <div className="metric-card" style={{ background: "var(--bg-1)" }}>
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-          <span className="num" style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: "30px" }}>
-            {value}
-          </span>
-          {valueSuffix && <span style={{ fontSize: 14, fontWeight: 400, color: "var(--text-secondary)" }}>{valueSuffix}</span>}
-        </div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
+        <span style={{ fontSize: 15, fontWeight: 500, letterSpacing: "-0.005em", color: "var(--ink)", minWidth: 0 }}>
+          {shortLabel ? (
+            <>
+              <span className="label-full">{label}</span>
+              <span className="label-short">{shortLabel}</span>
+            </>
+          ) : label}
+        </span>
         {icon && (
           <span className="metric-icon" style={{ color: "var(--ink)", display: "flex", flexShrink: 0 }}>
             {icon}
@@ -39,13 +41,11 @@ export default function MetricCard({ label, shortLabel, value, valueSuffix, icon
         )}
       </div>
 
-      <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: "-0.005em", color: "var(--ink)", marginTop: 4, marginBottom: children || delta ? 12 : 0 }}>
-        {shortLabel ? (
-          <>
-            <span className="label-full">{label}</span>
-            <span className="label-short">{shortLabel}</span>
-          </>
-        ) : label}
+      <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: children || delta ? 10 : 0 }}>
+        <span className="num" style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: "32px" }}>
+          {value}
+        </span>
+        {valueSuffix && <span style={{ fontSize: 14, fontWeight: 400, color: "var(--text-secondary)" }}>{valueSuffix}</span>}
       </div>
 
       {children}
