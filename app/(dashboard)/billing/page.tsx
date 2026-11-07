@@ -75,11 +75,11 @@ export default async function BillingPage() {
               </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {portalHref && (
-                  <a href={portalHref} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 14px", borderRadius: 6, background: "var(--btn-blue)", color: "#fff", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" }}>
+                  <a href={portalHref} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", height: 32, padding: "0 12px", borderRadius: 8, background: "var(--btn-blue)", color: "#fff", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" }}>
                     Manage billing
                   </a>
                 )}
-                <a href="mailto:contact@onagency.ai?subject=Billing Inquiry" style={portalHref ? { display: "inline-flex", alignItems: "center", height: 36, padding: "0 14px", borderRadius: 6, background: "var(--bg)", border: "1px solid var(--border-hover)", color: "var(--text-primary)", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" } : { display: "inline-flex", alignItems: "center", height: 36, padding: "0 14px", borderRadius: 6, background: "var(--btn-blue)", color: "#fff", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" }}>
+                <a href="mailto:contact@onagency.ai?subject=Billing Inquiry" style={portalHref ? { display: "inline-flex", alignItems: "center", height: 32, padding: "0 12px", borderRadius: 8, background: "var(--bg)", border: "1px solid var(--border-hover)", color: "var(--text-primary)", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" } : { display: "inline-flex", alignItems: "center", height: 32, padding: "0 12px", borderRadius: 8, background: "var(--btn-blue)", color: "#fff", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" }}>
                   Contact us
                 </a>
               </div>

@@ -74,12 +74,12 @@ export default function CallRangePicker({ value, onChange }: CallRangePickerProp
         onClick={() => setOpen((o) => !o)}
         style={{
           display: "flex", alignItems: "center", gap: 6,
-          background: "var(--bg)", border: "1px solid var(--border)",
-          color: "var(--text-secondary)", height: 36, padding: "0 12px",
-          borderRadius: 6, fontSize: 13, fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer", transition: "all 0.15s",
+          background: "var(--bg-1)", border: "1px solid var(--border-hover)",
+          color: "var(--ink)", height: 32, padding: "0 12px",
+          borderRadius: 8, fontSize: 13, fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0, cursor: "pointer", transition: "all 0.15s",
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-2)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = "var(--bg-1)"; }}
       >
         <Calendar size={12} />
         {value.label}

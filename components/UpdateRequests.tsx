@@ -102,7 +102,7 @@ export default function UpdateRequests() {
           <button
             type="submit"
             disabled={sending || message.trim().length < 5}
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 36, padding: "0 16px", borderRadius: 6, border: "none", background: "var(--btn-blue)", color: "#fff", fontSize: 13, fontWeight: 500, cursor: sending ? "default" : "pointer", opacity: sending || message.trim().length < 5 ? 0.55 : 1 }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 32, padding: "0 14px", borderRadius: 8, border: "none", background: "var(--btn-blue)", color: "#fff", fontSize: 13, fontWeight: 500, cursor: sending ? "default" : "pointer", opacity: sending || message.trim().length < 5 ? 0.55 : 1 }}
           >
             <Send size={14} /> {sending ? "Sending..." : "Send request"}
           </button>

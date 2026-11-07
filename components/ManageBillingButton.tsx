@@ -35,7 +35,7 @@ export default function ManageBillingButton() {
         onClick={open}
         disabled={busy}
         className="manage-billing-btn"
-        style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, height: 40, padding: "0 18px", borderRadius: 8, border: "none", background: "var(--btn-blue)", color: "#fff", fontSize: 14, fontWeight: 500, fontFamily: "inherit", cursor: busy ? "default" : "pointer", opacity: busy ? 0.7 : 1, whiteSpace: "nowrap" }}
+        style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, height: 32, padding: "0 14px", borderRadius: 8, border: "none", background: "var(--btn-blue)", color: "#fff", fontSize: 14, fontWeight: 500, fontFamily: "inherit", cursor: busy ? "default" : "pointer", opacity: busy ? 0.7 : 1, whiteSpace: "nowrap" }}
       >
         {busy ? "Opening..." : "Manage billing"}
         <ExternalLink size={15} strokeWidth={2} />

@@ -40,24 +40,23 @@ export default function TimeRangeDropdown({ value, onChange }: TimeRangeDropdown
           display: "flex",
           alignItems: "center",
           gap: 6,
-          background: "var(--bg)",
-          border: "1px solid var(--border)",
-          color: "var(--text-secondary)",
-          height: 36,
+          background: "var(--bg-1)",
+          border: "1px solid var(--border-hover)",
+          color: "var(--ink)",
+          height: 32,
           padding: "0 12px",
-          borderRadius: 6,
+          borderRadius: 8,
           fontSize: 13,
+          fontWeight: 500,
           cursor: "pointer",
           transition: "all 0.15s",
           whiteSpace: "nowrap",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "var(--border-hover)";
-          e.currentTarget.style.color = "var(--text-primary)";
+          e.currentTarget.style.background = "var(--bg-2)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "var(--border)";
-          e.currentTarget.style.color = "var(--text-secondary)";
+          e.currentTarget.style.background = "var(--bg-1)";
         }}
       >
         <Calendar size={12} />

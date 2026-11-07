@@ -177,7 +177,7 @@ export default function ReceptionistOverviewPage() {
               onClick={handleExport}
               style={{
                 background: "var(--accent)", color: "var(--bg)", border: "none",
-                height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500,
+                height: 32, padding: "0 12px", borderRadius: 8, fontSize: 13, fontWeight: 500,
                 cursor: "pointer", transition: "opacity 0.15s", display: "flex", alignItems: "center", gap: 6,
               }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}

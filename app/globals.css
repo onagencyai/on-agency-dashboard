@@ -28,7 +28,7 @@
   --text-secondary: #70707c;
   --text-tertiary: #70707c;
   --ink: #1e1e29;
-  --accent: #0a0a0a;
+  --accent: #252525; /* soft black for primary dark buttons */
   --accent-dim: rgba(10, 10, 10, 0.05);
   --green: #2f6c47;
   --green-text: #2f6c47;

@@ -133,7 +133,7 @@ export default function LeadsPage() {
     <button
       onClick={() => exportCsv(filtered)}
       disabled={filtered.length === 0}
-      style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--bg)", border: "none", whiteSpace: "nowrap", flexShrink: 0, height: 36, padding: "0 14px", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: "pointer", opacity: filtered.length === 0 ? 0.4 : 1 }}
+      style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent)", color: "var(--bg)", border: "none", whiteSpace: "nowrap", flexShrink: 0, height: 32, padding: "0 12px", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", opacity: filtered.length === 0 ? 0.4 : 1 }}
     >
       <Download size={12} /> Export CSV
     </button>
