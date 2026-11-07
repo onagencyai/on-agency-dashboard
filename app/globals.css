@@ -267,11 +267,11 @@ body {
 
 /* Stat cards: 18/20 padding on desktop, 16 on phones, short labels on phones so every label stays on one line. */
 .metric-card { padding: 18px 20px; }
-.metric-icon { width: 30px; height: 30px; border-radius: 8px; }
+.metric-icon svg { width: 20px; height: 20px; stroke-width: 1.75; }
 .metric-card .label-short { display: none; }
 @media (max-width: 900px) {
   .metric-card { padding: 16px; }
-  .metric-icon { width: 26px; height: 26px; border-radius: 7px; }
+  .metric-icon svg { width: 18px; height: 18px; }
   .metric-card .label-full { display: none; }
   .metric-card .label-short { display: inline; }
 }
