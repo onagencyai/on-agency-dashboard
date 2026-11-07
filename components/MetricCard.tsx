@@ -22,7 +22,7 @@ export default function MetricCard({ label, value, valueSuffix, icon, delta, chi
 
   return (
     <div style={{ background: "var(--bg-1)", padding: "18px 20px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
         {icon && <span style={{ color: "var(--text-secondary)", display: "flex" }}>{icon}</span>}
         <span style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.025em", textTransform: "uppercase", color: "var(--text-secondary)" }}>
           {label}

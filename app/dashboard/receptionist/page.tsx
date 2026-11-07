@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
  
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Download, PhoneOff, PhoneCall, Target, Voicemail, Sparkles } from "lucide-react";
+import { Download, PhoneOff, Phone, BadgeCheck, PhoneOutgoing, UserPlus } from "lucide-react";
 import Link from "next/link";
 import type { TimeRange, ReceptionistStats, CallVolumeData, IntentData, CallRow } from "@/lib/types";
 import { getDateRange } from "@/lib/dateRange";
@@ -226,7 +226,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Total Calls"
               value={cur?.total_calls ?? 0}
-              icon={<PhoneCall size={12} />}
+              icon={<Phone size={14} />}
               delta={totalCallsDelta}
             />
           </div>
@@ -234,7 +234,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Leads Captured"
               value={cur?.lead_count ?? 0}
-              icon={<Target size={12} />}
+              icon={<BadgeCheck size={14} />}
               delta={cur && prev ? countDelta(cur.lead_count, prev.lead_count, timeRange, false, isMobile) : undefined}
             />
           </div>
@@ -242,7 +242,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="Callbacks Requested"
               value={cur?.callback_count ?? 0}
-              icon={<Voicemail size={12} />}
+              icon={<PhoneOutgoing size={14} />}
               delta={cur && prev ? countDelta(cur.callback_count, prev.callback_count, timeRange, false, isMobile) : undefined}
             />
           </div>
@@ -250,7 +250,7 @@ export default function ReceptionistOverviewPage() {
             <MetricCard
               label="First-Time Callers"
               value={cur?.first_time_callers ?? 0}
-              icon={<Sparkles size={12} />}
+              icon={<UserPlus size={14} />}
               delta={cur && prev ? countDelta(cur.first_time_callers, prev.first_time_callers, timeRange, false, isMobile) : undefined}
             />
           </div>
