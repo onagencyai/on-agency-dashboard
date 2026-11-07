@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { signOutAndLeave } from "@/lib/sign-out";
 import {
   Phone,
-  Users,
+  UsersRound,
   BarChart2,
   PhoneOutgoing,
   PenLine,
@@ -32,7 +32,7 @@ function buildNavItems(services: ServiceType[]): (NavItem & { gapBefore?: boolea
     items.push(
       { label: "Overview", href: "/dashboard/receptionist", icon: "overview" },
       { label: "Call History", href: "/dashboard/receptionist-call-history", icon: Phone },
-      { label: "Leads", href: "/dashboard/leads", icon: Users },
+      { label: "Leads", href: "/dashboard/leads", icon: UsersRound },
     );
   }
 
