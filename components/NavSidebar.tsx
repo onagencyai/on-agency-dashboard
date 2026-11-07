@@ -44,11 +44,16 @@ function buildNavItems(services: ServiceType[], isAdmin: boolean): (NavItem & { 
 
   if (isAdmin) items.push({ label: "Admin", href: "/admin", icon: ShieldCheck });
 
-  items.push(
-    { label: "Updates", href: "/updates", icon: PenLine },
-    { label: "Billing", href: "/billing", icon: CreditCard },
-    { label: "Settings", href: "/settings", icon: Settings },
-  );
+  // Admin accounts (Angel) are not normal clients, so they do not get Updates or Billing.
+  if (isAdmin) {
+    items.push({ label: "Settings", href: "/settings", icon: Settings });
+  } else {
+    items.push(
+      { label: "Updates", href: "/updates", icon: PenLine },
+      { label: "Billing", href: "/billing", icon: CreditCard },
+      { label: "Settings", href: "/settings", icon: Settings },
+    );
+  }
   return items;
 }
 

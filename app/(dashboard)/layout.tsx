@@ -20,6 +20,11 @@ export default function DashboardLayout({
   const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Remember on this browser that this is an admin, so Updates and Billing never flash in the sidebar.
+  useEffect(() => {
+    try { if (localStorage.getItem("oa-is-admin") === "1") setIsAdmin(true); } catch { /* ignore */ }
+  }, []);
+
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
@@ -42,7 +47,8 @@ export default function DashboardLayout({
           const parsed = data.services.filter((s): s is ServiceType => s === "receptionist" || s === "outbound");
           if (parsed.length) setServices(parsed);
         }
-        if (data.is_admin === true) setIsAdmin(true);
+        setIsAdmin(data.is_admin === true);
+        try { localStorage.setItem("oa-is-admin", data.is_admin === true ? "1" : "0"); } catch { /* ignore */ }
         if (typeof data.business_name === "string") {
           setBusinessName(data.business_name);
         }
