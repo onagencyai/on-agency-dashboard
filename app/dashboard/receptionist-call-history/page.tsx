@@ -142,7 +142,7 @@ export default function CallHistoryPage() {
         </div>
       )}
 
-      <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+      <div style={{ background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, overflow: "clip" }}>
         {/* Tabs */}
         <div style={{ display: "flex", borderBottom: "1px solid var(--border)", padding: isMobile ? "0 8px" : "0 20px", overflowX: "auto" }}>
           {TABS.map((tab) => (
@@ -206,7 +206,7 @@ export default function CallHistoryPage() {
         ) : isMobile ? (
             <CallCardList calls={calls} getOutcome={getCallOutcome} getIntent={getCallIntent} onSelect={setSelectedCall} />
         ) : (
-          <div style={{ overflowX: "auto" }}>
+          <div>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "var(--bg-1)" }}>
@@ -218,6 +218,7 @@ export default function CallHistoryPage() {
                         fontSize: 11, fontWeight: 500, letterSpacing: "0.06em",
                         textTransform: "uppercase", color: "var(--text-tertiary)",
                         borderBottom: "1px solid var(--border)", whiteSpace: "nowrap",
+                        position: "sticky", top: 0, zIndex: 2, background: "var(--bg-1)",
                       }}
                     >
                       {h}
