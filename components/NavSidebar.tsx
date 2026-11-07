@@ -6,6 +6,7 @@ import { signOutAndLeave } from "@/lib/sign-out";
 import {
   Phone,
   UsersRound,
+  ShieldCheck,
   PhoneOutgoing,
   Home,
   PenLine,
@@ -24,7 +25,7 @@ interface NavItem {
   icon: React.ElementType | "overview";
 }
 
-function buildNavItems(services: ServiceType[]): (NavItem & { gapBefore?: boolean })[] {
+function buildNavItems(services: ServiceType[], isAdmin: boolean): (NavItem & { gapBefore?: boolean })[] {
   const items: (NavItem & { gapBefore?: boolean })[] = [];
 
   if (services.includes("receptionist")) {
@@ -41,6 +42,8 @@ function buildNavItems(services: ServiceType[]): (NavItem & { gapBefore?: boolea
     );
   }
 
+  if (isAdmin) items.push({ label: "Admin", href: "/admin", icon: ShieldCheck });
+
   items.push(
     { label: "Updates", href: "/updates", icon: PenLine },
     { label: "Billing", href: "/billing", icon: CreditCard },
@@ -51,14 +54,15 @@ function buildNavItems(services: ServiceType[]): (NavItem & { gapBefore?: boolea
 
 interface NavSidebarProps {
   services: ServiceType[];
+  isAdmin?: boolean;
   businessName: string;
   mobileOpen?: boolean;
   onClose?: () => void;
 }
 
-export default function NavSidebar({ services, mobileOpen = false, onClose }: NavSidebarProps) {
+export default function NavSidebar({ services, isAdmin = false, mobileOpen = false, onClose }: NavSidebarProps) {
   const pathname = usePathname();
-  const navItems = buildNavItems(services);
+  const navItems = buildNavItems(services, isAdmin);
 
   const isActive = (href: string) => {
     if (href === "/home") return pathname === "/home" || pathname === "/";

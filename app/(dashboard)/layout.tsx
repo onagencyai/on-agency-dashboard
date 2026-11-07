@@ -17,6 +17,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [services, setServices] = useState<ServiceType[]>((["receptionist"]) as ServiceType[]);
   const [businessName, setBusinessName] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -34,13 +35,14 @@ export default function DashboardLayout({
       try {
         const res = await fetch("/api/client-info", { cache: "no-store" });
         if (!res.ok) return;
-        const data = await res.json() as { services?: unknown; business_name?: unknown };
+        const data = await res.json() as { services?: unknown; business_name?: unknown; is_admin?: unknown };
         if (cancelled) return;
 
         if (Array.isArray(data.services)) {
           const parsed = data.services.filter((s): s is ServiceType => s === "receptionist" || s === "outbound");
           if (parsed.length) setServices(parsed);
         }
+        if (data.is_admin === true) setIsAdmin(true);
         if (typeof data.business_name === "string") {
           setBusinessName(data.business_name);
         }
@@ -63,6 +65,7 @@ export default function DashboardLayout({
     <div className="dashboard-shell">
       <NavSidebar
         services={services}
+        isAdmin={isAdmin}
         businessName={businessName}
         mobileOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { resolveClientId } from "@/lib/resolve-client-id";
+import { isAdminEmail } from "@/lib/admin";
 
 export async function GET() {
   const user = await currentUser();
@@ -26,6 +27,7 @@ export async function GET() {
       client_id: clientId,
       services: (user.publicMetadata as { services?: string[] }).services ?? ["receptionist"],
       business_name: (user.publicMetadata as { business_name?: string }).business_name ?? "",
+      is_admin: isAdminEmail(user.email),
     });
   }
 
@@ -33,5 +35,6 @@ export async function GET() {
     client_id: data.client_id,
     services: data.services ?? ["receptionist"],
     business_name: data.business_name ?? "",
+    is_admin: isAdminEmail(user.email),
   });
 }
