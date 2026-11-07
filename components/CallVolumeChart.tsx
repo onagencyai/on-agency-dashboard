@@ -70,9 +70,11 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   const [touch, setTouch] = useState(false);
   useEffect(() => { setTouch(window.matchMedia("(pointer: coarse)").matches); }, []);
   const max = Math.max(1, ...rows.map((r) => r.value));
-  // Whole-number scale on the left (0, 2, 4, 6 ...) with at most 4 steps, always at least 0 to 3, so the height of the line reads as a count.
-  const yStep = max <= 3 ? 1 : [2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000, 10000].find((c) => Math.ceil(max / c) <= 4) ?? Math.ceil(max / 4);
-  const yTop = Math.max(3, Math.ceil(max / yStep) * yStep);
+  // Whole-number scale on the left that follows the data: always 5 to 6 numbers (0 up to a round top), so the
+  // height of the line reads as a real count whether the client gets 3 calls or 300.
+  const STEPS = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000, 20000, 25000, 50000, 100000];
+  const yStep = STEPS.find((c) => Math.ceil(max / c) <= 5) ?? Math.ceil(max / 5);
+  const yTop = Math.max(4, Math.ceil(max / yStep)) * yStep;
   const yTicks: number[] = [];
   for (let v = 0; v <= yTop; v += yStep) yTicks.push(v);
   const busiest = rows.reduce((b, r) => (r.value > b.value ? r : b), { date: "", value: 0 });
@@ -87,10 +89,10 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
   }, []);
 
   // Room under the graph so the dates never crowd the line.
-  const LABEL_H = 46, TOP = 14;
+  const LABEL_H = 54, TOP = 14;
   const base = size.h - LABEL_H;
   const usable = Math.max(10, base - TOP);
-  const PAD = 28, PAD_L = 52;
+  const PAD = 40, PAD_L = 52;
   const pts: Pt[] = rows.map((r, i) => ({ x: n <= 1 ? (PAD_L + size.w - PAD) / 2 : PAD_L + (i / (n - 1)) * (size.w - PAD_L - PAD), y: base - (r.value / yTop) * usable }));
 
   const stepPts: Pt[] = pts;
@@ -120,7 +122,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
 
   function onMove(e: React.PointerEvent<SVGSVGElement>) {
     const r = e.currentTarget.getBoundingClientRect();
-    const f = (e.clientX - r.left) / r.width;
+    const f = (e.clientX - r.left - PAD_L) / Math.max(1, r.width - PAD_L - PAD);
     setHover(Math.min(n - 1, Math.max(0, Math.round(f * (n - 1)))));
   }
 
@@ -182,7 +184,7 @@ export default function CallVolumeChart({ data, showOutbound = true, summary, ra
             const y = base - (v / yTop) * usable;
             return (
               <g key={v}>
-                <line x1={44} x2={size.w} y1={y} y2={y} strokeDasharray="3 3" strokeWidth={1} style={{ stroke: "var(--border)" }} />
+                <line x1={pts[0]?.x ?? PAD_L} x2={pts[n - 1]?.x ?? size.w - PAD} y1={y} y2={y} strokeDasharray="3 3" strokeWidth={1} style={{ stroke: "var(--border)" }} />
                 <text x={34} y={y} dy="0.35em" textAnchor="end" fontSize={12} style={{ fill: "var(--text-secondary)" }}>{v}</text>
               </g>
             );
