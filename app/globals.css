@@ -59,6 +59,7 @@
   --nav-active-text: #0060f2;
   --sidebar-divider: #edeef2;
   --intent-cyan: #1aa6c9;
+  --intent-green: #22b07d;
   --nav-text: #535460;
 }
 
@@ -95,6 +96,7 @@
   --bubble-user: rgba(42, 120, 214, 0.24);
   --chart-grid: rgba(255, 255, 255, 0.08);
   --intent-cyan: #6dc7de;
+  --intent-green: #3ddb92;
   --intent-gray: #8a887e;
 
   --dashboard-shell: #0a0a0a;

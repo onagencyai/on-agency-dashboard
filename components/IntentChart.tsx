@@ -6,7 +6,7 @@ import type { IntentData } from "@/lib/types";
 const INTENT_COLORS: Record<string, string> = {
   "General Information": "var(--blue)",
   "Pricing Information": "var(--intent-cyan)",
-  "Appointments & Scheduling": "var(--green)",
+  "Appointments & Scheduling": "var(--intent-green)",
   "Complaints & Cancellations": "var(--red)",
   "Customer Support Requests": "var(--amber-fill)",
   "Other": "var(--intent-gray)",
