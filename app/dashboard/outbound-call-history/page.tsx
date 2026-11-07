@@ -8,6 +8,7 @@ import { formatDuration, getSentimentColor, formatPhoneNumber } from "@/lib/form
 import CallRangePicker, { defaultRangeValue } from "@/components/CallRangePicker";
 import type { RangeValue } from "@/components/CallRangePicker";
 import CallDetailModal from "@/components/CallDetailModal";
+import { cacheGet, cacheSet } from "@/lib/page-cache";
 import CallCardList from "@/components/CallCardList";
 
 const PAGE_SIZE = 25;
@@ -65,7 +66,14 @@ export default function OutboundCallHistoryPage() {
   }, [search]);
 
   const fetchCalls = useCallback(async () => {
-    setLoading(true);
+    const ck = `history:outbound:${page}|${activeTab}|${debouncedSearch}|${rangeValue.label}`;
+    const hit = cacheGet<{ calls: CallRow[]; total: number }>(ck);
+    if (hit) {
+      setCalls(hit.calls); setTotal(hit.total);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     const f = from.toISOString();
     const t = to.toISOString();
     const params = new URLSearchParams({ from: f, to: t, direction: "outbound", page: String(page), limit: String(PAGE_SIZE) });
@@ -79,8 +87,9 @@ export default function OutboundCallHistoryPage() {
       const data = await res.json() as { calls: CallRow[]; total: number };
       setCalls(data.calls ?? []);
       setTotal(data.total ?? 0);
+      cacheSet(ck, { calls: data.calls ?? [], total: data.total ?? 0 });
     } catch {
-      setCalls([]);
+      if (!hit) setCalls([]);
     } finally {
       setLoading(false);
     }

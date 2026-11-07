@@ -13,6 +13,7 @@ import CallVolumeChart from "@/components/CallVolumeChart";
 import IntentChart from "@/components/IntentChart";
 import CallDetailModal from "@/components/CallDetailModal";
 import CallCardList from "@/components/CallCardList";
+import { cacheGet, cacheSet } from "@/lib/page-cache";
  
 function periodLabel(range: TimeRange, short = false): string {
   if (short) return "vs prior";
@@ -85,7 +86,14 @@ export default function ReceptionistOverviewPage() {
   const { from, to } = getDateRange(timeRange);
  
   const fetchData = useCallback(async () => {
-    setLoading(true);
+    const ck = `receptionist:${timeRange}`;
+    const hit = cacheGet<{ stats: ReceptionistStats | null; volume: CallVolumeData | null; intents: IntentData[]; calls: CallRow[] }>(ck);
+    if (hit) {
+      setStats(hit.stats); setVolume(hit.volume); setIntents(hit.intents); setCalls(hit.calls);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     const f = from.toISOString();
     const t = to.toISOString();
     const tPlusOne = new Date(to.getTime() + 86400000).toISOString();
@@ -97,10 +105,14 @@ export default function ReceptionistOverviewPage() {
       fetch(`/api/calls?from=${f}&to=${t}&direction=inbound&page=1&limit=10`).then((r) => r.json()),
     ]);
  
-    if (statsRes.status === "fulfilled") setStats(statsRes.value as ReceptionistStats);
-    if (volRes.status === "fulfilled") setVolume(volRes.value as CallVolumeData);
-    if (intentRes.status === "fulfilled") setIntents((intentRes.value as { intents: IntentData[] }).intents ?? []);
-    if (callsRes.status === "fulfilled") setCalls((callsRes.value as { calls: CallRow[] }).calls ?? []);
+    const next = {
+      stats: statsRes.status === "fulfilled" ? (statsRes.value as ReceptionistStats) : (hit?.stats ?? null),
+      volume: volRes.status === "fulfilled" ? (volRes.value as CallVolumeData) : (hit?.volume ?? null),
+      intents: intentRes.status === "fulfilled" ? ((intentRes.value as { intents: IntentData[] }).intents ?? []) : (hit?.intents ?? []),
+      calls: callsRes.status === "fulfilled" ? ((callsRes.value as { calls: CallRow[] }).calls ?? []) : (hit?.calls ?? []),
+    };
+    setStats(next.stats); setVolume(next.volume); setIntents(next.intents); setCalls(next.calls);
+    cacheSet(ck, next);
  
     setLoading(false);
   }, [timeRange]); // eslint-disable-line react-hooks/exhaustive-deps

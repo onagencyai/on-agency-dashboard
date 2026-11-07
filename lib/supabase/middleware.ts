@@ -16,9 +16,9 @@ export async function updateSession(request: NextRequest) {
       },
     },
   });
-  const { data } = await supabase.auth.getUser();
+  const { data } = await supabase.auth.getClaims();
   const isPublic = PUBLIC.some((re) => re.test(request.nextUrl.pathname));
-  if (!data.user && !isPublic) {
+  if (!data?.claims?.sub && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
     url.search = "";

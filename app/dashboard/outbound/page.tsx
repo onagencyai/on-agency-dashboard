@@ -12,6 +12,7 @@ import MetricCard from "@/components/MetricCard";
 import CallVolumeChart from "@/components/CallVolumeChart";
 import IntentChart from "@/components/IntentChart";
 import CallDetailModal from "@/components/CallDetailModal";
+import { cacheGet, cacheSet } from "@/lib/page-cache";
 import CallCardList from "@/components/CallCardList";
 
 function periodLabel(range: TimeRange): string {
@@ -88,7 +89,14 @@ export default function OutboundOverviewPage() {
   const { from, to } = getDateRange(timeRange);
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
+    const ck = `outbound:${timeRange}`;
+    const hit = cacheGet<{ stats: OutboundStats | null; volume: CallVolumeData | null; recentCalls: CallRow[] }>(ck);
+    if (hit) {
+      setStats(hit.stats); setVolume(hit.volume); setRecentCalls(hit.recentCalls);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     const f = from.toISOString();
     const t = to.toISOString();
     const tPlusOne = new Date(to.getTime() + 86400000).toISOString();
@@ -99,9 +107,13 @@ export default function OutboundOverviewPage() {
       fetch(`/api/calls?from=${f}&to=${t}&direction=outbound&page=1&limit=10`).then((r) => r.json()),
     ]);
 
-    if (statsRes.status === "fulfilled") setStats(statsRes.value as OutboundStats);
-    if (volRes.status === "fulfilled") setVolume(volRes.value as CallVolumeData);
-    if (callsRes.status === "fulfilled") setRecentCalls((callsRes.value as { calls: CallRow[] }).calls ?? []);
+    const next = {
+      stats: statsRes.status === "fulfilled" ? (statsRes.value as OutboundStats) : (hit?.stats ?? null),
+      volume: volRes.status === "fulfilled" ? (volRes.value as CallVolumeData) : (hit?.volume ?? null),
+      recentCalls: callsRes.status === "fulfilled" ? ((callsRes.value as { calls: CallRow[] }).calls ?? []) : (hit?.recentCalls ?? []),
+    };
+    setStats(next.stats); setVolume(next.volume); setRecentCalls(next.recentCalls);
+    cacheSet(ck, next);
 
     setLoading(false);
   }, [timeRange]); // eslint-disable-line react-hooks/exhaustive-deps
