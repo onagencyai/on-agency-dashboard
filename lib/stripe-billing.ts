@@ -34,6 +34,7 @@ export interface BillingSubscription {
   amountCents: number | null;
   currency: string;
   interval: string | null;
+  periodStart: number | null; // unix seconds
   nextChargeAt: number | null; // unix seconds
   cancelAtPeriodEnd: boolean;
 }
@@ -86,6 +87,7 @@ export async function getBilling(customerId: string): Promise<BillingData | null
       amountCents: typeof price.unit_amount === "number" ? price.unit_amount : null,
       currency: String(price.currency ?? "usd"),
       interval: recurring?.interval ?? null,
+      periodStart: (sub.current_period_start as number | undefined) ?? (item.current_period_start as number | undefined) ?? null,
       nextChargeAt: (sub.current_period_end as number | undefined) ?? (item.current_period_end as number | undefined) ?? null,
       cancelAtPeriodEnd: sub.cancel_at_period_end === true,
     };

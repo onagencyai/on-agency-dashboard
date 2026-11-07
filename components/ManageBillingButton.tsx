@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ExternalLink } from "lucide-react";
+import { CreditCard, ArrowUpRight } from "lucide-react";
 
+// Opens Stripe's secure billing portal (update card, see invoices, cancel). Same pattern as the Fluensy membership screen.
 export default function ManageBillingButton() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,15 +23,19 @@ export default function ManageBillingButton() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
+    <div>
       <button
+        type="button"
         onClick={open}
         disabled={busy}
-        style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 36, padding: "0 14px", borderRadius: 6, border: "none", background: "var(--btn-blue)", color: "#fff", fontSize: 13, fontWeight: 500, cursor: busy ? "default" : "pointer", opacity: busy ? 0.6 : 1, whiteSpace: "nowrap" }}
+        className="manage-billing-row"
+        style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, padding: "18px 20px", background: "var(--bg-1)", border: "1px solid var(--border)", borderRadius: 8, cursor: busy ? "default" : "pointer", opacity: busy ? 0.6 : 1, textAlign: "left", color: "var(--ink)", fontFamily: "inherit" }}
       >
-        {busy ? "Opening..." : "Manage billing"} <ExternalLink size={13} />
+        <CreditCard size={20} strokeWidth={1.75} style={{ flexShrink: 0 }} />
+        <span style={{ flex: 1, fontSize: 14.5, fontWeight: 500 }}>{busy ? "Opening..." : "Manage billing"}</span>
+        <ArrowUpRight size={18} strokeWidth={1.75} style={{ color: "var(--text-secondary)", flexShrink: 0 }} />
       </button>
-      {error && <span style={{ fontSize: 12.5, color: "var(--red)" }}>{error}</span>}
+      {error && <div style={{ fontSize: 12.5, color: "var(--red)", marginTop: 8 }}>{error}</div>}
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { PageSection, PageTitle, cardStyle, pageColumn } from "@/components/Page
 
 const money = (cents: number, currency: string) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: currency.toUpperCase(), minimumFractionDigits: cents % 100 === 0 ? 0 : 2 }).format(cents / 100);
+const dayShort = (unix: number) => new Date(unix * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 const day = (unix: number) => new Date(unix * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
 const SUB_STATUS: Record<string, { label: string; color: string; bg: string }> = {
@@ -87,19 +88,30 @@ export default async function BillingPage() {
         ) : (
           <>
             {sub && (
-              <PageSection title="Current plan" cue="Your subscription with On Agency.">
+              <PageSection title="Your plan" cue="Your subscription with On Agency.">
                 <div className="ledger-grid">
                   <InfoCard label="Plan" value={sub.planName} />
                   <InfoCard label="Price" value={sub.amountCents !== null ? `${money(sub.amountCents, sub.currency)}${sub.interval ? ` / ${sub.interval}` : ""}` : "—"} />
-                  <InfoCard label={sub.cancelAtPeriodEnd ? "Ends on" : "Next charge"} value={sub.nextChargeAt ? day(sub.nextChargeAt) : "—"} />
-                  <div style={{ ...cardStyle, padding: 20 }}>
-                    <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginBottom: 8 }}>Status</div>
+                  <InfoCard label="Current billing period" value={sub.periodStart && sub.nextChargeAt ? `${dayShort(sub.periodStart)} – ${day(sub.nextChargeAt - 86400)}` : "—"} />
+                  <InfoCard
+                    label={sub.cancelAtPeriodEnd ? "Plan ends on" : "Next charge"}
+                    value={sub.nextChargeAt ? day(sub.nextChargeAt) : "—"}
+                    note={sub.cancelAtPeriodEnd ? "Your plan will not renew." : sub.amountCents !== null ? `${money(sub.amountCents, sub.currency)} will be charged` : undefined}
+                  />
+                </div>
+                {sub.status !== "active" && (
+                  <div style={{ marginTop: 12 }}>
                     <Pill {...(SUB_STATUS[sub.status] ?? { label: sub.status, color: "var(--text-secondary)", bg: "var(--bg-3)" })} />
                   </div>
-                </div>
-                <div style={{ marginTop: 12 }}><ManageBillingButton /></div>
+                )}
               </PageSection>
             )}
+
+            <PageSection title="Manage billing" cue="Update your card, see receipts or cancel in Stripe's secure billing page. If you cancel, you keep access until the end of your billing period. Taxes may apply.">
+              <div className="ledger-grid">
+                <ManageBillingButton />
+              </div>
+            </PageSection>
 
             {invoices.length > 0 && (
               <PageSection title="Invoices" cue="Your recent invoices. Open one to see or download it.">
@@ -109,17 +121,9 @@ export default async function BillingPage() {
               </PageSection>
             )}
 
-            <PageSection title="Need a change?" cue="To add services or change your plan, reach out to us.">
-              <div style={{ ...cardStyle, padding: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-                <div>
-                  <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--ink)" }}>Billing questions</div>
-                  <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 2 }}>contact@onagency.ai</div>
-                </div>
-                <a href="mailto:contact@onagency.ai?subject=Billing Inquiry" style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 14px", borderRadius: 6, background: "var(--btn-blue)", color: "#fff", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" }}>
-                  Contact us
-                </a>
-              </div>
-            </PageSection>
+            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+              Questions about your plan? Email <a href="mailto:contact@onagency.ai?subject=Billing Inquiry" style={{ color: "var(--blue)", textDecoration: "none" }}>contact@onagency.ai</a>.
+            </div>
           </>
         )}
       </div>
@@ -136,11 +140,12 @@ function Pill({ label, color, bg }: { label: string; color: string; bg: string }
   );
 }
 
-function InfoCard({ label, value }: { label: string; value: string }) {
+function InfoCard({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
     <div style={{ ...cardStyle, padding: 20 }}>
       <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink)", overflowWrap: "anywhere" }}>{value}</div>
+      <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)", overflowWrap: "anywhere" }}>{value}</div>
+      {note && <div className="num" style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 4 }}>{note}</div>}
     </div>
   );
 }
